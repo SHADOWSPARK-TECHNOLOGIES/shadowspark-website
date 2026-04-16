@@ -337,7 +337,7 @@ export async function runRagSync(args: {
   }
 
   const google = createGoogleGenerativeAI({ apiKey: requireEnv("GEMINI_API_KEY") });
-  const embeddingModel = "text-embedding-004";
+  const embeddingModel = "gemini-embedding-001";
   const model = google.textEmbeddingModel(embeddingModel);
 
   const { embeddings } = await embedMany({

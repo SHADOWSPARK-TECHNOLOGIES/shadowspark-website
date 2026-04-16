@@ -421,7 +421,7 @@ export async function fetchVaultInsights(args: {
     let queryEmbedding: number[] | undefined;
     try {
       const google = createGoogleGenerativeAI({ apiKey: requireEnv("GEMINI_API_KEY") });
-      const model = google.textEmbeddingModel(index.embeddingModel || "text-embedding-004");
+      const model = google.textEmbeddingModel(index.embeddingModel || "gemini-embedding-001");
       const { embedding } = await embed({
         model,
         value: queryText,
