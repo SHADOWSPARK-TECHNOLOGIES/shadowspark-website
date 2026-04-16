@@ -1,49 +1,35 @@
 # ---------- Base ----------
 FROM node:20-alpine AS base
-
-# Install necessary system libraries
 RUN apk add --no-cache libc6-compat openssl
-
-# Install pnpm globally in base so it is available in all stages
 RUN npm install -g pnpm
-
 WORKDIR /app
-
-# Disable Prisma generation globally in the build process
-ENV SKIP_PRISMA=true
-# Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # ---------- Dependencies ----------
 FROM base AS deps
-
-# Copy dependency manifests
-COPY package.json pnpm-lock.yaml ./
-COPY pnpm-workspace.yaml ./
-
-# Install ALL dependencies (including devDeps like tsx)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy prisma schema so postinstall generate works (or skip it)
+COPY prisma ./prisma
+ENV SKIP_PRISMA=false
 RUN pnpm install --frozen-lockfile
+
+# ---------- Builder ----------
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# Build the Next.js application
+RUN pnpm build
 
 # ---------- Runner ----------
 FROM base AS runner
-
 WORKDIR /app
-
 ENV NODE_ENV=production
-ENV SKIP_PRISMA=true
 
-# Copy node_modules from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+# We copy the entire app for simplicity since we are using tsx/next directly
+COPY --from=builder /app ./
 
-# Copy source and configuration
-# We copy src, tsconfig.json, and package.json to run via tsx
-COPY src ./src
-COPY tsconfig.json ./
-COPY package.json ./
+EXPOSE 8080
+ENV PORT 8080
 
-# Create data directory for RAG artifacts (matches runRagSync output path)
-RUN mkdir -p data/rag
-
-# The entry point for the Cloud Run job (one-off execution)
-# Using tsx to run the source directly to keep the image simple and avoid a complex build step
-CMD ["npx", "tsx", "src/cli/rag-sync.ts"]
+# Default command is to start the web server
+CMD ["sh", "-c", "pnpm worker:crawl & pnpm worker:lead & pnpm start"]
