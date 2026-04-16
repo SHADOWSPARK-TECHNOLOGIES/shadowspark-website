@@ -41,7 +41,8 @@ async function migrate() {
     "DATABASE_URL",
     "LOCAL_LLM_KEY",
     "ANYTHING_LLM_URL",
-    "FIRECRAWL_KEY",
+    "FIRECRAWL_API_KEY",
+    "PAYSTACK_SECRET_KEY",
     "SLACK_WEBHOOK",
     "SLACK_WEBHOOK_URL",
     "LEAD_SYNC_SECRET"
