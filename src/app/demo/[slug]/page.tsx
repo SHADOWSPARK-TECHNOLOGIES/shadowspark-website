@@ -1,27 +1,48 @@
-"use client";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import Link from "next/link";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+import AssistantBubble from "@/components/ui/AssistantBubble";
+import { Spotlight } from "@/components/ui/Spotlight";
+import { TracingBeam } from "@/components/ui/tracing-beam";
+import { Vortex } from "@/components/ui/vortex-background";
+import {
+  deriveVaultSignalBrief,
+  fetchLatestAuditMarkdown,
+  fetchVaultInsights,
+  type VaultLayoutMode,
+} from "@/lib/gcs/fetch-audit";
+import { prisma } from "@/lib/prisma";
+
 export const dynamic = "force-dynamic";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
-import MiniAudit from "@/components/MiniAudit";
-import AssistantBubble from "@/components/ui/AssistantBubble";
-import GlassCard from "@/components/ui/GlassCard";
-import { AuroraBackground } from "@/components/ui/templates/AuroraBackground";
-
-type DemoData = {
-  id: string;
-  businessName: string;
-  niche: string;
-  packageRecommendation: string;
-  createdAt: string;
+type DemoPageProps = {
+  params: Promise<{ slug: string }>;
 };
 
-function isExpired(createdAt: string) {
-  const createdTime = new Date(createdAt).getTime();
-  if (Number.isNaN(createdTime)) return false;
-  return Date.now() - createdTime > 48 * 60 * 60 * 1000;
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+}
+
+function pickFirstString(
+  source: Record<string, unknown> | null,
+  keys: string[],
+  fallback: string
+) {
+  if (!source) return fallback;
+
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value;
+    }
+  }
+
+  return fallback;
 }
 
 function normalizeTier(tier: string): "launch" | "growth" | "automation" {
@@ -37,217 +58,576 @@ function displayTier(tier: "launch" | "growth" | "automation") {
   return "Launch";
 }
 
-export default function DemoPreviewPage() {
-  const params = useParams<{ slug: string }>();
-  const slug = params?.slug ?? "";
-  const [demo, setDemo] = useState<DemoData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+function tierBadgeTone(tier: "launch" | "growth" | "automation") {
+  if (tier === "automation") return "border-cyan-300/25 bg-cyan-300/10 text-cyan-100";
+  if (tier === "growth") return "border-amber-300/25 bg-amber-300/10 text-amber-100";
+  return "border-emerald-300/25 bg-emerald-300/10 text-emerald-100";
+}
 
-  useEffect(() => {
-    let active = true;
+function prettifySlug(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
 
-    async function loadDemo() {
-      try {
-        setLoading(true);
-        setError("");
+function getRecommendation(
+  config: Record<string, unknown> | null,
+  audit: Record<string, unknown> | null
+) {
+  return normalizeTier(
+    pickFirstString(
+      config ?? audit,
+      ["packageRecommendation", "recommendedPackage", "tier", "plan"],
+      "automation"
+    )
+  );
+}
 
-        const response = await fetch(`/api/demo/${encodeURIComponent(slug)}`);
-        const result = await response.json().catch(() => null);
+function MarkdownShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.84)_0%,rgba(2,6,23,0.92)_100%)] shadow-[0_0_50px_rgba(14,165,233,0.1)]">
+      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-5 py-4">
+        <span className="h-2.5 w-2.5 rounded-full bg-rose-400/70" />
+        <span className="h-2.5 w-2.5 rounded-full bg-amber-300/70" />
+        <span className="h-2.5 w-2.5 rounded-full bg-cyan-300/70" />
+        <span className="ml-3 font-mono text-[11px] uppercase tracking-[0.28em] text-cyan-200/80">
+          Intelligence Stream
+        </span>
+      </div>
+      <div className="px-6 py-8 sm:px-8 sm:py-10">{children}</div>
+    </div>
+  );
+}
 
-        if (!response.ok || !result) {
-          throw new Error(result?.error || "Unable to load demo preview.");
-        }
+function scoreBadgeTone(score: number) {
+  if (score >= 14) return "border-cyan-300/25 bg-cyan-300/12 text-cyan-100";
+  if (score >= 10) return "border-amber-300/20 bg-amber-300/10 text-amber-100";
+  return "border-white/10 bg-white/[0.04] text-slate-200";
+}
 
-        if (active) setDemo(result);
-      } catch (err) {
-        if (active) {
-          setError(err instanceof Error ? err.message : "Unable to load demo preview.");
-        }
-      } finally {
-        if (active) setLoading(false);
+function shrinkExcerpt(text: string) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  return normalized.length > 190 ? `${normalized.slice(0, 187)}...` : normalized;
+}
+
+type IntelligenceNote = {
+  title: string;
+  body: string;
+  kind: "proof" | "objection" | "cta";
+};
+
+function toSentenceCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function deriveIntelligenceNotes(
+  insights: Awaited<ReturnType<typeof fetchVaultInsights>>,
+  businessName: string
+): IntelligenceNote[] {
+  const keywordMap = {
+    proof: ["results", "clients", "case study", "trusted", "revenue", "faster", "growth"],
+    objection: ["slow", "manual", "delay", "drop", "friction", "leak", "bottleneck"],
+    cta: ["book", "contact", "demo", "call", "whatsapp", "quote"],
+  } as const;
+
+  const pickInsight = (kind: IntelligenceNote["kind"]) =>
+    insights.find((insight) =>
+      keywordMap[kind].some((keyword) => insight.excerpt.toLowerCase().includes(keyword))
+    ) ?? insights[0];
+
+  return (["proof", "objection", "cta"] as const)
+    .map((kind) => {
+      const source = pickInsight(kind);
+      if (!source) return null;
+
+      if (kind === "proof") {
+        return {
+          kind,
+          title: "Proof anchor",
+          body: `Use "${shrinkExcerpt(source.excerpt)}" as the credibility line when framing the ${businessName} audit.`,
+        };
       }
+
+      if (kind === "objection") {
+        return {
+          kind,
+          title: "Likely objection",
+          body: `The strongest hesitation signal is operational drag: ${shrinkExcerpt(source.excerpt).toLowerCase()}`,
+        };
+      }
+
+      return {
+        kind,
+        title: "CTA support line",
+        body: `Guide the close with a direct next step tied to this signal: "${shrinkExcerpt(source.excerpt)}"`,
+      };
+    })
+    .filter((note): note is IntelligenceNote => note !== null);
+}
+
+function signalLabel(title: string, excerpt: string) {
+  const text = `${title} ${excerpt}`.toLowerCase();
+  if (text.includes("cta") || text.includes("book") || text.includes("contact")) return "CTA";
+  if (text.includes("proof") || text.includes("result") || text.includes("client")) return "Proof";
+  if (text.includes("leak") || text.includes("problem") || text.includes("slow")) return "Leak";
+  return "Signal";
+}
+
+function layoutTone(layout: VaultLayoutMode) {
+  if (layout === "proof-heavy") {
+    return {
+      badge: "Proof-heavy layout",
+      summary: "Lead with evidence and outcomes before discussing the system build.",
+    };
+  }
+
+  if (layout === "objection-handling") {
+    return {
+      badge: "Objection-handling layout",
+      summary: "Surface friction and cost of delay first, then convert into a build recommendation.",
+    };
+  }
+
+  if (layout === "cta-comparison") {
+    return {
+      badge: "CTA-comparison layout",
+      summary: "Frame the decision around the cleanest next step and reduce ambiguity around action.",
+    };
+  }
+
+  return {
+    badge: "Audit-summary layout",
+    summary: "Use a balanced narrative: diagnosis, ranked signals, then a direct booking step.",
+  };
+}
+
+function confidenceTone(confidence: "high" | "medium" | "low") {
+  if (confidence === "high") {
+    return "border-cyan-300/25 bg-cyan-300/10 text-cyan-100";
+  }
+
+  if (confidence === "medium") {
+    return "border-amber-300/25 bg-amber-300/10 text-amber-100";
+  }
+
+  return "border-white/10 bg-white/[0.04] text-slate-200";
+}
+
+const markdownComponents: Components = {
+  h1: ({ children }) => (
+    <h1 className="mt-2 text-4xl font-black tracking-tight text-white sm:text-5xl">{children}</h1>
+  ),
+  h2: ({ children }) => (
+    <h2 className="mt-12 border-t border-white/10 pt-10 text-2xl font-black tracking-tight text-cyan-100 sm:text-3xl">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }) => (
+    <h3 className="mt-8 text-xl font-bold tracking-tight text-white">{children}</h3>
+  ),
+  p: ({ children }) => (
+    <p className="mt-5 text-base leading-8 text-slate-300 sm:text-[1.05rem]">{children}</p>
+  ),
+  blockquote: ({ children }) => (
+    <blockquote className="mt-6 rounded-r-2xl border-l-2 border-cyan-300/50 bg-cyan-300/[0.06] px-5 py-4 text-sm leading-7 text-cyan-50">
+      {children}
+    </blockquote>
+  ),
+  ul: ({ children }) => <ul className="mt-5 space-y-3 text-slate-300">{children}</ul>,
+  ol: ({ children }) => <ol className="mt-5 list-decimal space-y-3 pl-6 text-slate-300">{children}</ol>,
+  li: ({ children }) => <li className="ml-5 list-disc pl-2 leading-7 marker:text-cyan-300">{children}</li>,
+  strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+  a: ({ href, children }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="font-medium text-cyan-300 underline decoration-cyan-300/40 underline-offset-4"
+    >
+      {children}
+    </a>
+  ),
+  hr: () => <hr className="my-10 border-white/10" />,
+  code: ({
+    inline,
+    children,
+    className,
+  }: ComponentPropsWithoutRef<"code"> & { inline?: boolean }) => {
+    if (inline) {
+      return (
+        <code className="rounded-md border border-white/10 bg-slate-900/80 px-1.5 py-1 font-mono text-[0.9em] text-cyan-200">
+          {children}
+        </code>
+      );
     }
 
-    if (slug) loadDemo();
-
-    return () => {
-      active = false;
-    };
-  }, [slug]);
-
-  const recommendedTier = useMemo(
-    () => normalizeTier(demo?.packageRecommendation ?? "launch"),
-    [demo?.packageRecommendation]
-  );
-  const expiresSoon = useMemo(
-    () => (demo ? isExpired(demo.createdAt) : false),
-    [demo]
-  );
-
-  if (loading) {
     return (
-      <AuroraBackground className="flex min-h-screen items-center justify-center px-6">
-        <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950/90 px-8 py-10 text-center shadow-[0_0_60px_rgba(0,229,255,0.08)]">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-zinc-700 border-t-cyan-300" />
-          <p className="mt-4 font-mono text-xs uppercase tracking-[0.24em] text-cyan-300">
-            Synchronizing Preview Environment
-          </p>
-        </div>
-      </AuroraBackground>
+      <code
+        className={[
+          "block overflow-x-auto rounded-[1.4rem] border border-slate-700/60 bg-[#161b22] px-5 py-4 font-mono text-sm leading-7 text-slate-100",
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_18px_60px_rgba(2,6,23,0.35)]",
+          className ?? "",
+        ].join(" ")}
+      >
+        {children}
+      </code>
     );
-  }
+  },
+  pre: ({ children }) => <pre className="mt-6 overflow-x-auto">{children}</pre>,
+};
 
-  if (error || !demo) {
-    return (
-      <AuroraBackground className="flex min-h-screen items-center justify-center px-6">
-        <div className="max-w-lg rounded-[2rem] border border-zinc-800 bg-zinc-950/90 p-8 text-center">
-          <p className="text-xs font-mono uppercase tracking-[0.22em] text-red-400">Preview Unavailable</p>
-          <h1 className="mt-4 text-3xl font-black text-white">Preview access could not be established</h1>
-          <p className="mt-4 text-zinc-400">
-            {error || "The requested autonomous system preview is unavailable."}
-          </p>
-          <Link
-            href="/"
-            className="mt-6 inline-flex rounded-full bg-cyan-400 px-6 py-3 text-sm font-bold text-black transition hover:bg-cyan-300"
-          >
-            Return to Homepage
-          </Link>
-        </div>
-      </AuroraBackground>
-    );
-  }
+export default async function DemoPreviewPage({ params }: DemoPageProps) {
+  const { slug } = await params;
+
+  const demo = await prisma.demo.findUnique({
+    where: { slug },
+    include: { lead: true },
+  });
+
+  const miniAuditData = asRecord(demo?.lead.miniAuditData);
+  const config = asRecord(demo?.config);
+  const recommendedTier = getRecommendation(config, miniAuditData);
+  const businessName = pickFirstString(
+    miniAuditData,
+    ["companyName", "businessName", "name", "businessType"],
+    prettifySlug(slug) || "ShadowSpark Prospect"
+  );
+  const niche = pickFirstString(
+    miniAuditData,
+    ["niche", "businessType", "goals"],
+    "Revenue intelligence and conversion infrastructure"
+  );
+  const createdAt = demo?.createdAt
+    ? new Intl.DateTimeFormat("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(demo.createdAt)
+    : "Awaiting first live session";
+  const [auditMarkdown, indexedInsights] = await Promise.all([
+    fetchLatestAuditMarkdown(slug),
+    fetchVaultInsights({
+      slug,
+      businessName,
+      niche,
+      k: 4,
+    }),
+  ]);
+  const signalBrief = deriveVaultSignalBrief(
+    indexedInsights,
+    businessName,
+    displayTier(recommendedTier)
+  );
+  const intelligenceNotes = deriveIntelligenceNotes(indexedInsights, businessName);
+  const layoutBrief = layoutTone(signalBrief.layout);
+  const heroSupportLine =
+    signalBrief.heroSupportLine ??
+    `The current intelligence stream suggests ${businessName} is leaking momentum between first interest and the booked conversation.`;
+  const ctaSupportLine =
+    signalBrief.ctaLine ??
+    intelligenceNotes.find((note) => note.kind === "cta")?.body ??
+    `Book the ${displayTier(recommendedTier)} walkthrough and review the highest-friction revenue gaps for ${businessName}.`;
+  const proofLine =
+    signalBrief.proofLine ??
+    intelligenceNotes.find((note) => note.kind === "proof")?.body ??
+    "Fresh crawl and vault signals are ranked here so recommendations stay tied to current site evidence.";
+  const objectionLine =
+    signalBrief.objectionLine ??
+    intelligenceNotes.find((note) => note.kind === "objection")?.body ??
+    "The default friction pattern is slow follow-up, unclear CTA pathways, and operator lag.";
 
   return (
-    <AuroraBackground className="min-h-screen selection:bg-cyan-500/30">
-      <main className="mx-auto max-w-7xl px-6 py-10 relative z-10">
-        <div className="pointer-events-none absolute inset-0 -z-10 flex justify-center overflow-hidden [mask-image:radial-gradient(ellipse_at_top,white,transparent)]">
-          <div className="absolute top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-cyan-500/20 blur-[100px]" />
-          <div className="absolute top-0 h-[400px] w-[400px] translate-x-1/3 rounded-full bg-blue-500/10 blur-[80px]" />
-        </div>
-        <motion.header
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-        >
-          <GlassCard className="px-6 py-8">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1.5 text-[11px] font-mono uppercase tracking-[0.24em] text-cyan-300">
-                  <span className="h-2 w-2 rounded-full bg-cyan-300" />
-                  System Status: Preview Mode
+    <Vortex className="min-h-screen selection:bg-cyan-500/30">
+      <main className="relative mx-auto max-w-7xl px-6 py-10 sm:py-14">
+        <Spotlight
+            className="-top-36 left-0 md:left-60 md:-top-20"
+            fill="rgba(34,211,238,0.16)"
+          />
+
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/70 px-6 py-8 shadow-[0_0_80px_rgba(14,165,233,0.08)] backdrop-blur-xl sm:px-8 sm:py-10">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
+          <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.26em] text-cyan-200">
+                <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,0.9)]" />
+                Live GCS Intelligence Feed
+              </div>
+              <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-6xl">
+                {businessName}
+                <span className="mt-3 block text-balance text-cyan-200/85">
+                  Decision-grade audit rendered from the latest cloud intelligence snapshot.
+                </span>
+              </h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+                This page turns the latest markdown audit and ranked vault signals into a guided
+                sales surface for <span className="text-white">{slug}</span>, so the client sees
+                what is broken, why it matters, and which action to take next.
+              </p>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-slate-200">
+                <span className="h-2 w-2 rounded-full bg-cyan-300" />
+                {layoutBrief.badge}
+              </div>
+              <div
+                className={[
+                  "mt-3 inline-flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em]",
+                  confidenceTone(signalBrief.confidence),
+                ].join(" ")}
+              >
+                Confidence {signalBrief.confidence}
+              </div>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">{heroSupportLine}</p>
+              <div className="mt-6 rounded-[1.4rem] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm leading-7 text-slate-300">
+                <span className="font-semibold text-white">Proof line:</span> {proofLine}
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+              {[
+                { label: "Recommended Tier", value: displayTier(recommendedTier) },
+                { label: "Active Niche", value: niche },
+                { label: "Latest Session", value: createdAt },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                >
+                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/70">
+                    {item.label}
+                  </p>
+                  <div className="mt-3 flex items-center gap-3">
+                    <p className="text-lg font-semibold leading-7 text-white">{item.value}</p>
+                    {item.label === "Recommended Tier" ? (
+                      <span
+                        className={[
+                          "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em]",
+                          tierBadgeTone(recommendedTier),
+                        ].join(" ")}
+                      >
+                        {displayTier(recommendedTier)}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
-                <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-5xl">
-                  Your Autonomous System Preview
-                </h1>
-                <p className="mt-4 max-w-2xl text-lg leading-8 text-zinc-300">
-                  This live simulation demonstrates how ShadowSpark infrastructure captures and
-                  qualifies your traffic.
+              ))}
+              <div className="rounded-[1.5rem] border border-cyan-300/15 bg-cyan-300/[0.06] p-5">
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-100/80">
+                  Next Move
                 </p>
+                <p className="mt-3 text-sm leading-7 text-slate-200">{ctaSupportLine}</p>
+                <div className="mt-5 flex flex-col gap-3">
+                  <Link
+                    href={`/checkout/new?tier=${encodeURIComponent(recommendedTier)}`}
+                    className="inline-flex items-center justify-center rounded-[1.2rem] bg-cyan-300 px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950 transition hover:bg-cyan-200"
+                  >
+                    Book Demo
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center justify-center rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-white/[0.05]"
+                  >
+                    Chat on WhatsApp
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_360px]">
+          <div className="min-w-0">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/75">
+                  Audit Stream
+                </p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight text-white">
+                  Infrastructure audit, leakage analysis, and AI proposals.
+                </h2>
+              </div>
+              <div className="hidden rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-slate-300 sm:block">
+                Source: vault markdown
+              </div>
+            </div>
+
+            <TracingBeam className="xl:pr-10">
+              <MarkdownShell>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                  {auditMarkdown}
+                </ReactMarkdown>
+              </MarkdownShell>
+            </TracingBeam>
+          </div>
+
+          <aside className="space-y-6 xl:sticky xl:top-8 xl:self-start">
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/75 p-6 shadow-[0_0_50px_rgba(15,23,42,0.4)]">
+              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/80">
+                Intelligence Summary
+              </p>
+              <h2 className="mt-4 text-2xl font-black tracking-tight text-white">
+                What this audit should push the buyer to decide.
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-slate-300">
+                Keep the business relevance explicit: the left column proves the diagnosis, and
+                this right rail turns those signals into proof, objections, and close-ready next steps.
+              </p>
+              <div className="mt-5 rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-cyan-200/75">
+                  Recommended framing
+                </p>
+                <p className="mt-2 text-sm leading-7 text-slate-300">{layoutBrief.summary}</p>
+                {signalBrief.confidence === "low" ? (
+                  <p className="mt-3 text-sm leading-7 text-slate-400">
+                    Low-confidence crawls stay in summary mode and avoid aggressive proof or CTA claims until a denser audit lands.
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-cyan-300/10 bg-slate-950/80 p-6 shadow-[0_0_40px_rgba(8,145,178,0.12)]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/80">
+                    Indexed Signals
+                  </p>
+                  <h2 className="mt-3 text-2xl font-black tracking-tight text-white">
+                    Ranked evidence from the vault.
+                  </h2>
+                </div>
+                <div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan-200">
+                  {indexedInsights.length > 0 ? `${indexedInsights.length} hits` : "awaiting index"}
+                </div>
               </div>
 
-              <GlassCard className="border-cyan-400/30 bg-cyan-400/5 p-5">
-                <p className="text-xs font-mono uppercase tracking-[0.2em] text-cyan-200">
-                  Recommended System Tier
+              {indexedInsights.length > 0 ? (
+                <div className="mt-6 space-y-4">
+                  {indexedInsights.map((insight) => (
+                    <div
+                      key={insight.id}
+                      className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-5"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-slate-300">
+                            {signalLabel(insight.title, insight.excerpt)}
+                          </span>
+                          <p className="text-sm font-semibold text-white">{insight.title}</p>
+                        </div>
+                        <span
+                          className={[
+                            "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em]",
+                            scoreBadgeTone(insight.score),
+                          ].join(" ")}
+                        >
+                          score {insight.score}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm leading-7 text-slate-300">{insight.excerpt}</p>
+                      {insight.url ? (
+                        <a
+                          href={insight.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex text-xs font-medium uppercase tracking-[0.16em] text-cyan-300"
+                        >
+                          Source URL
+                        </a>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-5 text-sm leading-7 text-slate-300">
+                  The demo page is ready to read `indexes/latest.json` from the vault as soon as the
+                  crawl pipeline publishes one. Until then, the markdown stream remains the source of truth.
                 </p>
-                <p className="mt-3 text-3xl font-black text-white">{displayTier(recommendedTier)}</p>
+              )}
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/80">
+                Recommendation Blocks
+              </p>
+              <div className="mt-5 space-y-4">
+                {intelligenceNotes.length > 0 ? (
+                  intelligenceNotes.map((note) => (
+                    <div key={note.title} className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-slate-300">
+                          {toSentenceCase(note.kind)}
+                        </span>
+                        <p className="text-sm font-semibold text-white">{note.title}</p>
+                      </div>
+                      <p className="mt-3 text-sm leading-7 text-slate-300">{note.body}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm leading-7 text-slate-300">
+                    As soon as indexed signals are available, this rail will turn them into close-ready
+                    proof, objection handling, and CTA guidance.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-cyan-300/10 bg-cyan-300/[0.05] p-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/80">
+                What We Would Build Next
+              </p>
+              <div className="mt-5 space-y-4">
+                <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+                  <p className="text-sm font-semibold text-white">Why this matters</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-300">{objectionLine}</p>
+                </div>
+                <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+                  <p className="text-sm font-semibold text-white">What gets deployed</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-300">
+                    We would package the {displayTier(recommendedTier).toLowerCase()} layer set around
+                    qualification speed, cleaner CTA routing, and a tighter operator handoff for {businessName}.
+                  </p>
+                </div>
+                <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+                  <p className="text-sm font-semibold text-white">Next commercial step</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-300">{ctaSupportLine}</p>
+                </div>
+              </div>
+              <div className="mt-6 flex flex-col gap-3">
                 <Link
                   href={`/checkout/new?tier=${encodeURIComponent(recommendedTier)}`}
-                  className="mt-5 inline-flex rounded-full bg-[#00E5FF] px-5 py-3 text-sm font-bold text-black transition hover:brightness-110 shadow-[0_0_20px_rgba(0,229,255,0.3)]"
+                  className="inline-flex items-center justify-center rounded-[1.2rem] bg-cyan-300 px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950 transition hover:bg-cyan-200"
                 >
-                  Deploy This System
+                  Book Demo
                 </Link>
-              </GlassCard>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-white/[0.05]"
+                >
+                  Chat on WhatsApp
+                </Link>
+              </div>
             </div>
-          </GlassCard>
-        </motion.header>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <motion.section
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-          >
-            <GlassCard className="p-6">
-              <div className="flex items-start justify-between gap-4 border-b border-zinc-800 pb-5">
-                <div>
-                  <p className="text-xs font-mono uppercase tracking-[0.22em] text-cyan-300">
-                    System Context
-                  </p>
-                  <h2 className="mt-3 text-3xl font-black text-white">{demo.businessName}</h2>
-                  <p className="mt-2 text-zinc-400">{demo.niche}</p>
-                </div>
-                <div className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-xs font-mono uppercase tracking-[0.16em] text-cyan-200">
-                  {displayTier(recommendedTier)}
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                {[
-                  { label: "Capture Layer", value: "Website + WhatsApp" },
-                  { label: "Qualification Logic", value: "AI Guided" },
-                  { label: "Sales Handoff", value: "Operator Ready" },
-                ].map((item) => (
-                  <GlassCard
-                    key={item.label}
-                    className="border-white/10 bg-white/5 p-4"
-                  >
-                    <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">{item.label}</p>
-                    <p className="mt-2 text-lg font-bold text-white">{item.value}</p>
-                  </GlassCard>
-                ))}
-              </div>
-
-              <div className="mt-6 rounded-[1.5rem] border border-zinc-800 bg-zinc-950/70 p-6">
-                <p className="text-xs font-mono uppercase tracking-[0.22em] text-cyan-300">
-                  Simulation Summary
-                </p>
-                <p className="mt-4 text-base leading-7 text-zinc-300">
-                  ShadowSpark has modeled a revenue path for {demo.businessName} that routes traffic
-                  through a controlled website experience, pushes high-intent prospects into WhatsApp,
-                  and qualifies them before a human handoff. This preview represents the operating
-                  state after deployment, not a static mockup.
-                </p>
-              </div>
-            </GlassCard>
-          </motion.section>
-
-          <motion.aside
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.16 }}
-            className="space-y-6"
-          >
-            <GlassCard className="p-6">
-              <MiniAudit
-                businessType={demo.niche}
-                goals="capture, qualify, and route traffic into a controlled sales system"
-                features={["Website", "WhatsApp AI", "Operator Dashboard"]}
-                recommendedPackage={recommendedTier}
-                showCta={false}
-              />
-            </GlassCard>
-
-            <GlassCard className="border-zinc-800 bg-zinc-950/80 p-6">
-              <p className="text-xs font-mono uppercase tracking-[0.2em] text-cyan-300">
-                Deployment Path
+            <div className="rounded-[2rem] border border-cyan-300/10 bg-cyan-300/[0.05] p-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/80">
+                GCS Bridge
               </p>
-              <ul className="mt-4 space-y-3 text-sm text-zinc-300">
-                <li>System preview reviewed and approved by your team.</li>
-                <li>Selected tier moved into managed deployment.</li>
-                <li>Tracking, qualification logic, and handoff activated.</li>
+              <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-300">
+                <li className="list-inside list-disc marker:text-cyan-300">
+                  Reads from <code>shadowspark-vault</code> by slug-aware prefix.
+                </li>
+                <li className="list-inside list-disc marker:text-cyan-300">
+                  Falls back to a structured markdown shell if a fresh audit has not landed yet.
+                </li>
+                <li className="list-inside list-disc marker:text-cyan-300">
+                  Keeps the assistant bubble available for live follow-up questions while reviewing.
+                </li>
               </ul>
-            </GlassCard>
-          </motion.aside>
-        </div>
-
-        <footer className="mt-8 flex flex-col gap-3 rounded-[1.5rem] border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between">
-          <span>Preview expires in 48 hours.</span>
-          <span>{expiresSoon ? "This preview is already nearing expiry." : "Deployment window is active."}</span>
-        </footer>
+            </div>
+          </aside>
+        </section>
       </main>
 
       <AssistantBubble />
-    </AuroraBackground>
+    </Vortex>
   );
 }

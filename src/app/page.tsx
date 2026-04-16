@@ -15,6 +15,8 @@ import {
 import Link from "next/link";
 import { SovereignHero } from "@/components/ui/templates/SovereignHero";
 import { GlassCard } from "@/components/ui/templates/GlassCard";
+import Footer from "@/components/ui/Footer";
+import TrustBadges from "@/components/ui/TrustBadges";
 
 export default function EnterpriseHomepage() {
   return (

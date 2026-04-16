@@ -3,6 +3,8 @@ import { streamText } from "ai";
 
 import { retrieveRagContext } from "@/lib/rag/retrieve";
 
+export const runtime = "nodejs";
+
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 });

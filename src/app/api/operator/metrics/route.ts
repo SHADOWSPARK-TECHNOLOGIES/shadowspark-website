@@ -1,6 +1,10 @@
+import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+
+type LeadWithDemoAndPayments = Prisma.LeadGetPayload<{ include: { demo: true; payments: true } }>;
+type DemoWithLead = Prisma.DemoGetPayload<{ include: { lead: true } }>;
 
 function normalizeStatus(lead: {
   status: string;
@@ -34,20 +38,20 @@ export async function GET() {
   ]);
 
   const totalLeads = leads.length;
-  const approvedCount = leads.filter((lead) => normalizeStatus(lead) === "Approved").length;
+  const approvedCount = leads.filter((lead: LeadWithDemoAndPayments) => normalizeStatus(lead) === "Approved").length;
   const conversionRate = totalLeads === 0 ? 0 : Number(((approvedCount / totalLeads) * 100).toFixed(1));
-  const pendingDemos = leads.filter((lead) => normalizeStatus(lead) === "Demo Generated").length;
+  const pendingDemos = leads.filter((lead: LeadWithDemoAndPayments) => normalizeStatus(lead) === "Demo Generated").length;
   const pipelineValueUsd = leads
-    .filter((lead) => normalizeStatus(lead) !== "Rejected")
-    .reduce((sum, lead) => sum + (lead.leadScore && lead.leadScore >= 70 ? 750 : 300), 0);
+    .filter((lead: LeadWithDemoAndPayments) => normalizeStatus(lead) !== "Rejected")
+    .reduce((sum: number, lead: LeadWithDemoAndPayments) => sum + (lead.leadScore && lead.leadScore >= 70 ? 750 : 300), 0);
 
   const activity = [
-    ...leads.slice(0, 5).map((lead) => ({
+    ...leads.slice(0, 5).map((lead: LeadWithDemoAndPayments) => ({
       id: `lead-${lead.id}`,
       label: `${normalizeStatus(lead)} · ${lead.phoneNumber}`,
       timestamp: lead.updatedAt.toISOString(),
     })),
-    ...demos.map((demo) => ({
+    ...demos.map((demo: DemoWithLead) => ({
       id: `demo-${demo.id}`,
       label: `${demo.approved ? "Demo approved" : "Demo pending"} · ${demo.slug}`,
       timestamp: demo.updatedAt.toISOString(),
