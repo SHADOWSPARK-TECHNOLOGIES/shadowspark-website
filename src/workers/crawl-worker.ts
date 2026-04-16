@@ -1,0 +1,36 @@
+/* eslint-disable no-console */
+import { Worker } from "bullmq";
+
+import { CRAWL_QUEUE, type CrawlJobData } from "@/lib/crawl/queue";
+import { redis } from "@/lib/redis";
+import { runRagSync } from "@/lib/rag/sync";
+
+export const crawlWorker = new Worker<CrawlJobData>(
+  CRAWL_QUEUE,
+  async (job) => {
+    const rootUrl = job.data.rootUrl;
+    const limit = job.data.limit ?? 25;
+
+    console.log(`[crawl-worker] received job ${job.id} rootUrl=${rootUrl} limit=${limit}`);
+
+    const res = await runRagSync({
+      rootUrl,
+      limit,
+      maxChunkChars: Number(process.env.RAG_CHUNK_MAX_CHARS || "1800"),
+    });
+
+    return { ok: true, ...res };
+  },
+  { connection: redis }
+);
+
+crawlWorker.on("completed", (job) => {
+  console.log(`[crawl-worker] job ${job.id} completed`);
+});
+
+crawlWorker.on("failed", (job, err) => {
+  console.error(`[crawl-worker] job ${job?.id} failed: ${err.message}`);
+});
+
+// Keep the process alive if this file is executed directly.
+void crawlWorker;

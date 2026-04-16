@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 templates/original/
+
+# Local-only Codex tooling (not required for build/deploy)
+codex/
+
+# Internal preview artifacts
+reports/firecrawl-preview/*.json

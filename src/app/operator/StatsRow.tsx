@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/ui/GlassCard";
 
+type QueueMetrics = {
+  waiting: number;
+  active: number;
+  completed: number;
+  failed: number;
+  delayed: number;
+};
+
 type Metrics = {
-  totalLeads: number;
-  pendingDemos: number;
-  conversionRate: number;
-  pipelineValueUsd: number;
-  activity: Array<{ id: string; label: string; timestamp: string }>;
-  sparkline: number[];
+  crawl: QueueMetrics;
+  leads: QueueMetrics;
 };
 
 function Sparkline({ values }: { values: number[] }) {
@@ -47,7 +51,7 @@ export default function StatsRow() {
 
     async function loadMetrics() {
       try {
-        const response = await fetch("/api/operator/metrics", { cache: "no-store" });
+        const response = await fetch("/api/operator/queue-stats", { cache: "no-store" });
         const result = await response.json().catch(() => null);
 
         if (!response.ok || !result) {
@@ -63,29 +67,50 @@ export default function StatsRow() {
     }
 
     loadMetrics();
+    const interval = setInterval(loadMetrics, 5000); // Refresh every 5 seconds
     return () => {
       active = false;
+      clearInterval(interval);
     };
   }, []);
 
-  const cards = [
+  const crawlCards = [
     {
-      label: "Total Leads",
-      value: metrics?.totalLeads ?? "—",
+      label: "Crawl Queue (Waiting)",
+      value: metrics?.crawl.waiting ?? "—",
     },
     {
-      label: "Pending Demos",
-      value: metrics?.pendingDemos ?? "—",
+      label: "Crawl Queue (Active)",
+      value: metrics?.crawl.active ?? "—",
     },
     {
-      label: "Conversion Rate",
-      value: metrics ? `${metrics.conversionRate}%` : "—",
+      label: "Crawl Queue (Completed)",
+      value: metrics?.crawl.completed ?? "—",
     },
     {
-      label: "Pipeline Value",
-      value: metrics ? `$${metrics.pipelineValueUsd.toLocaleString()}` : "—",
+      label: "Crawl Queue (Failed)",
+      value: metrics?.crawl.failed ?? "—",
     },
   ];
+  
+  const leadCards = [
+      {
+        label: "Lead Sync (Waiting)",
+        value: metrics?.leads.waiting ?? "—",
+      },
+      {
+        label: "Lead Sync (Active)",
+        value: metrics?.leads.active ?? "—",
+      },
+      {
+        label: "Lead Sync (Completed)",
+        value: metrics?.leads.completed ?? "—",
+      },
+      {
+        label: "Lead Sync (Failed)",
+        value: metrics?.leads.failed ?? "—",
+      },
+  ]
 
   const container = {
     hidden: { opacity: 0 },
@@ -109,12 +134,12 @@ export default function StatsRow() {
         animate="show"
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
       >
-        {cards.map((card, idx) => (
+        {[...crawlCards, ...leadCards].map((card, idx) => (
           <motion.div key={card.label} variants={item}>
             <GlassCard className="p-5 border-zinc-800 bg-zinc-950/80">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300/80">{card.label}</p>
-                <Sparkline values={metrics?.sparkline ?? [5, 10, 7, 12, 18, 13, 20]} />
+                <Sparkline values={[5, 10, 7, 12, 18, 13, 20]} />
               </div>
               <p className="mt-4 text-3xl font-black text-white drop-shadow-md">{card.value}</p>
             </GlassCard>

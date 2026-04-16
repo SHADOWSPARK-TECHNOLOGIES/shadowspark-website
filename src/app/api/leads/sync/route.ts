@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { addLeadToSyncQueue } from "@/lib/leads/queue";
 
 export async function POST(req: Request) {
   const secret = req.headers.get("x-sync-secret");
@@ -9,41 +9,22 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { phone, name, businessType, goals, source } = await req.json();
+    const data = await req.json();
 
-    if (!phone) {
+    if (!data.phone) {
       return NextResponse.json({ error: "Phone number is required" }, { status: 400 });
     }
 
-    const lead = await prisma.lead.upsert({
-      where: { phoneNumber: phone },
-      update: {
-        lastMessage: `Sync from ${source || 'external chatbot'}`,
-        miniAuditData: {
-          name,
-          businessType,
-          goals,
-          source
-        },
-        status: "QUALIFIED"
-      },
-      create: {
-        phoneNumber: phone,
-        status: "QUALIFIED",
-        intent: "SYNC",
-        lastMessage: `Initial sync from ${source || 'external chatbot'}`,
-        miniAuditData: {
-          name,
-          businessType,
-          goals,
-          source
-        }
-      }
-    });
+    // SES: Offload to background queue for sub-500ms response
+    await addLeadToSyncQueue(data);
 
-    return NextResponse.json({ success: true, leadId: lead.id });
+    return NextResponse.json({ 
+      success: true, 
+      message: "Lead received and queued for synchronization" 
+    }, { status: 202 });
+    
   } catch (error) {
     console.error("Lead sync error:", error);
-    return NextResponse.json({ error: "Failed to sync lead" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to queue lead" }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import type { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,9 @@ import StatsRow from "./StatsRow";
 import GlassCard from "@/components/ui/GlassCard";
 import { BentoGrid, BentoGridItem } from "@/components/ui/templates/BentoGridPro";
 import OperatorLeadTable, { type OperatorLead } from "./OperatorLeadTable";
+
+type LeadWithDemo = Prisma.LeadGetPayload<{ include: { demo: true } }>;
+type DemoWithLead = Prisma.DemoGetPayload<{ include: { lead: true } }>;
 
 function normalizeStatus(lead: {
   status: string;
@@ -42,7 +46,7 @@ export default async function OperatorDashboard() {
     }),
   ]);
 
-  const tableData: OperatorLead[] = leads.map((lead) => {
+  const tableData: OperatorLead[] = leads.map((lead: LeadWithDemo) => {
     const audit = (lead.miniAuditData ?? {}) as Record<string, unknown>;
     const name =
       typeof audit.companyName === "string" && audit.companyName
@@ -62,7 +66,7 @@ export default async function OperatorDashboard() {
     };
   });
 
-  const recentActivity = recentDemos.map((demo) => ({
+  const recentActivity = recentDemos.map((demo: DemoWithLead) => ({
     id: demo.id,
     label: `${demo.approved ? "Approved" : "Pending"} demo for ${demo.lead.phoneNumber}`,
     timestamp: demo.updatedAt.toLocaleString(),
@@ -138,7 +142,7 @@ export default async function OperatorDashboard() {
                 </span>
               </div>
               <div className="space-y-4">
-                {recentActivity.length ? recentActivity.map((item, i) => (
+                {recentActivity.length ? recentActivity.map((item: { id: string; label: string; timestamp: string }, i: number) => (
                   <div key={item.id} className="group relative rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 transition-colors hover:border-cyan-500/30">
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-transparent rounded-l-2xl opacity-0 transition-opacity group-hover:opacity-100" />
                     <p className="text-sm text-white">{item.label}</p>

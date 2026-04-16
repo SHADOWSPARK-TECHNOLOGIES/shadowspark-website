@@ -1,0 +1,52 @@
+{
+  "https://linear.app/features": {
+    "hex_colors": [
+      "#000000",
+      "#FFFFFF",
+      "#1E1E1E",
+      "#F2F2F2",
+      "#0D0D0D",
+      "#A3A3A3",
+      "#4A4A4A",
+      "#E2E2E2"
+    ],
+    "css_classes": {
+      "border_radius": ["rounded-full", "rounded-lg", "rounded-md"],
+      "backdrop_blur": ["backdrop-blur-sm", "backdrop-blur-md"]
+    },
+    "cta_hover_animations": ["scale", "glow"],
+    "trust_signals": ["SOC 2 Type II Compliant", "GDPR Ready"]
+  },
+  "https://clay.com": {
+    "hex_colors": [
+      "#000000",
+      "#FFFFFF",
+      "#1A1A1A",
+      "#F0F0F0",
+      "#CCCCCC",
+      "#333333"
+    ],
+    "css_classes": {
+      "border_radius": ["rounded-xl", "rounded-lg", "rounded-full"],
+      "backdrop_blur": ["backdrop-blur-lg"]
+    },
+    "cta_hover_animations": ["pulse", "color change"],
+    "trust_signals": ["Used by teams at Google, Meta, and more", "Featured in Forbes, TechCrunch, and more"]
+  },
+  "https://6sense.com": {
+    "hex_colors": [
+      "#0D1B2A",
+      "#FFFFFF",
+      "#00A9E0",
+      "#F2F2F2",
+      "#CCCCCC",
+      "#333333"
+    ],
+    "css_classes": {
+      "border_radius": ["rounded-md", "rounded-lg", "rounded-full"],
+      "backdrop_blur": []
+    },
+    "cta_hover_animations": ["glow", "color change"],
+    "trust_signals": ["G2 Leader", "Forrester Wave Leader", "Inc. 5000"]
+  }
+}
