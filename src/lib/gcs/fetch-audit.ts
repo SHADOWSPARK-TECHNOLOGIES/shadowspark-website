@@ -1,5 +1,8 @@
 import { Storage, type File } from "@google-cloud/storage";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { embed } from "ai";
 
+import { requireEnv } from "@/lib/env";
 import type { RagEmbeddingIndex } from "@/lib/rag/types";
 
 const storage = new Storage();
@@ -10,6 +13,7 @@ const PREFIX_CANDIDATES = [
   "reports",
   "intelligence",
   "crawls",
+  "raw",
   "",
 ] as const;
 
@@ -31,7 +35,22 @@ export type SignalSourceChunk = {
   title?: string;
   url?: string;
   text: string;
+  embedding?: number[];
 };
+
+export function cosineSimilarity(a: number[], b: number[]): number {
+  if (a.length !== b.length) return 0;
+  let dot = 0;
+  let a2 = 0;
+  let b2 = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    a2 += a[i] * a[i];
+    b2 += b[i] * b[i];
+  }
+  const denom = Math.sqrt(a2) * Math.sqrt(b2);
+  return denom === 0 ? 0 : dot / denom;
+}
 
 export type VaultLayoutMode =
   | "proof-heavy"
@@ -138,7 +157,17 @@ async function readBucketFile(filePath: string) {
   return contents.toString("utf8");
 }
 
-async function loadLatestVaultIndex() {
+export async function loadLatestVaultIndex(slug?: string) {
+  const normalizedSlug = slug ? normalizeSlug(slug) : null;
+  
+  if (normalizedSlug) {
+    const slugPath = `indexes/${normalizedSlug}/latest.json`;
+    const slugIndex = await readBucketFile(slugPath);
+    if (slugIndex) {
+      return JSON.parse(slugIndex) as RagEmbeddingIndex;
+    }
+  }
+
   const direct = await readBucketFile("indexes/latest.json");
   if (direct) {
     return JSON.parse(direct) as RagEmbeddingIndex;
@@ -146,7 +175,7 @@ async function loadLatestVaultIndex() {
 
   const bucket = storage.bucket(getBucketName());
   const [files] = await bucket.getFiles({ prefix: "indexes/" });
-  const indexFiles = files.filter((file) => file.name.endsWith("/index.json"));
+  const indexFiles = files.filter((file) => file.name.endsWith("/index.json") || file.name.endsWith(".json"));
 
   if (indexFiles.length === 0) {
     return null;
@@ -331,6 +360,7 @@ export function rankSignalChunks(args: {
   niche?: string;
   chunks: SignalSourceChunk[];
   k?: number;
+  queryEmbedding?: number[];
 }): VaultInsight[] {
   const slug = normalizeSlug(args.slug);
   const queryTokens = Array.from(
@@ -342,14 +372,24 @@ export function rankSignalChunks(args: {
   );
 
   return args.chunks
-    .map((chunk) => ({
-      chunk: {
-        ...chunk,
-        title: chunk.title ? cleanSignalText(chunk.title) : undefined,
-        text: cleanSignalText(chunk.text),
-      },
-      score: scoreChunk(`${chunk.title ?? ""}\n${chunk.text}`, queryTokens, slug),
-    }))
+    .map((chunk) => {
+      const keywordScore = scoreChunk(`${chunk.title ?? ""}\n${chunk.text}`, queryTokens, slug);
+      let semanticScore = 0;
+
+      if (args.queryEmbedding && chunk.embedding) {
+        // Boost semantic score to be competitive with keyword scores (which are around 2-20)
+        semanticScore = cosineSimilarity(args.queryEmbedding, chunk.embedding) * 15;
+      }
+
+      return {
+        chunk: {
+          ...chunk,
+          title: chunk.title ? cleanSignalText(chunk.title) : undefined,
+          text: cleanSignalText(chunk.text),
+        },
+        score: Math.max(keywordScore, semanticScore),
+      };
+    })
     .filter((entry) => entry.score > 0 && entry.chunk.text.length > 80)
     .sort((left, right) => right.score - left.score)
     .slice(0, args.k ?? 4)
@@ -369,21 +409,27 @@ export async function fetchVaultInsights(args: {
   k?: number;
 }): Promise<VaultInsight[]> {
   try {
-    const index = await loadLatestVaultIndex();
+    const index = await loadLatestVaultIndex(args.slug);
     if (!index || index.chunks.length === 0) {
       return [];
     }
 
-    const slug = normalizeSlug(args.slug);
-    const queryTokens = Array.from(
-      new Set(
-        tokenize([args.slug, args.businessName, args.niche, "revenue leak infrastructure ai proposal"]
-          .filter(Boolean)
-          .join(" "))
-      )
-    );
-    void queryTokens;
-    void slug;
+    const queryText = [args.slug, args.businessName, args.niche, "revenue leak infrastructure ai proposal"]
+      .filter(Boolean)
+      .join(" ");
+
+    let queryEmbedding: number[] | undefined;
+    try {
+      const google = createGoogleGenerativeAI({ apiKey: requireEnv("GEMINI_API_KEY") });
+      const model = google.textEmbeddingModel(index.embeddingModel || "text-embedding-004");
+      const { embedding } = await embed({
+        model,
+        value: queryText,
+      });
+      queryEmbedding = embedding;
+    } catch (embedError) {
+      console.warn("[gcs] query embedding failed, falling back to keyword search", embedError);
+    }
 
     return rankSignalChunks({
       slug: args.slug,
@@ -394,8 +440,10 @@ export async function fetchVaultInsights(args: {
         title: chunk.title,
         url: chunk.url,
         text: chunk.text,
+        embedding: chunk.embedding,
       })),
       k: args.k,
+      queryEmbedding,
     });
   } catch (error) {
     console.error("[gcs] failed to fetch vault insights", {
@@ -412,6 +460,11 @@ export async function fetchLatestAuditMarkdown(slug: string): Promise<string> {
   const bucket = storage.bucket(getBucketName());
 
   try {
+    const canonicalLatest = await readBucketFile(`audits/${normalizedSlug}/latest.md`);
+    if (canonicalLatest) {
+      return canonicalLatest;
+    }
+
     const candidateFiles = await Promise.all(
       PREFIX_CANDIDATES.map(async (rootPrefix) => {
         const slugPrefix = rootPrefix ? `${rootPrefix}/${normalizedSlug}` : normalizedSlug;

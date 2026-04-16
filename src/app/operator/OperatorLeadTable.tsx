@@ -13,6 +13,8 @@ import {
 } from "@tanstack/react-table";
 import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader } from "@/components/ui/table";
+import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 export type OperatorLead = {
   id: string;
@@ -22,6 +24,7 @@ export type OperatorLead = {
   demoSlug: string | null;
   leadScore: number | null;
   reasoning: string | null;
+  rootUrl?: string;
 };
 
 function statusClasses(status: OperatorLead["status"]) {
@@ -30,6 +33,73 @@ function statusClasses(status: OperatorLead["status"]) {
   if (status === "Paid") return "border-sky-400/20 bg-sky-400/10 text-sky-300";
   if (status === "Rejected") return "border-red-400/20 bg-red-400/10 text-red-300";
   return "border-zinc-700 bg-zinc-900 text-zinc-300";
+}
+
+function ActionsCell({ row, busyId, updateLead }: { row: any, busyId: string | null, updateLead: (id: string, action: "approve" | "reject") => void }) {
+  const [syncing, setSyncing] = useState(false);
+  const lead = row.original;
+
+  const handleRefreshIntelligence = async (slug: string, rootUrl: string) => {
+    setSyncing(true);
+    try {
+      const res = await fetch('/api/cron/rag-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, rootUrl }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      toast.success(`Intelligence sync triggered for ${slug}. Vault updating.`);
+    } catch (error: any) {
+      toast.error(`Sync failed: ${error.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {lead.demoSlug ? (
+        <Link
+          href={`/demo/${lead.demoSlug}`}
+          className="rounded-full border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-cyan-400/50 hover:text-cyan-300"
+        >
+          View Demo
+        </Link>
+      ) : null}
+      
+      {lead.demoSlug && lead.rootUrl ? (
+        <button
+          onClick={() => handleRefreshIntelligence(lead.demoSlug!, lead.rootUrl!)}
+          disabled={syncing}
+          className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-zinc-950 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-cyan-400 transition-all hover:bg-cyan-950/30 disabled:opacity-50"
+        >
+          {syncing ? (
+            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
+          {syncing ? 'SYNCING...' : 'REFRESH INTELLIGENCE'}
+        </button>
+      ) : null}
+
+      <button
+        type="button"
+        disabled={busyId === lead.id}
+        onClick={() => updateLead(lead.id, "approve")}
+        className="rounded-full bg-cyan-400 px-3 py-2 text-xs font-bold text-black transition hover:brightness-110 disabled:opacity-50"
+      >
+        Approve
+      </button>
+      <button
+        type="button"
+        disabled={busyId === lead.id}
+        onClick={() => updateLead(lead.id, "reject")}
+        className="rounded-full border border-red-400/30 bg-red-400/10 px-3 py-2 text-xs font-bold text-red-300 transition hover:bg-red-400/20 disabled:opacity-50"
+      >
+        Reject
+      </button>
+    </div>
+  );
 }
 
 export default function OperatorLeadTable({ data }: { data: OperatorLead[] }) {
@@ -111,34 +181,7 @@ export default function OperatorLeadTable({ data }: { data: OperatorLead[] }) {
       {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => (
-          <div className="flex flex-wrap gap-2">
-            {row.original.demoSlug ? (
-              <Link
-                href={`/demo/${row.original.demoSlug}`}
-                className="rounded-full border border-zinc-700 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:border-cyan-400/50 hover:text-cyan-300"
-              >
-                View Demo
-              </Link>
-            ) : null}
-            <button
-              type="button"
-              disabled={busyId === row.original.id}
-              onClick={() => updateLead(row.original.id, "approve")}
-              className="rounded-full bg-cyan-400 px-3 py-2 text-xs font-bold text-black transition hover:brightness-110 disabled:opacity-50"
-            >
-              Approve
-            </button>
-            <button
-              type="button"
-              disabled={busyId === row.original.id}
-              onClick={() => updateLead(row.original.id, "reject")}
-              className="rounded-full border border-red-400/30 bg-red-400/10 px-3 py-2 text-xs font-bold text-red-300 transition hover:bg-red-400/20 disabled:opacity-50"
-            >
-              Reject
-            </button>
-          </div>
-        ),
+        cell: ({ row }) => <ActionsCell row={row} busyId={busyId} updateLead={updateLead} />,
       },
     ],
     [busyId]

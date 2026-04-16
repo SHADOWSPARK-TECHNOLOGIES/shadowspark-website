@@ -10,7 +10,7 @@ import {
   Search,
 } from "lucide-react";
 import Link from "next/link";
-import { GlassCard } from "@/components/ui/templates/GlassCard";
+import { ProcessStepper } from "@/components/ui/ProcessStepper";
 import { SovereignHero } from "@/components/ui/templates/SovereignHero";
 
 const steps = [
@@ -19,30 +19,35 @@ const steps = [
     title: "Qualification",
     description: "We understand your business flow and goals.",
     icon: Search,
+    href: "/solutions?layer=presence",
   },
   {
     step: "02",
     title: "Tailored Audit",
     description: "You receive a custom system blueprint.",
     icon: FileText,
+    href: "/demo/demo-preview",
   },
   {
     step: "03",
     title: "Demo Deployment",
     description: "We deploy a live preview of your system.",
     icon: MonitorPlay,
+    href: "/checkout/new",
   },
   {
     step: "04",
     title: "Approval & Refinement",
     description: "You review and approve.",
     icon: BadgeCheck,
+    href: "/contact",
   },
   {
     step: "05",
     title: "Managed Launch",
     description: "Your system goes live with full support.",
     icon: Rocket,
+    href: "/contact",
   },
 ];
 
@@ -78,47 +83,7 @@ export default function ProcessPage() {
           </div>
 
           <div className="relative mx-auto mt-16 max-w-5xl">
-            <div className="absolute left-6 top-0 hidden h-full w-px bg-gradient-to-b from-cyan-500/0 via-cyan-500/40 to-cyan-500/0 md:block" />
-
-            <div className="space-y-6">
-              {steps.map((step, index) => (
-                <motion.div
-                  key={step.step}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.45, delay: index * 0.08 }}
-                  className="relative md:pl-20"
-                >
-                  <div className="absolute left-0 top-8 hidden h-12 w-12 items-center justify-center rounded-full border border-cyan-500/30 bg-cyan-500/10 md:flex">
-                    <span className="text-sm font-mono font-bold text-cyan-400">{step.step}</span>
-                  </div>
-
-                  <GlassCard
-                    title={step.title}
-                    description={step.description}
-                    icon={<step.icon className="h-6 w-6" />}
-                    highlighted={index === 0 || index === steps.length - 1}
-                    className="overflow-visible"
-                  >
-                    <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-4">
-                      <p className="text-xs font-mono uppercase tracking-[0.22em] text-cyan-300/80">
-                        Step {step.step}
-                      </p>
-                      {index < steps.length - 1 ? (
-                        <span className="text-xs font-mono uppercase tracking-[0.18em] text-zinc-500">
-                          Next: {steps[index + 1].title}
-                        </span>
-                      ) : (
-                        <span className="text-xs font-mono uppercase tracking-[0.18em] text-zinc-500">
-                          Launch support active
-                        </span>
-                      )}
-                    </div>
-                  </GlassCard>
-                </motion.div>
-              ))}
-            </div>
+            <ProcessStepper steps={steps} activeStep="01" />
           </div>
         </div>
       </section>

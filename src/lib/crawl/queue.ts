@@ -6,6 +6,7 @@ export const CRAWL_QUEUE = "crawl-queue";
 
 export type CrawlJobData = {
   rootUrl: string;
+  slug?: string;
   limit?: number;
 };
 

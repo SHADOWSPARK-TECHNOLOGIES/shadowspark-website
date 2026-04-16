@@ -1,8 +1,8 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import ReactMarkdown, { type Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
 import AssistantBubble from "@/components/ui/AssistantBubble";
+import { BrowserWindow } from "@/components/ui/BrowserWindow";
+import { ContextualFooter } from "@/components/ui/ContextualFooter";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { TracingBeam } from "@/components/ui/tracing-beam";
 import { Vortex } from "@/components/ui/vortex-background";
@@ -85,19 +85,14 @@ function getRecommendation(
   );
 }
 
-function MarkdownShell({ children }: { children: ReactNode }) {
+function MarkdownShell({ markdown }: { markdown: string }) {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.84)_0%,rgba(2,6,23,0.92)_100%)] shadow-[0_0_50px_rgba(14,165,233,0.1)]">
-      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-5 py-4">
-        <span className="h-2.5 w-2.5 rounded-full bg-rose-400/70" />
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-300/70" />
-        <span className="h-2.5 w-2.5 rounded-full bg-cyan-300/70" />
-        <span className="ml-3 font-mono text-[11px] uppercase tracking-[0.28em] text-cyan-200/80">
-          Intelligence Stream
-        </span>
-      </div>
-      <div className="px-6 py-8 sm:px-8 sm:py-10">{children}</div>
-    </div>
+    <BrowserWindow
+      title="Intelligence Stream"
+      eyebrow="Vault markdown"
+      contentClassName="px-6 py-8 sm:px-8 sm:py-10"
+      markdown={markdown}
+    />
   );
 }
 
@@ -214,69 +209,6 @@ function confidenceTone(confidence: "high" | "medium" | "low") {
 
   return "border-white/10 bg-white/[0.04] text-slate-200";
 }
-
-const markdownComponents: Components = {
-  h1: ({ children }) => (
-    <h1 className="mt-2 text-4xl font-black tracking-tight text-white sm:text-5xl">{children}</h1>
-  ),
-  h2: ({ children }) => (
-    <h2 className="mt-12 border-t border-white/10 pt-10 text-2xl font-black tracking-tight text-cyan-100 sm:text-3xl">
-      {children}
-    </h2>
-  ),
-  h3: ({ children }) => (
-    <h3 className="mt-8 text-xl font-bold tracking-tight text-white">{children}</h3>
-  ),
-  p: ({ children }) => (
-    <p className="mt-5 text-base leading-8 text-slate-300 sm:text-[1.05rem]">{children}</p>
-  ),
-  blockquote: ({ children }) => (
-    <blockquote className="mt-6 rounded-r-2xl border-l-2 border-cyan-300/50 bg-cyan-300/[0.06] px-5 py-4 text-sm leading-7 text-cyan-50">
-      {children}
-    </blockquote>
-  ),
-  ul: ({ children }) => <ul className="mt-5 space-y-3 text-slate-300">{children}</ul>,
-  ol: ({ children }) => <ol className="mt-5 list-decimal space-y-3 pl-6 text-slate-300">{children}</ol>,
-  li: ({ children }) => <li className="ml-5 list-disc pl-2 leading-7 marker:text-cyan-300">{children}</li>,
-  strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-  a: ({ href, children }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="font-medium text-cyan-300 underline decoration-cyan-300/40 underline-offset-4"
-    >
-      {children}
-    </a>
-  ),
-  hr: () => <hr className="my-10 border-white/10" />,
-  code: ({
-    inline,
-    children,
-    className,
-  }: ComponentPropsWithoutRef<"code"> & { inline?: boolean }) => {
-    if (inline) {
-      return (
-        <code className="rounded-md border border-white/10 bg-slate-900/80 px-1.5 py-1 font-mono text-[0.9em] text-cyan-200">
-          {children}
-        </code>
-      );
-    }
-
-    return (
-      <code
-        className={[
-          "block overflow-x-auto rounded-[1.4rem] border border-slate-700/60 bg-[#161b22] px-5 py-4 font-mono text-sm leading-7 text-slate-100",
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_18px_60px_rgba(2,6,23,0.35)]",
-          className ?? "",
-        ].join(" ")}
-      >
-        {children}
-      </code>
-    );
-  },
-  pre: ({ children }) => <pre className="mt-6 overflow-x-auto">{children}</pre>,
-};
 
 export default async function DemoPreviewPage({ params }: DemoPageProps) {
   const { slug } = await params;
@@ -428,6 +360,7 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
                   >
                     Chat on WhatsApp
                   </Link>
+                  <ContextualFooter href="/process" label="Deployment Path" className="justify-center" />
                 </div>
               </div>
             </div>
@@ -451,11 +384,7 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
             </div>
 
             <TracingBeam className="xl:pr-10">
-              <MarkdownShell>
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                  {auditMarkdown}
-                </ReactMarkdown>
-              </MarkdownShell>
+              <MarkdownShell markdown={auditMarkdown} />
             </TracingBeam>
           </div>
 
@@ -538,7 +467,7 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
                 </div>
               ) : (
                 <p className="mt-5 text-sm leading-7 text-slate-300">
-                  The demo page is ready to read `indexes/latest.json` from the vault as soon as the
+                  The demo page is ready to read `indexes/${slug}/latest.json` from the vault as soon as the
                   crawl pipeline publishes one. Until then, the markdown stream remains the source of truth.
                 </p>
               )}
@@ -604,6 +533,7 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
                 >
                   Chat on WhatsApp
                 </Link>
+                <ContextualFooter href="/solutions" label="System Layers" className="justify-center" />
               </div>
             </div>
 
@@ -613,10 +543,10 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
               </p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-300">
                 <li className="list-inside list-disc marker:text-cyan-300">
-                  Reads from <code>shadowspark-vault</code> by slug-aware prefix.
+                  Reads canonical audit markdown from <code>audits/{slug}/latest.md</code>.
                 </li>
                 <li className="list-inside list-disc marker:text-cyan-300">
-                  Falls back to a structured markdown shell if a fresh audit has not landed yet.
+                  Reads indexed signals from <code>indexes/{slug}/latest.json</code> with a global fallback.
                 </li>
                 <li className="list-inside list-disc marker:text-cyan-300">
                   Keeps the assistant bubble available for live follow-up questions while reviewing.
@@ -627,7 +557,7 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
         </section>
       </main>
 
-      <AssistantBubble />
+      <AssistantBubble slug={slug} />
     </Vortex>
   );
 }

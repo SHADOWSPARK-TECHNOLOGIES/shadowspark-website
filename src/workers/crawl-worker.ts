@@ -9,19 +9,28 @@ export const crawlWorker = new Worker<CrawlJobData>(
   CRAWL_QUEUE,
   async (job) => {
     const rootUrl = job.data.rootUrl;
+    const slug = job.data.slug;
     const limit = job.data.limit ?? 25;
 
-    console.log(`[crawl-worker] received job ${job.id} rootUrl=${rootUrl} limit=${limit}`);
+    console.log(`[crawl-worker] received job ${job.id} rootUrl=${rootUrl} slug=${slug || "none"} limit=${limit}`);
 
     const res = await runRagSync({
       rootUrl,
+      slug,
       limit,
       maxChunkChars: Number(process.env.RAG_CHUNK_MAX_CHARS || "1800"),
     });
 
     return { ok: true, ...res };
   },
-  { connection: redis }
+  { 
+    connection: redis,
+    concurrency: 3,
+    limiter: {
+      max: 5,
+      duration: 1000,
+    }
+  }
 );
 
 crawlWorker.on("completed", (job) => {

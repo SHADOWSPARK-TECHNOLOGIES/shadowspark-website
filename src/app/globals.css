@@ -1,34 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b; /* Zinc 950 (Obsidian) */
-  --foreground: #fafafa; /* Zinc 50 */
-  --card: #09090b;
+  --background: #000000;
+  --foreground: #fafafa;
+  --card: #0d1117;
   --card-foreground: #fafafa;
-  --popover: #09090b;
+  --popover: #0d1117;
   --popover-foreground: #fafafa;
-  --primary: oklch(0.75 0.18 190); /* Spark Cyan */
-  --primary-foreground: #09090b;
-  --secondary: #27272a; /* Zinc 800 */
+  --primary: #08d9d6;
+  --primary-foreground: #000000;
+  --secondary: #0d1117;
   --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa; /* Zinc 400 */
-  --accent: #27272a;
+  --muted: #0d1117;
+  --muted-foreground: #8b949e;
+  --accent: #1a73e8;
   --accent-foreground: #fafafa;
-  --destructive: #ef4444; /* Red 500 */
+  --destructive: #ef4444;
   --destructive-foreground: #fafafa;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: oklch(0.75 0.18 190);
+  --border: #1f2937;
+  --input: #0d1117;
+  --ring: #08d9d6;
   --radius: 0.5rem;
-  --spark-cyan: oklch(0.75 0.18 190);
+  --obsidian: #000000;
+  --charcoal: #0d1117;
+  --logic-blue: #1a73e8;
+  --steel-grey: #8b949e;
+  --operational-green: #00ffc2;
+  --cyan-500: #08d9d6;
+  --spark-cyan: #08d9d6;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
   
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
@@ -44,13 +50,20 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-obsidian: var(--obsidian);
+  --color-charcoal: var(--charcoal);
+  --color-cyan: var(--primary);
+  --color-cyan-500: var(--cyan-500);
+  --color-logic-blue: var(--logic-blue);
+  --color-steel-grey: var(--steel-grey);
+  --color-operational-green: var(--operational-green);
   --radius: var(--radius);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -62,6 +75,62 @@ body {
 
 .depth-card {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.sovereign-markdown .hljs {
+  background: #0d1117;
+  color: #d0d7de;
+}
+
+.sovereign-markdown .hljs-comment,
+.sovereign-markdown .hljs-quote {
+  color: #8b949e;
+}
+
+.sovereign-markdown .hljs-variable,
+.sovereign-markdown .hljs-template-variable,
+.sovereign-markdown .hljs-attribute,
+.sovereign-markdown .hljs-tag,
+.sovereign-markdown .hljs-name,
+.sovereign-markdown .hljs-regexp,
+.sovereign-markdown .hljs-link,
+.sovereign-markdown .hljs-selector-id,
+.sovereign-markdown .hljs-selector-class {
+  color: #79c0ff;
+}
+
+.sovereign-markdown .hljs-number,
+.sovereign-markdown .hljs-meta,
+.sovereign-markdown .hljs-built_in,
+.sovereign-markdown .hljs-builtin-name,
+.sovereign-markdown .hljs-literal,
+.sovereign-markdown .hljs-type,
+.sovereign-markdown .hljs-params {
+  color: #08d9d6;
+}
+
+.sovereign-markdown .hljs-string,
+.sovereign-markdown .hljs-symbol,
+.sovereign-markdown .hljs-bullet {
+  color: #a5f3fc;
+}
+
+.sovereign-markdown .hljs-title,
+.sovereign-markdown .hljs-section {
+  color: #e6edf3;
+}
+
+.sovereign-markdown .hljs-keyword,
+.sovereign-markdown .hljs-selector-tag {
+  color: #1a73e8;
+}
+
+.sovereign-markdown .hljs-emphasis {
+  font-style: italic;
+}
+
+.sovereign-markdown .hljs-strong {
+  font-weight: 700;
 }
 
 /* Sovereign Audit Reveal - Scroll-Driven Animations */
@@ -120,3 +189,4 @@ body {
 @keyframes slide-from-right { 
   from { transform: translateX(30px); opacity: 0; } 
 }
+@import "highlight.js/styles/github-dark.css";

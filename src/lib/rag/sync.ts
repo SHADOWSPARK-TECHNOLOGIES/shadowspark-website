@@ -7,6 +7,12 @@ import { embedMany } from "ai";
 
 import { requireEnv } from "@/lib/env";
 import { getFirecrawlClient } from "@/lib/firecrawl";
+import {
+  buildNextBullets,
+  deriveSignalConfidence,
+  deriveVaultSignalBrief,
+  rankSignalChunks,
+} from "@/lib/gcs/fetch-audit";
 import type { RagEmbeddingChunk, RagEmbeddingIndex } from "@/lib/rag/types";
 
 const storage = new Storage();
@@ -69,15 +75,54 @@ async function uploadVaultArtifacts(args: {
   bucketName: string;
   runId: string;
   rootUrl: string;
+  slug?: string;
   docs: Array<{ url?: string; title?: string; markdown: string }>;
   index: RagEmbeddingIndex;
+  auditMarkdown: string;
 }) {
   const bucket = storage.bucket(args.bucketName);
+  const normalizedSlug = args.slug?.trim().toLowerCase();
+  const runAuditName = normalizedSlug
+    ? `audits/${normalizedSlug}/${args.runId}/audit.md`
+    : `raw/${args.runId}/audit.md`;
+  const latestAuditName = normalizedSlug ? `audits/${normalizedSlug}/latest.md` : "raw/latest.md";
+
+  await Promise.all([
+    bucket.file(runAuditName).save(args.auditMarkdown, {
+      contentType: "text/markdown; charset=utf-8",
+      resumable: false,
+      metadata: {
+        metadata: {
+          rootUrl: args.rootUrl,
+          slug: normalizedSlug || "",
+          runId: args.runId,
+          artifact: "audit-summary",
+        },
+      },
+    }),
+    bucket.file(latestAuditName).save(args.auditMarkdown, {
+      contentType: "text/markdown; charset=utf-8",
+      resumable: false,
+      metadata: {
+        metadata: {
+          rootUrl: args.rootUrl,
+          slug: normalizedSlug || "",
+          runId: args.runId,
+          artifact: "latest-audit-summary",
+        },
+      },
+    }),
+  ]);
 
   await Promise.all(
     args.docs.map(async (doc, index) => {
       const baseName = slugifySegment(doc.url || doc.title || `document-${index + 1}`) || `document-${index + 1}`;
-      const objectName = `raw/${args.runId}/${String(index + 1).padStart(3, "0")}-${baseName}.md`;
+      
+      // If we have a slug, we prefer putting it in a dedicated directory
+      const objectName = normalizedSlug 
+        ? `audits/${normalizedSlug}/${args.runId}/${baseName}.md`
+        : `raw/${args.runId}/${String(index + 1).padStart(3, "0")}-${baseName}.md`;
+
       await bucket.file(objectName).save(doc.markdown, {
         contentType: "text/markdown; charset=utf-8",
         resumable: false,
@@ -86,6 +131,7 @@ async function uploadVaultArtifacts(args: {
             rootUrl: args.rootUrl,
             sourceUrl: doc.url || "",
             title: doc.title || "",
+            slug: normalizedSlug || "",
           },
         },
       });
@@ -93,30 +139,168 @@ async function uploadVaultArtifacts(args: {
   );
 
   const indexPayload = JSON.stringify(args.index, null, 2) + "\n";
-  await bucket.file(`indexes/${args.runId}/index.json`).save(indexPayload, {
+  
+  // Index pathing: prefer slug-based indexes
+  const runIndexName = normalizedSlug
+    ? `indexes/${normalizedSlug}/${args.runId}.json`
+    : `indexes/${args.runId}/index.json`;
+  
+  const latestIndexName = normalizedSlug
+    ? `indexes/${normalizedSlug}/latest.json`
+    : `indexes/latest.json`;
+
+  await bucket.file(runIndexName).save(indexPayload, {
     contentType: "application/json; charset=utf-8",
     resumable: false,
     metadata: {
       metadata: {
         rootUrl: args.rootUrl,
+        slug: normalizedSlug || "",
       },
     },
   });
 
-  await bucket.file("indexes/latest.json").save(indexPayload, {
+  await bucket.file(latestIndexName).save(indexPayload, {
     contentType: "application/json; charset=utf-8",
     resumable: false,
     metadata: {
       metadata: {
         rootUrl: args.rootUrl,
         runId: args.runId,
+        slug: normalizedSlug || "",
       },
     },
   });
 }
 
+function prettifySlug(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
+function inferBusinessName(args: {
+  slug: string;
+  rootUrl: string;
+  docs: Array<{ url?: string; title?: string; markdown: string }>;
+}) {
+  const title = args.docs.find((doc) => doc.title?.trim())?.title?.trim();
+  if (title) {
+    return title.split("|")[0]?.split("—")[0]?.trim() || title;
+  }
+
+  try {
+    const hostname = new URL(args.rootUrl).hostname.replace(/^www\./, "");
+    const hostLabel = hostname.split(".")[0];
+    if (hostLabel) {
+      return hostLabel
+        .split("-")
+        .filter(Boolean)
+        .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+        .join(" ");
+    }
+  } catch {
+    // Fall through to slug prettification.
+  }
+
+  return prettifySlug(args.slug);
+}
+
+function buildAuditMarkdown(args: {
+  slug: string;
+  runId: string;
+  rootUrl: string;
+  docs: Array<{ url?: string; title?: string; markdown: string }>;
+  chunks: RagEmbeddingChunk[];
+}) {
+  const businessName = inferBusinessName({
+    slug: args.slug,
+    rootUrl: args.rootUrl,
+    docs: args.docs,
+  });
+  const insights = rankSignalChunks({
+    slug: args.slug,
+    businessName,
+    chunks: args.chunks.map((chunk) => ({
+      id: chunk.id,
+      title: chunk.title,
+      url: chunk.url,
+      text: chunk.text,
+      embedding: chunk.embedding,
+    })),
+    k: 5,
+  });
+  const confidence = deriveSignalConfidence(insights.length, insights[0]?.score);
+  const signalBrief = deriveVaultSignalBrief(insights, businessName, "Autonomous");
+  const nextBullets = buildNextBullets({
+    insights,
+    businessName,
+    tierLabel: "Autonomous",
+  });
+
+  const sourceSection =
+    args.docs.length > 0
+      ? args.docs
+          .slice(0, 5)
+          .map((doc, index) => {
+            const label = doc.title?.trim() || doc.url || `Source ${index + 1}`;
+            return `- ${label}${doc.url ? ` (${doc.url})` : ""}`;
+          })
+          .join("\n")
+      : "- No markdown-rich source documents were available in this run.";
+
+  const signalSection =
+    insights.length > 0
+      ? insights.map((insight) => `1. **${insight.title}**: ${insight.excerpt}`).join("\n")
+      : "1. Awaiting stronger signal density from the next crawl run.";
+
+  const nextSection =
+    nextBullets.length > 0
+      ? nextBullets.map((bullet) => `- ${bullet}`).join("\n")
+      : "- Book the next review pass once a denser crawl lands.";
+
+  return [
+    `# Intelligence Stream: ${businessName}`,
+    "",
+    `> **Slug:** ${args.slug}`,
+    `> **Run ID:** ${args.runId}`,
+    `> **Root URL:** ${args.rootUrl}`,
+    `> **Confidence:** ${confidence}`,
+    "",
+    "## Crawl Snapshot",
+    `- Documents analyzed: ${args.docs.length}`,
+    `- Ranked chunks indexed: ${args.chunks.length}`,
+    `- Recommended layout: ${signalBrief.layout}`,
+    "",
+    "## Operator Readout",
+    signalBrief.heroSupportLine ?? `The latest crawl for ${businessName} is available for review.`,
+    "",
+    "## Proof Line",
+    signalBrief.proofLine ?? `Proof density is still forming for ${businessName}.`,
+    "",
+    "## Objection Line",
+    signalBrief.objectionLine ?? "The strongest objection pattern will emerge after a denser crawl.",
+    "",
+    "## CTA Line",
+    signalBrief.ctaLine ?? "Use a conservative walkthrough CTA until stronger signals land.",
+    "",
+    "## Top Signals",
+    signalSection,
+    "",
+    "## Sources Reviewed",
+    sourceSection,
+    "",
+    "## What To Build Next",
+    nextSection,
+    "",
+  ].join("\n");
+}
+
 export async function runRagSync(args: {
   rootUrl: string;
+  slug?: string;
   limit: number;
   maxChunkChars: number;
 }): Promise<{ outPath: string; chunks: number; documents: number; bucketName?: string; runId: string }> {
@@ -179,6 +363,14 @@ export async function runRagSync(args: {
     source: { rootUrl: args.rootUrl },
     chunks,
   };
+  const normalizedSlug = args.slug?.trim().toLowerCase() || slugifySegment(args.rootUrl) || "audit";
+  const auditMarkdown = buildAuditMarkdown({
+    slug: normalizedSlug,
+    runId,
+    rootUrl: args.rootUrl,
+    docs,
+    chunks,
+  });
 
   const outDir = path.join(process.cwd(), "data", "rag");
   await fs.mkdir(outDir, { recursive: true });
@@ -191,8 +383,10 @@ export async function runRagSync(args: {
       bucketName,
       runId,
       rootUrl: args.rootUrl,
+      slug: normalizedSlug,
       docs,
       index,
+      auditMarkdown,
     });
   }
 

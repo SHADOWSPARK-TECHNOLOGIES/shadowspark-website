@@ -9,7 +9,7 @@ const bucketName = requireEnv("VAULT_BUCKET");
 
 export async function getAuditFile(slug: string): Promise<string | null> {
   const bucket = storage.bucket(bucketName);
-  const filePath = `raw/${slug}.md`;
+  const filePath = `audits/${slug.toLowerCase()}/latest.md`;
   const file = bucket.file(filePath);
 
   const [exists] = await file.exists();

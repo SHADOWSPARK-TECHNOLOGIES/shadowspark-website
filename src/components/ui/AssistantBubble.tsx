@@ -5,10 +5,11 @@ import { MessageSquare, X, Send, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 
-export default function AssistantBubble() {
+export default function AssistantBubble({ slug }: { slug?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
     api: "/api/assistant",
+    body: { slug },
   } as any) as any;
 
   const scrollRef = useRef<HTMLDivElement>(null);

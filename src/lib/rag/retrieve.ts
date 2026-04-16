@@ -3,7 +3,8 @@ import { embed } from "ai";
 
 import { requireEnv } from "@/lib/env";
 import { loadRagIndex } from "@/lib/rag/store";
-import type { RagEmbeddingChunk } from "@/lib/rag/types";
+import { loadLatestVaultIndex } from "@/lib/gcs/fetch-audit";
+import type { RagEmbeddingChunk, RagEmbeddingIndex } from "@/lib/rag/types";
 
 export function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) {
@@ -28,13 +29,24 @@ export type RagHit = {
 
 export async function retrieveRagContext(args: {
   query: string;
+  slug?: string;
   k?: number;
 }): Promise<{ context: string; hits: RagHit[] } | null> {
-  const index = await loadRagIndex();
+  
+  let index: RagEmbeddingIndex | null = null;
+  
+  if (args.slug) {
+    index = await loadLatestVaultIndex(args.slug);
+  }
+  
+  if (!index) {
+    index = await loadRagIndex();
+  }
+
   if (!index || index.chunks.length === 0) return null;
 
   const google = createGoogleGenerativeAI({ apiKey: requireEnv("GEMINI_API_KEY") });
-  const model = google.textEmbeddingModel(index.embeddingModel);
+  const model = google.textEmbeddingModel(index.embeddingModel || "text-embedding-004");
 
   const { embedding } = await embed({
     model,
@@ -56,3 +68,4 @@ export async function retrieveRagContext(args: {
 
   return { context: contextLines.join("\n"), hits: scored };
 }
+
