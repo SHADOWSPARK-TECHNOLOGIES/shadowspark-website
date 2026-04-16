@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { enqueueCrawl } from "@/lib/crawl/queue";
 
 async function notifySlack(message: string) {
   const url = process.env.SLACK_WEBHOOK_URL;
@@ -86,6 +87,25 @@ export async function POST(req: Request) {
         }),
       ]);
 
+      // Fire-and-forget crawl trigger
+      try {
+        const audit = (lead.miniAuditData as any) || {};
+        const rootUrl = audit.rootUrl || audit.website || audit.url;
+        
+        if (rootUrl) {
+          await enqueueCrawl({
+            rootUrl,
+            slug: demo.slug,
+            limit: 20, // Conservative limit for instant audit
+          });
+          console.log(`[Paystack Webhook] Automated crawl enqueued for ${rootUrl} (slug: ${demo.slug})`);
+        } else {
+          console.warn(`[Paystack Webhook] No rootUrl found for lead ${leadId}, skipping automated crawl.`);
+        }
+      } catch (crawlErr) {
+        console.error("[Paystack Webhook] Failed to enqueue automated crawl:", crawlErr);
+      }
+
       // Fire-and-forget notification
       const audit = (lead.miniAuditData as any) || {};
       notifySlack(
@@ -100,4 +120,5 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ status: "ok" });
 }
+
 

@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { SovereignHero } from "@/components/ui/templates/SovereignHero";
 import { GlassCard } from "@/components/ui/templates/GlassCard";
-import Footer from "@/components/ui/Footer";
+import { SovereignFooter } from "@/components/ui/SovereignFooter";
 import TrustBadges from "@/components/ui/TrustBadges";
 
 export default function EnterpriseHomepage() {
@@ -109,28 +109,36 @@ export default function EnterpriseHomepage() {
         <div className="grid md:grid-cols-4 gap-6">
           {[
             {
+              id: "presence",
               icon: Globe,
               title: "Presence Infrastructure",
               items: ["High-performance website", "Mobile-first UI", "Conversion architecture", "Hosting & uptime"],
             },
             {
+              id: "conversation",
               icon: MessageSquare,
               title: "Conversation Intelligence",
               items: ["WhatsApp AI assistant", "Lead capture flows", "Instant response logic", "Qualification prompts"],
             },
             {
+              id: "automation",
               icon: Workflow,
               title: "Automation Engine",
               items: ["Follow-up sequences", "Booking/payment workflows", "Routing & escalation", "Handoff logic"],
             },
             {
+              id: "visibility",
               icon: Eye,
               title: "Operator Visibility",
               items: ["Lead pipeline", "Approval flows", "Demo generation", "Business insight layer"],
             },
           ].map((layer, idx) => (
-            <div key={idx} className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/30">
-              <layer.icon className="w-8 h-8 text-cyan-500 mb-5" />
+            <Link
+              key={idx}
+              href={`/solutions?layer=${layer.id}`}
+              className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/30 transition-all hover:border-cyan-500/50 hover:bg-zinc-900/50 group"
+            >
+              <layer.icon className="w-8 h-8 text-cyan-500 mb-5 transition-transform group-hover:scale-110" />
               <h3 className="text-white font-bold text-lg mb-3">{layer.title}</h3>
               <ul className="space-y-2 text-sm text-zinc-400">
                 {layer.items.map((item, i) => (
@@ -140,7 +148,10 @@ export default function EnterpriseHomepage() {
                   </li>
                 ))}
               </ul>
-            </div>
+              <div className="mt-5 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-cyan-500 opacity-0 transition-opacity group-hover:opacity-100">
+                EXPLORE LAYER <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -437,11 +448,9 @@ export default function EnterpriseHomepage() {
           </div>
         </div>
       </section>
-
-      {/* ==================== FOOTER ==================== */}
-      <footer className="py-12 border-t border-zinc-900 text-center text-xs font-mono uppercase tracking-[0.3em] text-zinc-600">
-        © 2026 ShadowSpark Technologies · <Link href="/process" className="hover:text-cyan-400 transition-colors">Process</Link> · Autonomous Infrastructure · v2.0.0
-      </footer>
+      
+      <TrustBadges />
+      <SovereignFooter />
     </div>
   );
 }

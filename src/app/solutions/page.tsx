@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   Bot,
@@ -16,6 +17,8 @@ import {
 import Link from "next/link";
 import { AuroraBackground } from "@/components/ui/templates/AuroraBackground";
 import { AppleCardsCarousel } from "@/components/ui/apple-cards-carousel";
+import { BrowserWindow } from "@/components/ui/BrowserWindow";
+import { ContextualFooter } from "@/components/ui/ContextualFooter";
 
 const layers = [
   {
@@ -138,8 +141,17 @@ const proofBand = [
   },
 ];
 
-export default function SolutionsPage() {
+function SolutionsContent() {
+  const searchParams = useSearchParams();
   const [activeLayerId, setActiveLayerId] = useState(layers[0].id);
+
+  useEffect(() => {
+    const layerParam = searchParams.get("layer");
+    if (layerParam && layers.some((l) => l.id === layerParam)) {
+      setActiveLayerId(layerParam);
+    }
+  }, [searchParams]);
+
   const activeLayer = layers.find((layer) => layer.id === activeLayerId) ?? layers[0];
 
   return (
@@ -273,19 +285,21 @@ export default function SolutionsPage() {
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.4 }}
             >
-              <div className="relative w-full overflow-hidden rounded-[2.2rem]">
-                {/* The Veo Video Background */}
-                <video 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline
-                  className="absolute top-0 left-0 w-full h-full object-cover opacity-30 z-0 pointer-events-none"
-                >
-                  <source src="/sovereign_manifesto.mp4" type="video/mp4" />
-                </video>
+              <BrowserWindow
+                title="Architecture Layers"
+                eyebrow="Decision surface"
+                contentClassName="w-full bg-slate-900/50"
+                chrome={
+                  <div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-100">
+                    Active: {activeLayer.step}
+                  </div>
+                }
+              >
+                <div className="absolute inset-0 z-0">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(34,211,238,0.1),transparent)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(14,165,233,0.05),transparent)]" />
+                </div>
 
-                {/* Your content (Apple Cards, Bento Grid, etc) sits on top here */}
                 <div className="relative z-10">
                   <AppleCardsCarousel
                     items={layers.map((layer) => ({
@@ -301,7 +315,7 @@ export default function SolutionsPage() {
                     onSelect={setActiveLayerId}
                   />
                 </div>
-              </div>
+              </BrowserWindow>
             </motion.div>
 
             <motion.div
@@ -310,34 +324,35 @@ export default function SolutionsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35 }}
             >
-              <div className="h-full overflow-hidden rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,12,22,0.96),rgba(3,7,18,0.92))] shadow-[0_30px_100px_rgba(2,6,23,0.35)]">
+              <BrowserWindow
+                className="h-full"
+                title={activeLayer.title}
+                eyebrow={`${activeLayer.step} · ${activeLayer.shortLabel}`}
+                contentClassName="grid gap-6 p-6 sm:p-8"
+                chrome={
+                  <div
+                    className="rounded-full border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/90"
+                    style={{
+                      borderColor: `${activeLayer.accent}55`,
+                      backgroundColor: `${activeLayer.accent}18`,
+                    }}
+                  >
+                    Active decision layer
+                  </div>
+                }
+              >
                 <div
-                  className="h-1 w-full"
+                  className="absolute inset-x-0 top-0 h-1"
                   style={{
                     background: `linear-gradient(90deg, transparent, ${activeLayer.accent}, transparent)`,
                   }}
                 />
-                <div className="grid gap-6 p-6 sm:p-8">
+                <div className="grid gap-6">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                      <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-cyan-200/70">
-                        {activeLayer.step} · {activeLayer.shortLabel}
-                      </p>
-                      <h3 className="mt-3 text-3xl font-black tracking-tight text-white">
-                        {activeLayer.title}
-                      </h3>
                       <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
                         {activeLayer.outcome}
                       </p>
-                    </div>
-                    <div
-                      className="rounded-full border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/90"
-                      style={{
-                        borderColor: `${activeLayer.accent}55`,
-                        backgroundColor: `${activeLayer.accent}18`,
-                      }}
-                    >
-                      Active decision layer
                     </div>
                   </div>
 
@@ -380,7 +395,7 @@ export default function SolutionsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </BrowserWindow>
             </motion.div>
           </div>
         </div>
@@ -483,9 +498,20 @@ export default function SolutionsPage() {
                 Chat on WhatsApp
               </Link>
             </div>
+            <div className="mt-8 flex justify-center">
+              <ContextualFooter href="/process" label="Deployment Path" />
+            </div>
           </motion.div>
         </div>
       </section>
     </AuroraBackground>
+  );
+}
+
+export default function SolutionsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <SolutionsContent />
+    </Suspense>
   );
 }

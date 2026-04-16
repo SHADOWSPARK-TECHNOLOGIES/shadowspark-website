@@ -1,8 +1,11 @@
 # ---------- Base ----------
 FROM node:20-alpine AS base
 
-# Install necessary system libraries for Node and Prisma (though we skip prisma, openssl is good to have)
+# Install necessary system libraries
 RUN apk add --no-cache libc6-compat openssl
+
+# Install pnpm globally in base so it is available in all stages
+RUN npm install -g pnpm
 
 WORKDIR /app
 
@@ -13,9 +16,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # ---------- Dependencies ----------
 FROM base AS deps
-
-# Install pnpm
-RUN npm install -g pnpm
 
 # Copy dependency manifests
 COPY package.json pnpm-lock.yaml ./
