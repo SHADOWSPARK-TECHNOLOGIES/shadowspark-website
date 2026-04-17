@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,16 +28,25 @@ export async function POST(request: Request) {
     // Validate against the Universal Schema
     const target = UniversalTargetSchema.parse(body);
 
-    // TODO: Save to Prisma database (Phase 2.1)
-    // TODO: Dispatch to Cloud Tasks for Firecrawl/Gemini analysis
+    // Save to Prisma database
+    const sniperTarget = await prisma.sniperTarget.create({
+      data: {
+        source: target.source,
+        domain: target.domain,
+        companyName: target.companyName,
+        firstName: target.decisionMaker?.firstName,
+        email: target.decisionMaker?.email,
+        linkedinUrl: target.decisionMaker?.linkedinUrl,
+        signal: target.signal,
+        status: "new",
+      }
+    });
     
-    console.log(`[SNIPER INGEST] Target Locked: ${target.domain} (Source: ${target.source})`);
-    if (target.decisionMaker?.email) {
-       console.log(`[SNIPER INGEST] Contact acquired: ${target.decisionMaker.email}`);
-    }
+    console.log(`[SNIPER INGEST] Target Locked: ${target.domain} (Source: ${target.source}, DB ID: ${sniperTarget.id})`);
 
     return NextResponse.json({ 
       status: 'ingested', 
+      id: sniperTarget.id,
       domain: target.domain,
       timestamp: new Date().toISOString()
     });
