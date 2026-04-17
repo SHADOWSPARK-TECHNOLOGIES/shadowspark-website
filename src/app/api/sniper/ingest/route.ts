@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid target payload", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Invalid target payload", details: error.flatten().fieldErrors }, { status: 400 });
     }
     console.error("[SNIPER INGEST ERROR]", error);
     return NextResponse.json({ error: "Internal server error during ingestion" }, { status: 500 });
