@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { sniperQueue } from "@/lib/sniper/queue";
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +43,13 @@ export async function POST(request: Request) {
       }
     });
     
-    console.log(`[SNIPER INGEST] Target Locked: ${target.domain} (Source: ${target.source}, DB ID: ${sniperTarget.id})`);
+    // Dispatch to Cloud Tasks (via BullMQ) for Firecrawl/Gemini analysis
+    await sniperQueue.add("process-target", {
+      targetId: sniperTarget.id,
+      domain: target.domain,
+    });
+    
+    console.log(`[SNIPER INGEST] Target Locked & Queued: ${target.domain} (DB ID: ${sniperTarget.id})`);
 
     return NextResponse.json({ 
       status: 'ingested', 

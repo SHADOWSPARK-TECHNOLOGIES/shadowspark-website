@@ -17,7 +17,8 @@
     "rag:sync": "tsx src/cli/rag-sync.ts",
     "job:crawl": "pnpm rag:sync",
     "worker:crawl": "tsx src/workers/crawl-worker.ts",
-    "worker:lead": "tsx src/workers/lead-worker.ts"
+    "worker:lead": "tsx src/workers/lead-worker.ts",
+    "worker:sniper": "tsx src/workers/sniper-worker.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "3.0.62",
