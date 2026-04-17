@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
+export const dynamic = 'force-dynamic';
+
 type LeadWithDemoAndPayments = Prisma.LeadGetPayload<{ include: { demo: true; payments: true } }>;
 type DemoWithLead = Prisma.DemoGetPayload<{ include: { lead: true } }>;
 
@@ -19,7 +21,36 @@ function normalizeStatus(lead: {
   return "New";
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const format = searchParams.get('format');
+
+  if (format === 'json') {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.MOBILE_OPERATOR_KEY}`) {
+      return NextResponse.json({ error: "Unauthorized mobile request" }, { status: 401 });
+    }
+
+    const leads = await prisma.lead.findMany({
+      include: { demo: true, payments: true },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    const totalLeads = leads.length;
+    const approvedCount = leads.filter((lead: LeadWithDemoAndPayments) => normalizeStatus(lead) === "Approved").length;
+    const conversionRate = totalLeads === 0 ? "0.0" : ((approvedCount / totalLeads) * 100).toFixed(1);
+    const activeDemos = leads.filter((lead: LeadWithDemoAndPayments) => normalizeStatus(lead) === "Demo Generated").length;
+    const revenueLeakage = leads
+        .filter((lead: LeadWithDemoAndPayments) => normalizeStatus(lead) === "Rejected")
+        .reduce((sum: number, lead: LeadWithDemoAndPayments) => sum + (lead.leadScore && lead.leadScore >= 70 ? 750 : 300), 0)
+        .toString();
+
+    return NextResponse.json(
+      { metrics: { totalLeads, conversionRate, revenueLeakage, activeDemos } },
+      { headers: { 'Access-Control-Allow-Origin': '*' } }
+    );
+  }
+
   const session = await auth();
   if (session?.user?.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
