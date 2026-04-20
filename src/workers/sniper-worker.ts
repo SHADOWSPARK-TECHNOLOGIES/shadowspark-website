@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { Worker } from "bullmq";
 import { redis } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
@@ -24,7 +24,7 @@ export const sniperWorker = new Worker<SniperJobData>(
 
       // 2. Firecrawl Scrape
       console.log(`[sniper-worker] Scraping ${domain}...`);
-      const scrapeResult = await firecrawl.scrapeUrl(domain, { formats: ["markdown"] });
+      const scrapeResult: any = await firecrawl.scrape(domain, { formats: ['markdown'] });
 
       if (!scrapeResult.success || !scrapeResult.markdown) {
         throw new Error(`Failed to scrape ${domain}: ${scrapeResult.error}`);

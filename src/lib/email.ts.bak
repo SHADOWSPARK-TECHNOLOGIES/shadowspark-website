@@ -1,0 +1,4 @@
+export async function sendEmail(to: string, subject: string, html: string): Promise<void> { return; }
+export async function resend(to: string, content: string): Promise<void> { return; }
+export async function sendWelcomeEmail(to: string, name?: string): Promise<void> { return; }
+export default { sendEmail, resend, sendWelcomeEmail };

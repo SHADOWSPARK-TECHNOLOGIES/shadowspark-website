@@ -98,7 +98,7 @@ export async function GET(req: Request) {
     if (usedMatch) {
       const usedMemory = parseInt(usedMatch[1], 10);
       // Upstash free tier max memory defaults to 256MB
-      let maxMemory = maxMatch && maxMatch[1] !== "0" ? parseInt(maxMatch[1], 10) : 256 * 1024 * 1024;
+      const maxMemory = maxMatch && maxMatch[1] !== "0" ? parseInt(maxMatch[1], 10) : 256 * 1024 * 1024;
       
       const usagePercentage = (usedMemory / maxMemory) * 100;
       

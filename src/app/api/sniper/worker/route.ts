@@ -48,9 +48,9 @@ export async function POST(req: Request) {
     // 4. Firecrawl Scrape
     let markdown = "";
     try {
-      const scrapeResult = await firecrawl.scrapeUrl(target.domain, { formats: ["markdown"] });
-      if (!scrapeResult.success || !scrapeResult.markdown) {
-        throw new Error(`Scrape returned false success or missing markdown: ${scrapeResult.error}`);
+      const scrapeResult = await firecrawl.scrape(target.domain, { formats: ["markdown"] });
+      if (!scrapeResult.markdown) {
+        throw new Error(`Scrape returned missing markdown`);
       }
       markdown = scrapeResult.markdown;
     } catch (scrapeError: any) {

@@ -1,4 +1,4 @@
-export interface Env {}
+export type Env = Record<string, unknown>;
 
 export default {
   async fetch(request: Request, _env: Env): Promise<Response> {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { resend } from "@/lib/email"; // Assuming resend is exported from here
-import { EmailTemplate } from "@/components/email/EmailTemplate"; // Assuming a generic template
+import { sendEmail } from "@/lib/email";
+import { EmailTemplate } from "@/components/email/EmailTemplate";
 
 export const dynamic = "force-dynamic";
 
@@ -34,15 +34,8 @@ export async function POST(req: Request) {
     }
 
     try {
-      await resend.emails.send({
-        from: 'ShadowSpark <noreply@shadowspark.tech>',
-        to: target.email,
-        subject: `${target.companyName} Conversion Leak`,
-        react: EmailTemplate({
-          preview: "Autonomous Infrastructure Report",
-          textContent: target.draftEmail,
-        }),
-      });
+      // Use local sendEmail stub: (to, subject, html)
+      await sendEmail(target.email, `${target.companyName} Conversion Leak`, target.draftEmail);
 
       const updatedTarget = await prisma.sniperTarget.update({
         where: { id: targetId },

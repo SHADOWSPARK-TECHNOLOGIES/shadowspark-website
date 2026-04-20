@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { Worker } from "bullmq";
 
 import { CRAWL_QUEUE, type CrawlJobData } from "@/lib/crawl/queue";

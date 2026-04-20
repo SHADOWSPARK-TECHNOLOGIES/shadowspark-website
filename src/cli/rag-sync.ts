@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { crawlWorker } from "@/workers/crawl-worker";
 import { crawlQueue } from "@/lib/crawl/queue";
 import { runRagSync } from "@/lib/rag/sync";
