@@ -1,4 +1,4 @@
-import Resend from "resend";
+import { Resend } from "resend";
 
 const FROM = process.env.EMAIL_FROM || 'ShadowSpark <ops@shadowspark-tech.org>';
 
