@@ -15,16 +15,19 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { messages, slug } = await req.json();
 
-  const lastUserMessage =
-    Array.isArray(messages) ? [...messages].reverse().find((m) => m?.role === "user")?.content : undefined;
-  const query = typeof lastUserMessage === "string" ? lastUserMessage : "";
+  const lastUserMsg =
+    Array.isArray(messages) ? messages.filter((m: any) => m.role === 'user').pop()?.content || '' : '';
+  const query = typeof lastUserMsg === 'string' ? lastUserMsg : '';
 
   const rag = query
     ? await retrieveRagContext({ query, slug }).catch(() => null)
     : null;
 
+  // Lead context (fallbacks) — prefer values from RAG if available
+  const leadContext = (rag && (rag.leadContext || (rag as any).lead)) ? (rag.leadContext || (rag as any).lead) : { tier: 'starter', leadScore: 0, status: 'unknown' };
+
   // Competitive context pulled from structured RAG store (trusted, filtered)
-  const competitiveContext = retrieveCompetitiveContext(query || '');
+  const competitiveContext = retrieveCompetitiveContext(lastUserMsg || '');
 
 
   const result = await streamText({
@@ -50,6 +53,11 @@ export async function POST(req: Request) {
 
       VAULT_INTELLIGENCE:
       ${rag?.context ? `${rag.context}` : 'None available.'}
+
+      LEAD_INTELLIGENCE:
+      - Tier: ${leadContext.tier || 'starter'}
+      - Intent Score: ${leadContext.leadScore || 0}
+      - Status: ${leadContext.status || 'unknown'}
 
       COMPETITIVE_INTELLIGENCE:
       ${competitiveContext ? `${competitiveContext}` : 'None available.'}
