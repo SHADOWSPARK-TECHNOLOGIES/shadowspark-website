@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import TransitionLink from "@/components/TransitionLink";
@@ -50,6 +50,19 @@ export default function CheckoutClient() {
     }),
     [searchParams]
   );
+
+  // Log checkout view for analytics
+  useEffect(() => {
+    try {
+      fetch('/api/track-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadId: miniAudit.leadId }),
+      }).catch(() => null);
+    } catch (e) {
+      // noop
+    }
+  }, [miniAudit.leadId]);
 
   async function handlePayment() {
     if (!acceptedTerms || loading) return;
