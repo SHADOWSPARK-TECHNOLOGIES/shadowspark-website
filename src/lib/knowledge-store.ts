@@ -1,23 +1,32 @@
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 
-const KNOWLEDGE_PATH = path.join(process.cwd(), 'data/knowledge.json');
-
-export async function getKnowledgeBase() {
+export function retrieveCompetitiveContext(query: string): string {
   try {
-    const data = await fs.readFile(KNOWLEDGE_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return { lastUpdated: null, documents: [] };
-  }
-}
+    const filePath = path.join(process.cwd(), 'data', 'firecrawl-knowledge.json');
+    if (!fs.existsSync(filePath)) return "";
+    
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    
+    const keywords = query.toLowerCase().split(/\W+/).filter(w => w.length > 3);
+    if (keywords.length === 0) return "";
 
-export async function searchChunks(query: string): Promise<string[]> {
-  // Simple keyword search – replace with embeddings later
-  const kb = await getKnowledgeBase();
-  const allChunks = kb.documents.flatMap((doc: any) => doc.chunks);
-  const queryTerms = query.toLowerCase().split(/\s+/);
-  return allChunks.filter((chunk: string) =>
-    queryTerms.some(term => chunk.toLowerCase().includes(term))
-  ).slice(0, 5);
+    const scored = data.map((chunk: any) => {
+      let score = 0;
+      keywords.forEach(kw => {
+        if (chunk.text.toLowerCase().includes(kw)) score++;
+      });
+      return { ...chunk, score };
+    })
+    .filter((c: any) => c.score > 0)
+    .sort((a: any, b: any) => b.score - a.score)
+    .slice(0, 3);
+
+    if (scored.length === 0) return "";
+
+    return scored.map((c: any) => `[Competitor Data - ${c.url}]\n${c.text}`).join("\n\n");
+  } catch (error) {
+    console.error("[RAG STORE ERROR]", error);
+    return "";
+  }
 }

@@ -65,3 +65,44 @@ export async function processFollowUp(leadId: string) {
     return { success: false, error };
   }
 }
+
+export async function recoverAbandonedCheckout(leadId: string) {
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+  
+  if (!lead || !lead.email) return { success: false, reason: "No lead or email" };
+
+  if (lead.status === 'WON' || lead.status === 'CONVERTED') {
+    return { success: false, reason: "Already paid" };
+  }
+
+  // Only recover High Intent / Enterprise
+  if (lead.status !== 'HIGH_INTENT' && lead.tier !== 'enterprise') {
+     return { success: false, reason: "Not high intent enough for recovery" };
+  }
+
+  console.log(`[RECOVERY] Firing abandoned checkout sequence for: ${lead.email}`);
+
+  try {
+    const subject = `Your ShadowSpark System Audit`;
+    const body = `Your ShadowSpark audit slot is still reserved. Happy to walk you through the infrastructure assessment — just reply here if you have any questions.\n\nOtherwise, you can finalize the refundable deposit here: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/${lead.id}\n\n— The ShadowSpark Team`;
+
+    await sendOutreach({
+      leadId: lead.id,
+      subject,
+      body
+    });
+
+    await prisma.systemEvent.create({
+      data: {
+        type: "RECOVERY_SENT",
+        message: `Checkout recovery sent to ${lead.email}`,
+        metadata: { leadId: lead.id }
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[RECOVERY ERROR]", error);
+    return { success: false, error };
+  }
+}

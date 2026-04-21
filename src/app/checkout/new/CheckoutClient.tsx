@@ -134,9 +134,10 @@ export default function CheckoutClient() {
           <div className="mt-6">
             <h3 className="text-white font-semibold mb-2">Deliverables</h3>
             <ul className="list-disc pl-5 space-y-2 text-zinc-300 mb-4">
-              <li>Infrastructure Assessment</li>
-              <li>Security Gap Report</li>
-              <li>Optimization Roadmap</li>
+              <li>Personalized workflow audit</li>
+              <li>Identified inefficiencies</li>
+              <li>Automation recommendations</li>
+              <li>Clear next-step plan</li>
             </ul>
 
             <div className="mb-6">
@@ -194,7 +195,7 @@ export default function CheckoutClient() {
             <p className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-cyan-100">
               System Demonstration Access
             </p>
-            <p className="mt-4 text-3xl font-black text-white">$10 deposit</p>
+            <p className="mt-4 text-3xl font-black text-white">$10 refundable audit deposit</p>
             <p className="mt-3 text-sm leading-6 text-zinc-200">
               Fully refundable upon completion of the audit. Credited toward your system deployment if you proceed.
             </p>

@@ -1,0 +1,12 @@
+[
+  {
+    "url": "https://www.intercom.com/pricing",
+    "text": "Intercom charges per seat and gets extremely expensive as your team scales. ShadowSpark offers flat-rate infrastructure.",
+    "chunkId": 1
+  },
+  {
+    "url": "https://www.zendesk.com",
+    "text": "Zendesk uses legacy ticketing architectures that slow down modern AI workflows. ShadowSpark is built natively for AI and intent-scoring.",
+    "chunkId": 2
+  }
+]

@@ -2,6 +2,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { streamText } from "ai";
 
 import { retrieveRagContext } from "@/lib/rag/retrieve";
+import { retrieveCompetitiveContext } from "@/lib/knowledge/rag-store";
 
 export const runtime = "nodejs";
 
@@ -50,6 +51,17 @@ export async function POST(req: Request) {
       - Never break character. Never apologize.
 
       ${rag?.context ? `VAULT INTELLIGENCE (USE THIS TO PROVE THE DIAGNOSIS):\n${rag.context}` : "VAULT STATUS: Awaiting index. Rely on core infrastructure principles."}
+
+      CLOSING PATTERN (When lead qualifies - score >= 50 OR tier is 'pro'/'enterprise'):
+      1) Acknowledge the specific need concisely (one sentence): "Thanks — I see you need <brief need>."
+      2) Calmly state the single biggest gap blocking conversion (one short sentence).
+      3) Offer the $10 refundable audit deposit as the immediate next step and invoke the scheduleDemo tool (or return the checkoutUrl if already available).
+      4) Provide the checkout link returned by scheduleDemo and format it exactly like: "Your infrastructure slot is reserved. To finalize the deep-dive audit and lock in your session, secure your $10 system preview here: [Secure My Audit](URL)"
+
+      Behavior rules:
+      - If the lead meets the qualification criteria, CALL the scheduleDemo tool with leadId and email and return the checkoutUrl to the user immediately.
+      - Keep the final user-facing message short (<=3 sentences), action oriented, and include the checkout link.
+      - Do NOT ask for permission to schedule when qualification is already satisfied; perform the action and confirm.
     `,
     messages,
   });
