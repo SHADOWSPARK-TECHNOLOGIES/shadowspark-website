@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import TransitionLink from "@/components/TransitionLink";
 import GlassCard from "@/components/ui/GlassCard";
 
-const DEMO_FEE = 1000;
+const DEMO_FEE = 10;
 
 function normalizeTierLabel(value: string) {
   const normalized = value.toLowerCase();
@@ -120,17 +120,39 @@ export default function CheckoutClient() {
     <main className="min-h-screen bg-[#0A0A0A] px-4 py-10 text-zinc-100 sm:px-6">
       <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-[2rem] border border-zinc-800 bg-zinc-950/90 p-6 shadow-[0_0_60px_rgba(0,229,255,0.08)] sm:p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">
-            Mini-Audit Summary
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">
+            ShadowSpark System Audit
           </p>
           <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
-            Your recommended setup is {miniAudit.recommendation}
+            ShadowSpark System Audit <span className="text-cyan-400">(Refundable Deposit)</span>
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-zinc-300">
-            Based on your {miniAudit.businessType.toLowerCase()} workflow, the priority is to{" "}
-            {miniAudit.goal.toLowerCase()} with a tighter website-to-WhatsApp handoff and clearer
-            follow-up automation.
+            Secure your prioritized audit for immediate assessment and a clear, actionable technical report.
+            The $10 deposit is fully refundable after the audit is completed.
           </p>
+
+          <div className="mt-6">
+            <h3 className="text-white font-semibold mb-2">Deliverables</h3>
+            <ul className="list-disc pl-5 space-y-2 text-zinc-300 mb-4">
+              <li>Infrastructure Assessment</li>
+              <li>Security Gap Report</li>
+              <li>Optimization Roadmap</li>
+            </ul>
+
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/60 border border-zinc-800 text-sm">
+                <svg className="h-4 w-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M12 11c.993 0 2-.552 2-2s-1.007-2-2-2s-2 .552-2 2s1.007 2 2 2z"></path><path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M21 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2"></path></svg>
+                <span className="text-xs text-cyan-300">Powered by ShadowSpark AI • Secure Checkout</span>
+              </div>
+            </div>
+
+            <h4 className="text-white font-semibold mb-2">What happens next?</h4>
+            <ol className="list-decimal pl-6 space-y-2 text-zinc-300 mb-6">
+              <li>Audit Preparation — we review your submission and schedule a time.</li>
+              <li>Assessment & Report — a focused infrastructure and security assessment is delivered.</li>
+              <li>Optimization Roadmap & Refund — receive a roadmap; refund processed if requested after audit.</li>
+            </ol>
+          </div>
 
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-900 p-6">
@@ -172,12 +194,9 @@ export default function CheckoutClient() {
             <p className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-cyan-100">
               System Demonstration Access
             </p>
-            <p className="mt-4 text-3xl font-black text-white">$1 (₦1,000 equivalent)</p>
+            <p className="mt-4 text-3xl font-black text-white">$10 deposit</p>
             <p className="mt-3 text-sm leading-6 text-zinc-200">
-              Credited toward your system deployment if you proceed.
-            </p>
-            <p className="mt-2 text-xs uppercase tracking-[0.18em] text-cyan-400 font-bold">
-              This $1 system preview replaces $20k+ in custom development costs.
+              Fully refundable upon completion of the audit. Credited toward your system deployment if you proceed.
             </p>
           </GlassCard>
 

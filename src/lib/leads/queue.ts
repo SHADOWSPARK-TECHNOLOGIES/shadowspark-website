@@ -18,3 +18,7 @@ export const leadSyncQueue = new Queue(LEAD_SYNC_QUEUE, {
 export async function addLeadToSyncQueue(data: any) {
   return await leadSyncQueue.add("sync-lead", data);
 }
+
+export async function enqueueFollowUp(leadId: string, delayMs: number = 1000 * 60 * 60 * 24) {
+  return await leadSyncQueue.add("follow-up-lead", { leadId }, { delay: delayMs });
+}

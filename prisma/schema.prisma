@@ -1,31 +1,33 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma/client"
 }
 
 datasource db {
-  directUrl = env("DIRECT_URL")
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Lead {
-  id             String    @id @default(cuid())
-  phoneNumber    String    @unique
-  email          String?
+  id             String       @id @default(cuid())
+  phoneNumber    String?      @unique
+  email          String?      @unique
   intent         String?
   status         String
   leadScore      Int?
+  tier           String?
   lastMessage    String?
   nextFollowUpAt DateTime?
   metadata       Json?
-  termsAccepted  Boolean   @default(false)
+  termsAccepted  Boolean      @default(false)
   miniAuditData  Json?
   paymentRef     String?
-  demoApproved   Boolean   @default(false)
-  updatedAt      DateTime  @updatedAt
-  createdAt      DateTime  @default(now())
-  payments       Payment[]
+  demoApproved   Boolean      @default(false)
+  demoScheduled  Boolean      @default(false)
+  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime     @default(now())
   demo           Demo?
+  emailEvents    EmailEvent[]
+  payments       Payment[]
 }
 
 model User {
@@ -38,25 +40,25 @@ model User {
 }
 
 model Payment {
-  id            String   @id @default(cuid())
-  amount        Int
-  status        String   @default("pending")
-  reference     String   @unique
-  leadId        String
-  lead          Lead     @relation(fields: [leadId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(cuid())
+  amount    Int
+  status    String   @default("pending")
+  reference String   @unique
+  leadId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lead      Lead     @relation(fields: [leadId], references: [id])
 }
 
 model Demo {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  leadId        String   @unique
-  lead          Lead     @relation(fields: [leadId], references: [id])
-  config        Json?
-  approved      Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  leadId    String   @unique
+  config    Json?
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lead      Lead     @relation(fields: [leadId], references: [id])
 }
 
 model SystemEvent {
@@ -69,23 +71,32 @@ model SystemEvent {
 }
 
 model SniperTarget {
-  id              String   @id @default(cuid())
-  source          String   // 'apollo', 'builtwith', 'linkedin', 'local', 'manual'
-  domain          String
-  companyName     String
-  firstName       String?
-  email           String?
-  linkedinUrl     String?
-  signal          String?
-  status          String   @default("new") // 'new', 'analyzing', 'draft_ready', 'fired', 'dead_link'
-  generatedDraft  String?  @db.Text
-  draftEmail      String?  @db.Text
+  id             String    @id @default(cuid())
+  source         String
+  domain         String
+  companyName    String
+  firstName      String?
+  email          String?
+  linkedinUrl    String?
+  signal         String?
+  status         String    @default("new")
+  generatedDraft String?
+  draftEmail     String?
   sentAt         DateTime?
   lastAttemptAt  DateTime?
-  attemptCount   Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  attemptCount   Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([domain])
   @@index([status])
+}
+
+model EmailEvent {
+  id        String   @id @default(cuid())
+  leadId    String
+  type      String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id])
 }

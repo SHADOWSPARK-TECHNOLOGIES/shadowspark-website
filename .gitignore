@@ -47,3 +47,4 @@ codex/
 # Internal preview artifacts
 reports/firecrawl-preview/*.json
 node_modules/
+docs/research/

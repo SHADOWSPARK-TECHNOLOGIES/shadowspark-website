@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/generated/prisma/client/index.js";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export default async function OperatorDashboard() {
     const name =
       typeof audit.companyName === "string" && audit.companyName
         ? audit.companyName
-        : lead.phoneNumber;
+        : lead.phoneNumber || 'Unknown';
     const business =
       typeof audit.businessType === "string" && audit.businessType
         ? audit.businessType

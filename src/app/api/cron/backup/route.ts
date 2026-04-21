@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/prisma/client/index.js";
 import { Storage } from "@google-cloud/storage";
 
 export const runtime = "nodejs";
