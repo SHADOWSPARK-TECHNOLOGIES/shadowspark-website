@@ -57,7 +57,8 @@ export const ModelName = {
   Demo: 'Demo',
   SystemEvent: 'SystemEvent',
   SniperTarget: 'SniperTarget',
-  EmailEvent: 'EmailEvent'
+  EmailEvent: 'EmailEvent',
+  KnowledgeEmbedding: 'KnowledgeEmbedding'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -180,6 +181,19 @@ export const EmailEventScalarFieldEnum = {
 } as const
 
 export type EmailEventScalarFieldEnum = (typeof EmailEventScalarFieldEnum)[keyof typeof EmailEventScalarFieldEnum]
+
+
+export const KnowledgeEmbeddingScalarFieldEnum = {
+  id: 'id',
+  chunkId: 'chunkId',
+  source: 'source',
+  type: 'type',
+  text: 'text',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeEmbeddingScalarFieldEnum = (typeof KnowledgeEmbeddingScalarFieldEnum)[keyof typeof KnowledgeEmbeddingScalarFieldEnum]
 
 
 export const SortOrder = {

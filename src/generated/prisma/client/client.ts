@@ -76,3 +76,8 @@ export type SniperTarget = Prisma.SniperTargetModel
  * 
  */
 export type EmailEvent = Prisma.EmailEventModel
+/**
+ * Model KnowledgeEmbedding
+ * 
+ */
+export type KnowledgeEmbedding = Prisma.KnowledgeEmbeddingModel

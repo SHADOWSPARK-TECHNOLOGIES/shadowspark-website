@@ -390,7 +390,8 @@ export const ModelName = {
   Demo: 'Demo',
   SystemEvent: 'SystemEvent',
   SniperTarget: 'SniperTarget',
-  EmailEvent: 'EmailEvent'
+  EmailEvent: 'EmailEvent',
+  KnowledgeEmbedding: 'KnowledgeEmbedding'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "lead" | "user" | "payment" | "demo" | "systemEvent" | "sniperTarget" | "emailEvent"
+    modelProps: "lead" | "user" | "payment" | "demo" | "systemEvent" | "sniperTarget" | "emailEvent" | "knowledgeEmbedding"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -928,6 +929,64 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KnowledgeEmbedding: {
+      payload: Prisma.$KnowledgeEmbeddingPayload<ExtArgs>
+      fields: Prisma.KnowledgeEmbeddingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KnowledgeEmbeddingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KnowledgeEmbeddingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload>
+        }
+        findFirst: {
+          args: Prisma.KnowledgeEmbeddingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KnowledgeEmbeddingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload>
+        }
+        findMany: {
+          args: Prisma.KnowledgeEmbeddingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload>[]
+        }
+        delete: {
+          args: Prisma.KnowledgeEmbeddingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload>
+        }
+        update: {
+          args: Prisma.KnowledgeEmbeddingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload>
+        }
+        deleteMany: {
+          args: Prisma.KnowledgeEmbeddingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KnowledgeEmbeddingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KnowledgeEmbeddingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEmbeddingPayload>[]
+        }
+        aggregate: {
+          args: Prisma.KnowledgeEmbeddingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKnowledgeEmbedding>
+        }
+        groupBy: {
+          args: Prisma.KnowledgeEmbeddingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeEmbeddingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KnowledgeEmbeddingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeEmbeddingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1071,6 +1130,19 @@ export const EmailEventScalarFieldEnum = {
 } as const
 
 export type EmailEventScalarFieldEnum = (typeof EmailEventScalarFieldEnum)[keyof typeof EmailEventScalarFieldEnum]
+
+
+export const KnowledgeEmbeddingScalarFieldEnum = {
+  id: 'id',
+  chunkId: 'chunkId',
+  source: 'source',
+  type: 'type',
+  text: 'text',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeEmbeddingScalarFieldEnum = (typeof KnowledgeEmbeddingScalarFieldEnum)[keyof typeof KnowledgeEmbeddingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1298,6 +1370,7 @@ export type GlobalOmitConfig = {
   systemEvent?: Prisma.SystemEventOmit
   sniperTarget?: Prisma.SniperTargetOmit
   emailEvent?: Prisma.EmailEventOmit
+  knowledgeEmbedding?: Prisma.KnowledgeEmbeddingOmit
 }
 
 /* Types for Logging */

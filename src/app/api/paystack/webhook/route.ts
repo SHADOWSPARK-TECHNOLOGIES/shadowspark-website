@@ -1,7 +1,28 @@
+import type { Prisma } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { enqueueCrawl } from "@/lib/crawl/queue";
+
+type PaystackCustomField = {
+  variable_name?: string;
+  value?: string | null;
+};
+
+type MiniAuditData = {
+  companyName?: string;
+  rootUrl?: string;
+  url?: string;
+  website?: string;
+};
+
+function readMiniAuditData(value: Prisma.JsonValue | null | undefined): MiniAuditData {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as MiniAuditData;
+}
 
 async function notifySlack(message: string) {
   const url = process.env.SLACK_WEBHOOK_URL;
@@ -39,7 +60,9 @@ export async function POST(req: Request) {
     // Extract leadId whether it's root level or nested in custom_fields
     let leadId = metadata?.leadId;
     if (!leadId && metadata?.custom_fields) {
-      const field = metadata.custom_fields.find((f: any) => f.variable_name === "leadId");
+      const field = (metadata.custom_fields as PaystackCustomField[]).find(
+        (customField) => customField.variable_name === "leadId"
+      );
       if (field) leadId = field.value;
     }
 
@@ -89,7 +112,7 @@ export async function POST(req: Request) {
 
       // Fire-and-forget crawl trigger
       try {
-        const audit = (lead.miniAuditData as any) || {};
+        const audit = readMiniAuditData(lead.miniAuditData);
         const rootUrl = audit.rootUrl || audit.website || audit.url;
         
         if (rootUrl) {
@@ -107,7 +130,7 @@ export async function POST(req: Request) {
       }
 
       // Fire-and-forget notification
-      const audit = (lead.miniAuditData as any) || {};
+      const audit = readMiniAuditData(lead.miniAuditData);
       notifySlack(
         `🚀 *New ShadowSpark Sale!*\n*Lead:* ${lead.phoneNumber}\n*Business:* ${audit.companyName || 'Unknown'}\n*Amount:* $10 (Demo Fee)\n*Approve now:* ${process.env.NEXTAUTH_URL || 'https://shadowspark-tech.org'}/operator`
       );
@@ -120,5 +143,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ status: "ok" });
 }
-
 

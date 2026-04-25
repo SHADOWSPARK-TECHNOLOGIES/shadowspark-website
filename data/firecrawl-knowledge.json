@@ -1,12 +1,18 @@
 [
   {
     "url": "https://www.intercom.com/pricing",
-    "text": "Intercom charges per seat and gets extremely expensive as your team scales. ShadowSpark offers flat-rate infrastructure.",
-    "chunkId": 1
+    "text": "Intercom pricing starts at $74/month for the Starter plan.",
+    "chunkId": 1001,
+    "source": "intercom",
+    "type": "pricing",
+    "verified": true
   },
   {
-    "url": "https://www.zendesk.com",
-    "text": "Zendesk uses legacy ticketing architectures that slow down modern AI workflows. ShadowSpark is built natively for AI and intent-scoring.",
-    "chunkId": 2
+    "url": "https://www.zendesk.com/pricing",
+    "text": "Zendesk Suite Team starts at $55 per agent per month.",
+    "chunkId": 1002,
+    "source": "zendesk",
+    "type": "pricing",
+    "verified": true
   }
 ]

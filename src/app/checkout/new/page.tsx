@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import CheckoutClient from "./CheckoutClient";
+import CheckoutClient from "@/components/CheckoutClient";
 
 function Skeleton({ className }: { className: string }) {
   return <div className={`animate-pulse rounded-lg bg-gray-800 ${className}`} />;

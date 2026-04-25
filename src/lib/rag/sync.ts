@@ -6,7 +6,6 @@ import { Storage } from "@google-cloud/storage";
 import { embedMany } from "ai";
 
 import { requireEnv } from "@/lib/env";
-import { getFirecrawlClient } from "@/lib/firecrawl";
 import {
   buildNextBullets,
   deriveSignalConfidence,
@@ -304,36 +303,31 @@ export async function runRagSync(args: {
   limit: number;
   maxChunkChars: number;
 }): Promise<{ outPath: string; chunks: number; documents: number; bucketName?: string; runId: string }> {
-  const firecrawl = getFirecrawlClient();
   const runId = buildVaultRunId();
 
-  const crawlJob = await firecrawl.crawl(args.rootUrl, {
-    limit: args.limit,
-    scrapeOptions: {
-      formats: ["markdown"],
-      onlyMainContent: true,
-    },
-    pollInterval: 2,
-    timeout: 10 * 60,
+  console.log(`[rag:sync] Bypassing Firecrawl, using Jina for ${args.rootUrl}`);
+  const response = await fetch(`https://r.jina.ai/${args.rootUrl}`, {
+    headers: { 'Accept': 'text/plain' }
   });
+  const markdown = await response.text();
 
-  if (crawlJob.status !== "completed") {
-    throw new Error(`[rag:sync] crawl failed: status=${crawlJob.status}`);
-  }
-
-  const docs = crawlJob.data
-    .map((d) => ({
-      url: d.metadata?.url ?? d.metadata?.ogUrl ?? undefined,
-      title: d.metadata?.title ?? d.metadata?.ogTitle ?? undefined,
-      markdown: d.markdown ?? "",
-    }))
-    .filter((d) => d.markdown.trim().length > 0);
+  const docs = [{
+    url: args.rootUrl,
+    title: args.slug || args.rootUrl,
+    markdown: markdown,
+  }];
 
   const chunkInputs: Array<{ url?: string; title?: string; text: string }> = [];
-  for (const doc of docs) {
-    for (const text of chunkMarkdown(doc.markdown, args.maxChunkChars)) {
-      chunkInputs.push({ url: doc.url, title: doc.title, text });
-    }
+  // Split by headers to create your chunks
+  const jinaChunks = markdown.split(/\n(?=# )/g);
+  
+  for (const chunk of jinaChunks) {
+    if (!chunk.trim()) continue;
+    chunkInputs.push({ 
+      url: args.rootUrl, 
+      title: args.slug || args.rootUrl, 
+      text: chunk.trim() 
+    });
   }
 
   const google = createGoogleGenerativeAI({ apiKey: requireEnv("GEMINI_API_KEY") });

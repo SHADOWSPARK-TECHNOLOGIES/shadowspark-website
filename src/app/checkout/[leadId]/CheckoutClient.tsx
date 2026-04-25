@@ -26,7 +26,7 @@ export default function CheckoutClient({ leadId }: { leadId: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          amount: 1000, // ₦1,000 Demo Fee
+          amount: 1500000, // ₦15,000 Semantic System Preview Fee (in kobo)
           leadId: leadId === "new" ? `new_${Date.now()}` : leadId,
           metadata: { companyName, goal, packageId }
         }),
@@ -114,17 +114,17 @@ export default function CheckoutClient({ leadId }: { leadId: string }) {
       <form onSubmit={handleCheckout} className="space-y-6">
         <div className="bg-zinc-800 p-5 rounded-lg border border-zinc-700">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-medium text-white">Live Demo Access Fee</span>
-            <span className="text-xl font-bold text-white">₦1,000</span>
+            <span className="font-medium text-white">Semantic System Preview Fee</span>
+            <span className="text-xl font-bold text-white">₦15,000</span>
           </div>
           <p className="text-sm text-zinc-400 mb-4">
-            This fee secures your dedicated environment and is <strong>fully credited toward your final package</strong>.
+            This fee secures your environment and is <strong>fully credited toward your final deployment</strong>. This Semantic System Preview replaces $20k+ in traditional custom development.
           </p>
           
           <div className="flex items-start gap-3 mt-4 pt-4 border-t border-zinc-700">
             <input required type="checkbox" id="terms" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)} className="mt-1 w-4 h-4" />
             <label htmlFor="terms" className="text-sm text-zinc-400">
-              I accept the Terms and Privacy Policy, and I understand this ₦1,000 fee is a credited deposit for the demo environment.
+              I accept the Terms and Privacy Policy, and I understand this ₦15,000 fee is a fully-credited deployment fee for the Semantic System Preview.
             </label>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function CheckoutClient({ leadId }: { leadId: string }) {
             Back
           </Button>
           <Button disabled={loading || !termsAccepted} type="submit" className="w-2/3 bg-cyan-500 text-zinc-950 hover:bg-cyan-400">
-            {loading ? "Processing..." : "Pay ₦1,000 (Test Mode)"}
+            {loading ? "Processing..." : "Pay ₦15,000 (Fully Credited)"}
           </Button>
         </div>
       </form>

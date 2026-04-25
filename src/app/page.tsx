@@ -41,7 +41,7 @@ export default function EnterpriseHomepage() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                Most businesses don't have a traffic problem.
+                Most businesses don&apos;t have a traffic problem.
                 <br />
                 <span className="text-cyan-500">They have a conversion problem.</span>
               </h2>
@@ -252,7 +252,7 @@ export default function EnterpriseHomepage() {
 
           <div className="text-center mb-12">
             <p className="text-xl text-white/80 italic max-w-3xl mx-auto border-l-4 border-cyan-500 pl-6 py-2">
-              “Most businesses don't have a traffic problem. They have a conversion problem. ShadowSpark fixes both.”
+              “Most businesses don&apos;t have a traffic problem. They have a conversion problem. ShadowSpark fixes both.”
             </p>
           </div>
 
