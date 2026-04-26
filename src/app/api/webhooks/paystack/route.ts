@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { LedgerService } from "@/lib/ledger";
 
 export const runtime = "nodejs";
 
@@ -65,6 +66,16 @@ export async function POST(req: Request) {
     const secret = process.env.PAYSTACK_SECRET_KEY || "";
 
     if (!verifyPaystackSignature(payload, signature, secret)) {
+      await prisma.systemEvent.create({
+        data: {
+          type: "SUSPICIOUS_INGRESS",
+          message: "Invalid Paystack signature detected",
+          metadata: {
+            ip: req.headers.get("x-forwarded-for") || "unknown",
+            userAgent: req.headers.get("user-agent") || "unknown",
+          },
+        },
+      });
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
@@ -103,6 +114,7 @@ export async function POST(req: Request) {
     }
 
     const amount = typeof event.data?.amount === "number" ? event.data.amount : 0;
+    const amountInKobo = BigInt(amount);
     const systemEventMetadata: Prisma.InputJsonObject = {
       leadId,
       reference,
@@ -110,8 +122,10 @@ export async function POST(req: Request) {
       event: event.event ?? "charge.success",
     };
 
-    await prisma.$transaction([
-      prisma.payment.upsert({
+    // Interactive transaction: payment + lead + event + settlement ledger entry
+    await prisma.$transaction(async (tx) => {
+      // 1. Upsert payment record
+      await tx.payment.upsert({
         where: { reference },
         update: {
           amount,
@@ -123,21 +137,48 @@ export async function POST(req: Request) {
           amount,
           status: "success",
         },
-      }),
-      prisma.lead.update({
+      });
+
+      // 2. Promote lead tier
+      await tx.lead.update({
         where: { id: leadId },
         data: {
           tier: "SEMANTIC_GROWTH",
         },
-      }),
-      prisma.systemEvent.create({
+      });
+
+      // 3. Log the payment event
+      await tx.systemEvent.create({
         data: {
           type: "payment_received",
           message: `Payment received for ${reference}`,
           metadata: systemEventMetadata,
         },
-      }),
-    ]);
+      });
+
+      // —— SETTLEMENT BRIDGE ——
+      // 4. Create and post a ledger transaction:
+      //    Debit  Corporate Settlement (1111...)  — negative (debit)
+      //    Credit Platform Revenue     (3333...)  — positive (credit)
+      await LedgerService.createAndPost(
+        {
+          userId: leadId,
+          reference: `STL-${reference}`,
+          idempotencyKey: `settlement-${reference}`,
+          entries: [
+            {
+              accountId: "11111111-1111-1111-1111-111111111111", // Corporate Settlement (WALLET)
+              amount: -amountInKobo, // Debit: cash leaves settlement
+            },
+            {
+              accountId: "33333333-3333-3333-3333-333333333333", // Platform Revenue (INCOME)
+              amount: amountInKobo, // Credit: revenue earned
+            },
+          ],
+        },
+        tx // Pass the transaction client for atomicity
+      );
+    });
 
     return NextResponse.json({ received: true, success: true }, { status: 200 });
   } catch (error) {

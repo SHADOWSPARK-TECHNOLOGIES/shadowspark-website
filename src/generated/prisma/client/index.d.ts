@@ -69,56 +69,10 @@ export type Account = $Result.DefaultSelection<Prisma.$AccountPayload>
  */
 export type LedgerTransaction = $Result.DefaultSelection<Prisma.$LedgerTransactionPayload>
 /**
- * Model LedgerEntry
+ * Model Entry
  * 
  */
-export type LedgerEntry = $Result.DefaultSelection<Prisma.$LedgerEntryPayload>
-
-/**
- * Enums
- */
-export namespace $Enums {
-  export const AccountType: {
-  ASSET: 'ASSET',
-  LIABILITY: 'LIABILITY',
-  EQUITY: 'EQUITY',
-  REVENUE: 'REVENUE',
-  EXPENSE: 'EXPENSE'
-};
-
-export type AccountType = (typeof AccountType)[keyof typeof AccountType]
-
-
-export const TransactionStatus: {
-  PENDING: 'PENDING',
-  POSTED: 'POSTED',
-  FAILED: 'FAILED',
-  REVERSED: 'REVERSED'
-};
-
-export type TransactionStatus = (typeof TransactionStatus)[keyof typeof TransactionStatus]
-
-
-export const EntryDirection: {
-  DEBIT: 'DEBIT',
-  CREDIT: 'CREDIT'
-};
-
-export type EntryDirection = (typeof EntryDirection)[keyof typeof EntryDirection]
-
-}
-
-export type AccountType = $Enums.AccountType
-
-export const AccountType: typeof $Enums.AccountType
-
-export type TransactionStatus = $Enums.TransactionStatus
-
-export const TransactionStatus: typeof $Enums.TransactionStatus
-
-export type EntryDirection = $Enums.EntryDirection
-
-export const EntryDirection: typeof $Enums.EntryDirection
+export type Entry = $Result.DefaultSelection<Prisma.$EntryPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -352,14 +306,14 @@ export class PrismaClient<
   get ledgerTransaction(): Prisma.LedgerTransactionDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.ledgerEntry`: Exposes CRUD operations for the **LedgerEntry** model.
+   * `prisma.entry`: Exposes CRUD operations for the **Entry** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more LedgerEntries
-    * const ledgerEntries = await prisma.ledgerEntry.findMany()
+    * // Fetch zero or more Entries
+    * const entries = await prisma.entry.findMany()
     * ```
     */
-  get ledgerEntry(): Prisma.LedgerEntryDelegate<ExtArgs, ClientOptions>;
+  get entry(): Prisma.EntryDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -805,7 +759,7 @@ export namespace Prisma {
     Embedding: 'Embedding',
     Account: 'Account',
     LedgerTransaction: 'LedgerTransaction',
-    LedgerEntry: 'LedgerEntry'
+    Entry: 'Entry'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -821,7 +775,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "lead" | "user" | "payment" | "demo" | "systemEvent" | "sniperTarget" | "emailEvent" | "knowledgeEmbedding" | "embedding" | "account" | "ledgerTransaction" | "ledgerEntry"
+      modelProps: "lead" | "user" | "payment" | "demo" | "systemEvent" | "sniperTarget" | "emailEvent" | "knowledgeEmbedding" | "embedding" | "account" | "ledgerTransaction" | "entry"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1623,77 +1577,77 @@ export namespace Prisma {
           }
         }
       }
-      LedgerEntry: {
-        payload: Prisma.$LedgerEntryPayload<ExtArgs>
-        fields: Prisma.LedgerEntryFieldRefs
+      Entry: {
+        payload: Prisma.$EntryPayload<ExtArgs>
+        fields: Prisma.EntryFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.LedgerEntryFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload> | null
+            args: Prisma.EntryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.LedgerEntryFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>
+            args: Prisma.EntryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>
           }
           findFirst: {
-            args: Prisma.LedgerEntryFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload> | null
+            args: Prisma.EntryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.LedgerEntryFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>
+            args: Prisma.EntryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>
           }
           findMany: {
-            args: Prisma.LedgerEntryFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>[]
+            args: Prisma.EntryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>[]
           }
           create: {
-            args: Prisma.LedgerEntryCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>
+            args: Prisma.EntryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>
           }
           createMany: {
-            args: Prisma.LedgerEntryCreateManyArgs<ExtArgs>
+            args: Prisma.EntryCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.LedgerEntryCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>[]
+            args: Prisma.EntryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>[]
           }
           delete: {
-            args: Prisma.LedgerEntryDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>
+            args: Prisma.EntryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>
           }
           update: {
-            args: Prisma.LedgerEntryUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>
+            args: Prisma.EntryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>
           }
           deleteMany: {
-            args: Prisma.LedgerEntryDeleteManyArgs<ExtArgs>
+            args: Prisma.EntryDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.LedgerEntryUpdateManyArgs<ExtArgs>
+            args: Prisma.EntryUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.LedgerEntryUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>[]
+            args: Prisma.EntryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>[]
           }
           upsert: {
-            args: Prisma.LedgerEntryUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LedgerEntryPayload>
+            args: Prisma.EntryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EntryPayload>
           }
           aggregate: {
-            args: Prisma.LedgerEntryAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateLedgerEntry>
+            args: Prisma.EntryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEntry>
           }
           groupBy: {
-            args: Prisma.LedgerEntryGroupByArgs<ExtArgs>
-            result: $Utils.Optional<LedgerEntryGroupByOutputType>[]
+            args: Prisma.EntryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EntryGroupByOutputType>[]
           }
           count: {
-            args: Prisma.LedgerEntryCountArgs<ExtArgs>
-            result: $Utils.Optional<LedgerEntryCountAggregateOutputType> | number
+            args: Prisma.EntryCountArgs<ExtArgs>
+            result: $Utils.Optional<EntryCountAggregateOutputType> | number
           }
         }
       }
@@ -1816,7 +1770,7 @@ export namespace Prisma {
     embedding?: EmbeddingOmit
     account?: AccountOmit
     ledgerTransaction?: LedgerTransactionOmit
-    ledgerEntry?: LedgerEntryOmit
+    entry?: EntryOmit
   }
 
   /* Types for Logging */
@@ -1959,7 +1913,7 @@ export namespace Prisma {
    * AccountCountOutputType without action
    */
   export type AccountCountOutputTypeCountEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
   }
 
 
@@ -1990,7 +1944,7 @@ export namespace Prisma {
    * LedgerTransactionCountOutputType without action
    */
   export type LedgerTransactionCountOutputTypeCountEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
   }
 
 
@@ -11753,26 +11707,25 @@ export namespace Prisma {
 
   export type AccountMinAggregateOutputType = {
     id: string | null
-    name: string | null
-    type: $Enums.AccountType | null
+    userId: string | null
+    type: string | null
     currency: string | null
     createdAt: Date | null
   }
 
   export type AccountMaxAggregateOutputType = {
     id: string | null
-    name: string | null
-    type: $Enums.AccountType | null
+    userId: string | null
+    type: string | null
     currency: string | null
     createdAt: Date | null
   }
 
   export type AccountCountAggregateOutputType = {
     id: number
-    name: number
+    userId: number
     type: number
     currency: number
-    metadata: number
     createdAt: number
     _all: number
   }
@@ -11780,7 +11733,7 @@ export namespace Prisma {
 
   export type AccountMinAggregateInputType = {
     id?: true
-    name?: true
+    userId?: true
     type?: true
     currency?: true
     createdAt?: true
@@ -11788,7 +11741,7 @@ export namespace Prisma {
 
   export type AccountMaxAggregateInputType = {
     id?: true
-    name?: true
+    userId?: true
     type?: true
     currency?: true
     createdAt?: true
@@ -11796,10 +11749,9 @@ export namespace Prisma {
 
   export type AccountCountAggregateInputType = {
     id?: true
-    name?: true
+    userId?: true
     type?: true
     currency?: true
-    metadata?: true
     createdAt?: true
     _all?: true
   }
@@ -11878,10 +11830,9 @@ export namespace Prisma {
 
   export type AccountGroupByOutputType = {
     id: string
-    name: string
-    type: $Enums.AccountType
+    userId: string
+    type: string
     currency: string
-    metadata: JsonValue | null
     createdAt: Date
     _count: AccountCountAggregateOutputType | null
     _min: AccountMinAggregateOutputType | null
@@ -11904,10 +11855,9 @@ export namespace Prisma {
 
   export type AccountSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
+    userId?: boolean
     type?: boolean
     currency?: boolean
-    metadata?: boolean
     createdAt?: boolean
     entries?: boolean | Account$entriesArgs<ExtArgs>
     _count?: boolean | AccountCountOutputTypeDefaultArgs<ExtArgs>
@@ -11915,32 +11865,29 @@ export namespace Prisma {
 
   export type AccountSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
+    userId?: boolean
     type?: boolean
     currency?: boolean
-    metadata?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["account"]>
 
   export type AccountSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
+    userId?: boolean
     type?: boolean
     currency?: boolean
-    metadata?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["account"]>
 
   export type AccountSelectScalar = {
     id?: boolean
-    name?: boolean
+    userId?: boolean
     type?: boolean
     currency?: boolean
-    metadata?: boolean
     createdAt?: boolean
   }
 
-  export type AccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "type" | "currency" | "metadata" | "createdAt", ExtArgs["result"]["account"]>
+  export type AccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "type" | "currency" | "createdAt", ExtArgs["result"]["account"]>
   export type AccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     entries?: boolean | Account$entriesArgs<ExtArgs>
     _count?: boolean | AccountCountOutputTypeDefaultArgs<ExtArgs>
@@ -11951,14 +11898,13 @@ export namespace Prisma {
   export type $AccountPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Account"
     objects: {
-      entries: Prisma.$LedgerEntryPayload<ExtArgs>[]
+      entries: Prisma.$EntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      name: string
-      type: $Enums.AccountType
+      userId: string
+      type: string
       currency: string
-      metadata: Prisma.JsonValue | null
       createdAt: Date
     }, ExtArgs["result"]["account"]>
     composites: {}
@@ -12354,7 +12300,7 @@ export namespace Prisma {
    */
   export interface Prisma__AccountClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    entries<T extends Account$entriesArgs<ExtArgs> = {}>(args?: Subset<T, Account$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    entries<T extends Account$entriesArgs<ExtArgs> = {}>(args?: Subset<T, Account$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12385,10 +12331,9 @@ export namespace Prisma {
    */
   interface AccountFieldRefs {
     readonly id: FieldRef<"Account", 'String'>
-    readonly name: FieldRef<"Account", 'String'>
-    readonly type: FieldRef<"Account", 'AccountType'>
+    readonly userId: FieldRef<"Account", 'String'>
+    readonly type: FieldRef<"Account", 'String'>
     readonly currency: FieldRef<"Account", 'String'>
-    readonly metadata: FieldRef<"Account", 'Json'>
     readonly createdAt: FieldRef<"Account", 'DateTime'>
   }
     
@@ -12787,23 +12732,23 @@ export namespace Prisma {
    */
   export type Account$entriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
-    where?: LedgerEntryWhereInput
-    orderBy?: LedgerEntryOrderByWithRelationInput | LedgerEntryOrderByWithRelationInput[]
-    cursor?: LedgerEntryWhereUniqueInput
+    include?: EntryInclude<ExtArgs> | null
+    where?: EntryWhereInput
+    orderBy?: EntryOrderByWithRelationInput | EntryOrderByWithRelationInput[]
+    cursor?: EntryWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: LedgerEntryScalarFieldEnum | LedgerEntryScalarFieldEnum[]
+    distinct?: EntryScalarFieldEnum | EntryScalarFieldEnum[]
   }
 
   /**
@@ -12837,60 +12782,64 @@ export namespace Prisma {
 
   export type LedgerTransactionMinAggregateOutputType = {
     id: string | null
-    idempotencyKey: string | null
-    status: $Enums.TransactionStatus | null
-    description: string | null
+    userId: string | null
     reference: string | null
+    status: string | null
+    idempotencyKey: string | null
     createdAt: Date | null
+    postedAt: Date | null
   }
 
   export type LedgerTransactionMaxAggregateOutputType = {
     id: string | null
-    idempotencyKey: string | null
-    status: $Enums.TransactionStatus | null
-    description: string | null
+    userId: string | null
     reference: string | null
+    status: string | null
+    idempotencyKey: string | null
     createdAt: Date | null
+    postedAt: Date | null
   }
 
   export type LedgerTransactionCountAggregateOutputType = {
     id: number
-    idempotencyKey: number
-    status: number
-    description: number
+    userId: number
     reference: number
-    metadata: number
+    status: number
+    idempotencyKey: number
     createdAt: number
+    postedAt: number
     _all: number
   }
 
 
   export type LedgerTransactionMinAggregateInputType = {
     id?: true
-    idempotencyKey?: true
-    status?: true
-    description?: true
+    userId?: true
     reference?: true
+    status?: true
+    idempotencyKey?: true
     createdAt?: true
+    postedAt?: true
   }
 
   export type LedgerTransactionMaxAggregateInputType = {
     id?: true
-    idempotencyKey?: true
-    status?: true
-    description?: true
+    userId?: true
     reference?: true
+    status?: true
+    idempotencyKey?: true
     createdAt?: true
+    postedAt?: true
   }
 
   export type LedgerTransactionCountAggregateInputType = {
     id?: true
-    idempotencyKey?: true
-    status?: true
-    description?: true
+    userId?: true
     reference?: true
-    metadata?: true
+    status?: true
+    idempotencyKey?: true
     createdAt?: true
+    postedAt?: true
     _all?: true
   }
 
@@ -12968,12 +12917,12 @@ export namespace Prisma {
 
   export type LedgerTransactionGroupByOutputType = {
     id: string
+    userId: string
+    reference: string
+    status: string
     idempotencyKey: string
-    status: $Enums.TransactionStatus
-    description: string
-    reference: string | null
-    metadata: JsonValue | null
     createdAt: Date
+    postedAt: Date | null
     _count: LedgerTransactionCountAggregateOutputType | null
     _min: LedgerTransactionMinAggregateOutputType | null
     _max: LedgerTransactionMaxAggregateOutputType | null
@@ -12995,47 +12944,47 @@ export namespace Prisma {
 
   export type LedgerTransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    idempotencyKey?: boolean
-    status?: boolean
-    description?: boolean
+    userId?: boolean
     reference?: boolean
-    metadata?: boolean
+    status?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
+    postedAt?: boolean
     entries?: boolean | LedgerTransaction$entriesArgs<ExtArgs>
     _count?: boolean | LedgerTransactionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["ledgerTransaction"]>
 
   export type LedgerTransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    idempotencyKey?: boolean
-    status?: boolean
-    description?: boolean
+    userId?: boolean
     reference?: boolean
-    metadata?: boolean
+    status?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
+    postedAt?: boolean
   }, ExtArgs["result"]["ledgerTransaction"]>
 
   export type LedgerTransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    idempotencyKey?: boolean
-    status?: boolean
-    description?: boolean
+    userId?: boolean
     reference?: boolean
-    metadata?: boolean
+    status?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
+    postedAt?: boolean
   }, ExtArgs["result"]["ledgerTransaction"]>
 
   export type LedgerTransactionSelectScalar = {
     id?: boolean
-    idempotencyKey?: boolean
-    status?: boolean
-    description?: boolean
+    userId?: boolean
     reference?: boolean
-    metadata?: boolean
+    status?: boolean
+    idempotencyKey?: boolean
     createdAt?: boolean
+    postedAt?: boolean
   }
 
-  export type LedgerTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "idempotencyKey" | "status" | "description" | "reference" | "metadata" | "createdAt", ExtArgs["result"]["ledgerTransaction"]>
+  export type LedgerTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "reference" | "status" | "idempotencyKey" | "createdAt" | "postedAt", ExtArgs["result"]["ledgerTransaction"]>
   export type LedgerTransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     entries?: boolean | LedgerTransaction$entriesArgs<ExtArgs>
     _count?: boolean | LedgerTransactionCountOutputTypeDefaultArgs<ExtArgs>
@@ -13046,16 +12995,16 @@ export namespace Prisma {
   export type $LedgerTransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "LedgerTransaction"
     objects: {
-      entries: Prisma.$LedgerEntryPayload<ExtArgs>[]
+      entries: Prisma.$EntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      userId: string
+      reference: string
+      status: string
       idempotencyKey: string
-      status: $Enums.TransactionStatus
-      description: string
-      reference: string | null
-      metadata: Prisma.JsonValue | null
       createdAt: Date
+      postedAt: Date | null
     }, ExtArgs["result"]["ledgerTransaction"]>
     composites: {}
   }
@@ -13450,7 +13399,7 @@ export namespace Prisma {
    */
   export interface Prisma__LedgerTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    entries<T extends LedgerTransaction$entriesArgs<ExtArgs> = {}>(args?: Subset<T, LedgerTransaction$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    entries<T extends LedgerTransaction$entriesArgs<ExtArgs> = {}>(args?: Subset<T, LedgerTransaction$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13481,12 +13430,12 @@ export namespace Prisma {
    */
   interface LedgerTransactionFieldRefs {
     readonly id: FieldRef<"LedgerTransaction", 'String'>
-    readonly idempotencyKey: FieldRef<"LedgerTransaction", 'String'>
-    readonly status: FieldRef<"LedgerTransaction", 'TransactionStatus'>
-    readonly description: FieldRef<"LedgerTransaction", 'String'>
+    readonly userId: FieldRef<"LedgerTransaction", 'String'>
     readonly reference: FieldRef<"LedgerTransaction", 'String'>
-    readonly metadata: FieldRef<"LedgerTransaction", 'Json'>
+    readonly status: FieldRef<"LedgerTransaction", 'String'>
+    readonly idempotencyKey: FieldRef<"LedgerTransaction", 'String'>
     readonly createdAt: FieldRef<"LedgerTransaction", 'DateTime'>
+    readonly postedAt: FieldRef<"LedgerTransaction", 'DateTime'>
   }
     
 
@@ -13884,23 +13833,23 @@ export namespace Prisma {
    */
   export type LedgerTransaction$entriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
-    where?: LedgerEntryWhereInput
-    orderBy?: LedgerEntryOrderByWithRelationInput | LedgerEntryOrderByWithRelationInput[]
-    cursor?: LedgerEntryWhereUniqueInput
+    include?: EntryInclude<ExtArgs> | null
+    where?: EntryWhereInput
+    orderBy?: EntryOrderByWithRelationInput | EntryOrderByWithRelationInput[]
+    cursor?: EntryWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: LedgerEntryScalarFieldEnum | LedgerEntryScalarFieldEnum[]
+    distinct?: EntryScalarFieldEnum | EntryScalarFieldEnum[]
   }
 
   /**
@@ -13923,262 +13872,251 @@ export namespace Prisma {
 
 
   /**
-   * Model LedgerEntry
+   * Model Entry
    */
 
-  export type AggregateLedgerEntry = {
-    _count: LedgerEntryCountAggregateOutputType | null
-    _avg: LedgerEntryAvgAggregateOutputType | null
-    _sum: LedgerEntrySumAggregateOutputType | null
-    _min: LedgerEntryMinAggregateOutputType | null
-    _max: LedgerEntryMaxAggregateOutputType | null
+  export type AggregateEntry = {
+    _count: EntryCountAggregateOutputType | null
+    _avg: EntryAvgAggregateOutputType | null
+    _sum: EntrySumAggregateOutputType | null
+    _min: EntryMinAggregateOutputType | null
+    _max: EntryMaxAggregateOutputType | null
   }
 
-  export type LedgerEntryAvgAggregateOutputType = {
+  export type EntryAvgAggregateOutputType = {
     amount: number | null
   }
 
-  export type LedgerEntrySumAggregateOutputType = {
+  export type EntrySumAggregateOutputType = {
     amount: bigint | null
   }
 
-  export type LedgerEntryMinAggregateOutputType = {
+  export type EntryMinAggregateOutputType = {
     id: string | null
     transactionId: string | null
     accountId: string | null
     amount: bigint | null
-    direction: $Enums.EntryDirection | null
     createdAt: Date | null
   }
 
-  export type LedgerEntryMaxAggregateOutputType = {
+  export type EntryMaxAggregateOutputType = {
     id: string | null
     transactionId: string | null
     accountId: string | null
     amount: bigint | null
-    direction: $Enums.EntryDirection | null
     createdAt: Date | null
   }
 
-  export type LedgerEntryCountAggregateOutputType = {
+  export type EntryCountAggregateOutputType = {
     id: number
     transactionId: number
     accountId: number
     amount: number
-    direction: number
     createdAt: number
     _all: number
   }
 
 
-  export type LedgerEntryAvgAggregateInputType = {
+  export type EntryAvgAggregateInputType = {
     amount?: true
   }
 
-  export type LedgerEntrySumAggregateInputType = {
+  export type EntrySumAggregateInputType = {
     amount?: true
   }
 
-  export type LedgerEntryMinAggregateInputType = {
+  export type EntryMinAggregateInputType = {
     id?: true
     transactionId?: true
     accountId?: true
     amount?: true
-    direction?: true
     createdAt?: true
   }
 
-  export type LedgerEntryMaxAggregateInputType = {
+  export type EntryMaxAggregateInputType = {
     id?: true
     transactionId?: true
     accountId?: true
     amount?: true
-    direction?: true
     createdAt?: true
   }
 
-  export type LedgerEntryCountAggregateInputType = {
+  export type EntryCountAggregateInputType = {
     id?: true
     transactionId?: true
     accountId?: true
     amount?: true
-    direction?: true
     createdAt?: true
     _all?: true
   }
 
-  export type LedgerEntryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which LedgerEntry to aggregate.
+     * Filter which Entry to aggregate.
      */
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LedgerEntries to fetch.
+     * Determine the order of Entries to fetch.
      */
-    orderBy?: LedgerEntryOrderByWithRelationInput | LedgerEntryOrderByWithRelationInput[]
+    orderBy?: EntryOrderByWithRelationInput | EntryOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: LedgerEntryWhereUniqueInput
+    cursor?: EntryWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LedgerEntries from the position of the cursor.
+     * Take `±n` Entries from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LedgerEntries.
+     * Skip the first `n` Entries.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned LedgerEntries
+     * Count returned Entries
     **/
-    _count?: true | LedgerEntryCountAggregateInputType
+    _count?: true | EntryCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: LedgerEntryAvgAggregateInputType
+    _avg?: EntryAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: LedgerEntrySumAggregateInputType
+    _sum?: EntrySumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: LedgerEntryMinAggregateInputType
+    _min?: EntryMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: LedgerEntryMaxAggregateInputType
+    _max?: EntryMaxAggregateInputType
   }
 
-  export type GetLedgerEntryAggregateType<T extends LedgerEntryAggregateArgs> = {
-        [P in keyof T & keyof AggregateLedgerEntry]: P extends '_count' | 'count'
+  export type GetEntryAggregateType<T extends EntryAggregateArgs> = {
+        [P in keyof T & keyof AggregateEntry]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateLedgerEntry[P]>
-      : GetScalarType<T[P], AggregateLedgerEntry[P]>
+        : GetScalarType<T[P], AggregateEntry[P]>
+      : GetScalarType<T[P], AggregateEntry[P]>
   }
 
 
 
 
-  export type LedgerEntryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LedgerEntryWhereInput
-    orderBy?: LedgerEntryOrderByWithAggregationInput | LedgerEntryOrderByWithAggregationInput[]
-    by: LedgerEntryScalarFieldEnum[] | LedgerEntryScalarFieldEnum
-    having?: LedgerEntryScalarWhereWithAggregatesInput
+  export type EntryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EntryWhereInput
+    orderBy?: EntryOrderByWithAggregationInput | EntryOrderByWithAggregationInput[]
+    by: EntryScalarFieldEnum[] | EntryScalarFieldEnum
+    having?: EntryScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: LedgerEntryCountAggregateInputType | true
-    _avg?: LedgerEntryAvgAggregateInputType
-    _sum?: LedgerEntrySumAggregateInputType
-    _min?: LedgerEntryMinAggregateInputType
-    _max?: LedgerEntryMaxAggregateInputType
+    _count?: EntryCountAggregateInputType | true
+    _avg?: EntryAvgAggregateInputType
+    _sum?: EntrySumAggregateInputType
+    _min?: EntryMinAggregateInputType
+    _max?: EntryMaxAggregateInputType
   }
 
-  export type LedgerEntryGroupByOutputType = {
+  export type EntryGroupByOutputType = {
     id: string
     transactionId: string
     accountId: string
     amount: bigint
-    direction: $Enums.EntryDirection
     createdAt: Date
-    _count: LedgerEntryCountAggregateOutputType | null
-    _avg: LedgerEntryAvgAggregateOutputType | null
-    _sum: LedgerEntrySumAggregateOutputType | null
-    _min: LedgerEntryMinAggregateOutputType | null
-    _max: LedgerEntryMaxAggregateOutputType | null
+    _count: EntryCountAggregateOutputType | null
+    _avg: EntryAvgAggregateOutputType | null
+    _sum: EntrySumAggregateOutputType | null
+    _min: EntryMinAggregateOutputType | null
+    _max: EntryMaxAggregateOutputType | null
   }
 
-  type GetLedgerEntryGroupByPayload<T extends LedgerEntryGroupByArgs> = Prisma.PrismaPromise<
+  type GetEntryGroupByPayload<T extends EntryGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<LedgerEntryGroupByOutputType, T['by']> &
+      PickEnumerable<EntryGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof LedgerEntryGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof EntryGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], LedgerEntryGroupByOutputType[P]>
-            : GetScalarType<T[P], LedgerEntryGroupByOutputType[P]>
+              : GetScalarType<T[P], EntryGroupByOutputType[P]>
+            : GetScalarType<T[P], EntryGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type LedgerEntrySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type EntrySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
     amount?: boolean
-    direction?: boolean
     createdAt?: boolean
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["ledgerEntry"]>
+  }, ExtArgs["result"]["entry"]>
 
-  export type LedgerEntrySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type EntrySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
     amount?: boolean
-    direction?: boolean
     createdAt?: boolean
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["ledgerEntry"]>
+  }, ExtArgs["result"]["entry"]>
 
-  export type LedgerEntrySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type EntrySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
     amount?: boolean
-    direction?: boolean
     createdAt?: boolean
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["ledgerEntry"]>
+  }, ExtArgs["result"]["entry"]>
 
-  export type LedgerEntrySelectScalar = {
+  export type EntrySelectScalar = {
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
     amount?: boolean
-    direction?: boolean
     createdAt?: boolean
   }
 
-  export type LedgerEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "transactionId" | "accountId" | "amount" | "direction" | "createdAt", ExtArgs["result"]["ledgerEntry"]>
-  export type LedgerEntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "transactionId" | "accountId" | "amount" | "createdAt", ExtArgs["result"]["entry"]>
+  export type EntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
   }
-  export type LedgerEntryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
   }
-  export type LedgerEntryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
   }
 
-  export type $LedgerEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "LedgerEntry"
+  export type $EntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Entry"
     objects: {
       transaction: Prisma.$LedgerTransactionPayload<ExtArgs>
       account: Prisma.$AccountPayload<ExtArgs>
@@ -14188,138 +14126,137 @@ export namespace Prisma {
       transactionId: string
       accountId: string
       amount: bigint
-      direction: $Enums.EntryDirection
       createdAt: Date
-    }, ExtArgs["result"]["ledgerEntry"]>
+    }, ExtArgs["result"]["entry"]>
     composites: {}
   }
 
-  type LedgerEntryGetPayload<S extends boolean | null | undefined | LedgerEntryDefaultArgs> = $Result.GetResult<Prisma.$LedgerEntryPayload, S>
+  type EntryGetPayload<S extends boolean | null | undefined | EntryDefaultArgs> = $Result.GetResult<Prisma.$EntryPayload, S>
 
-  type LedgerEntryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<LedgerEntryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: LedgerEntryCountAggregateInputType | true
+  type EntryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EntryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EntryCountAggregateInputType | true
     }
 
-  export interface LedgerEntryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LedgerEntry'], meta: { name: 'LedgerEntry' } }
+  export interface EntryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Entry'], meta: { name: 'Entry' } }
     /**
-     * Find zero or one LedgerEntry that matches the filter.
-     * @param {LedgerEntryFindUniqueArgs} args - Arguments to find a LedgerEntry
+     * Find zero or one Entry that matches the filter.
+     * @param {EntryFindUniqueArgs} args - Arguments to find a Entry
      * @example
-     * // Get one LedgerEntry
-     * const ledgerEntry = await prisma.ledgerEntry.findUnique({
+     * // Get one Entry
+     * const entry = await prisma.entry.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends LedgerEntryFindUniqueArgs>(args: SelectSubset<T, LedgerEntryFindUniqueArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends EntryFindUniqueArgs>(args: SelectSubset<T, EntryFindUniqueArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one LedgerEntry that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Entry that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {LedgerEntryFindUniqueOrThrowArgs} args - Arguments to find a LedgerEntry
+     * @param {EntryFindUniqueOrThrowArgs} args - Arguments to find a Entry
      * @example
-     * // Get one LedgerEntry
-     * const ledgerEntry = await prisma.ledgerEntry.findUniqueOrThrow({
+     * // Get one Entry
+     * const entry = await prisma.entry.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends LedgerEntryFindUniqueOrThrowArgs>(args: SelectSubset<T, LedgerEntryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends EntryFindUniqueOrThrowArgs>(args: SelectSubset<T, EntryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first LedgerEntry that matches the filter.
+     * Find the first Entry that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LedgerEntryFindFirstArgs} args - Arguments to find a LedgerEntry
+     * @param {EntryFindFirstArgs} args - Arguments to find a Entry
      * @example
-     * // Get one LedgerEntry
-     * const ledgerEntry = await prisma.ledgerEntry.findFirst({
+     * // Get one Entry
+     * const entry = await prisma.entry.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends LedgerEntryFindFirstArgs>(args?: SelectSubset<T, LedgerEntryFindFirstArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends EntryFindFirstArgs>(args?: SelectSubset<T, EntryFindFirstArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first LedgerEntry that matches the filter or
+     * Find the first Entry that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LedgerEntryFindFirstOrThrowArgs} args - Arguments to find a LedgerEntry
+     * @param {EntryFindFirstOrThrowArgs} args - Arguments to find a Entry
      * @example
-     * // Get one LedgerEntry
-     * const ledgerEntry = await prisma.ledgerEntry.findFirstOrThrow({
+     * // Get one Entry
+     * const entry = await prisma.entry.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends LedgerEntryFindFirstOrThrowArgs>(args?: SelectSubset<T, LedgerEntryFindFirstOrThrowArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends EntryFindFirstOrThrowArgs>(args?: SelectSubset<T, EntryFindFirstOrThrowArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more LedgerEntries that matches the filter.
+     * Find zero or more Entries that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LedgerEntryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {EntryFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all LedgerEntries
-     * const ledgerEntries = await prisma.ledgerEntry.findMany()
+     * // Get all Entries
+     * const entries = await prisma.entry.findMany()
      * 
-     * // Get first 10 LedgerEntries
-     * const ledgerEntries = await prisma.ledgerEntry.findMany({ take: 10 })
+     * // Get first 10 Entries
+     * const entries = await prisma.entry.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const ledgerEntryWithIdOnly = await prisma.ledgerEntry.findMany({ select: { id: true } })
+     * const entryWithIdOnly = await prisma.entry.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends LedgerEntryFindManyArgs>(args?: SelectSubset<T, LedgerEntryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends EntryFindManyArgs>(args?: SelectSubset<T, EntryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a LedgerEntry.
-     * @param {LedgerEntryCreateArgs} args - Arguments to create a LedgerEntry.
+     * Create a Entry.
+     * @param {EntryCreateArgs} args - Arguments to create a Entry.
      * @example
-     * // Create one LedgerEntry
-     * const LedgerEntry = await prisma.ledgerEntry.create({
+     * // Create one Entry
+     * const Entry = await prisma.entry.create({
      *   data: {
-     *     // ... data to create a LedgerEntry
+     *     // ... data to create a Entry
      *   }
      * })
      * 
      */
-    create<T extends LedgerEntryCreateArgs>(args: SelectSubset<T, LedgerEntryCreateArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends EntryCreateArgs>(args: SelectSubset<T, EntryCreateArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many LedgerEntries.
-     * @param {LedgerEntryCreateManyArgs} args - Arguments to create many LedgerEntries.
+     * Create many Entries.
+     * @param {EntryCreateManyArgs} args - Arguments to create many Entries.
      * @example
-     * // Create many LedgerEntries
-     * const ledgerEntry = await prisma.ledgerEntry.createMany({
+     * // Create many Entries
+     * const entry = await prisma.entry.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends LedgerEntryCreateManyArgs>(args?: SelectSubset<T, LedgerEntryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends EntryCreateManyArgs>(args?: SelectSubset<T, EntryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many LedgerEntries and returns the data saved in the database.
-     * @param {LedgerEntryCreateManyAndReturnArgs} args - Arguments to create many LedgerEntries.
+     * Create many Entries and returns the data saved in the database.
+     * @param {EntryCreateManyAndReturnArgs} args - Arguments to create many Entries.
      * @example
-     * // Create many LedgerEntries
-     * const ledgerEntry = await prisma.ledgerEntry.createManyAndReturn({
+     * // Create many Entries
+     * const entry = await prisma.entry.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many LedgerEntries and only return the `id`
-     * const ledgerEntryWithIdOnly = await prisma.ledgerEntry.createManyAndReturn({
+     * // Create many Entries and only return the `id`
+     * const entryWithIdOnly = await prisma.entry.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -14329,28 +14266,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends LedgerEntryCreateManyAndReturnArgs>(args?: SelectSubset<T, LedgerEntryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends EntryCreateManyAndReturnArgs>(args?: SelectSubset<T, EntryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a LedgerEntry.
-     * @param {LedgerEntryDeleteArgs} args - Arguments to delete one LedgerEntry.
+     * Delete a Entry.
+     * @param {EntryDeleteArgs} args - Arguments to delete one Entry.
      * @example
-     * // Delete one LedgerEntry
-     * const LedgerEntry = await prisma.ledgerEntry.delete({
+     * // Delete one Entry
+     * const Entry = await prisma.entry.delete({
      *   where: {
-     *     // ... filter to delete one LedgerEntry
+     *     // ... filter to delete one Entry
      *   }
      * })
      * 
      */
-    delete<T extends LedgerEntryDeleteArgs>(args: SelectSubset<T, LedgerEntryDeleteArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends EntryDeleteArgs>(args: SelectSubset<T, EntryDeleteArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one LedgerEntry.
-     * @param {LedgerEntryUpdateArgs} args - Arguments to update one LedgerEntry.
+     * Update one Entry.
+     * @param {EntryUpdateArgs} args - Arguments to update one Entry.
      * @example
-     * // Update one LedgerEntry
-     * const ledgerEntry = await prisma.ledgerEntry.update({
+     * // Update one Entry
+     * const entry = await prisma.entry.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14360,30 +14297,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends LedgerEntryUpdateArgs>(args: SelectSubset<T, LedgerEntryUpdateArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends EntryUpdateArgs>(args: SelectSubset<T, EntryUpdateArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more LedgerEntries.
-     * @param {LedgerEntryDeleteManyArgs} args - Arguments to filter LedgerEntries to delete.
+     * Delete zero or more Entries.
+     * @param {EntryDeleteManyArgs} args - Arguments to filter Entries to delete.
      * @example
-     * // Delete a few LedgerEntries
-     * const { count } = await prisma.ledgerEntry.deleteMany({
+     * // Delete a few Entries
+     * const { count } = await prisma.entry.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends LedgerEntryDeleteManyArgs>(args?: SelectSubset<T, LedgerEntryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends EntryDeleteManyArgs>(args?: SelectSubset<T, EntryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more LedgerEntries.
+     * Update zero or more Entries.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LedgerEntryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {EntryUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many LedgerEntries
-     * const ledgerEntry = await prisma.ledgerEntry.updateMany({
+     * // Update many Entries
+     * const entry = await prisma.entry.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14393,14 +14330,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends LedgerEntryUpdateManyArgs>(args: SelectSubset<T, LedgerEntryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends EntryUpdateManyArgs>(args: SelectSubset<T, EntryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more LedgerEntries and returns the data updated in the database.
-     * @param {LedgerEntryUpdateManyAndReturnArgs} args - Arguments to update many LedgerEntries.
+     * Update zero or more Entries and returns the data updated in the database.
+     * @param {EntryUpdateManyAndReturnArgs} args - Arguments to update many Entries.
      * @example
-     * // Update many LedgerEntries
-     * const ledgerEntry = await prisma.ledgerEntry.updateManyAndReturn({
+     * // Update many Entries
+     * const entry = await prisma.entry.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14409,8 +14346,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more LedgerEntries and only return the `id`
-     * const ledgerEntryWithIdOnly = await prisma.ledgerEntry.updateManyAndReturn({
+     * // Update zero or more Entries and only return the `id`
+     * const entryWithIdOnly = await prisma.entry.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -14423,56 +14360,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends LedgerEntryUpdateManyAndReturnArgs>(args: SelectSubset<T, LedgerEntryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends EntryUpdateManyAndReturnArgs>(args: SelectSubset<T, EntryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one LedgerEntry.
-     * @param {LedgerEntryUpsertArgs} args - Arguments to update or create a LedgerEntry.
+     * Create or update one Entry.
+     * @param {EntryUpsertArgs} args - Arguments to update or create a Entry.
      * @example
-     * // Update or create a LedgerEntry
-     * const ledgerEntry = await prisma.ledgerEntry.upsert({
+     * // Update or create a Entry
+     * const entry = await prisma.entry.upsert({
      *   create: {
-     *     // ... data to create a LedgerEntry
+     *     // ... data to create a Entry
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the LedgerEntry we want to update
+     *     // ... the filter for the Entry we want to update
      *   }
      * })
      */
-    upsert<T extends LedgerEntryUpsertArgs>(args: SelectSubset<T, LedgerEntryUpsertArgs<ExtArgs>>): Prisma__LedgerEntryClient<$Result.GetResult<Prisma.$LedgerEntryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends EntryUpsertArgs>(args: SelectSubset<T, EntryUpsertArgs<ExtArgs>>): Prisma__EntryClient<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of LedgerEntries.
+     * Count the number of Entries.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LedgerEntryCountArgs} args - Arguments to filter LedgerEntries to count.
+     * @param {EntryCountArgs} args - Arguments to filter Entries to count.
      * @example
-     * // Count the number of LedgerEntries
-     * const count = await prisma.ledgerEntry.count({
+     * // Count the number of Entries
+     * const count = await prisma.entry.count({
      *   where: {
-     *     // ... the filter for the LedgerEntries we want to count
+     *     // ... the filter for the Entries we want to count
      *   }
      * })
     **/
-    count<T extends LedgerEntryCountArgs>(
-      args?: Subset<T, LedgerEntryCountArgs>,
+    count<T extends EntryCountArgs>(
+      args?: Subset<T, EntryCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], LedgerEntryCountAggregateOutputType>
+          : GetScalarType<T['select'], EntryCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a LedgerEntry.
+     * Allows you to perform aggregations operations on a Entry.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LedgerEntryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {EntryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -14492,13 +14429,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends LedgerEntryAggregateArgs>(args: Subset<T, LedgerEntryAggregateArgs>): Prisma.PrismaPromise<GetLedgerEntryAggregateType<T>>
+    aggregate<T extends EntryAggregateArgs>(args: Subset<T, EntryAggregateArgs>): Prisma.PrismaPromise<GetEntryAggregateType<T>>
 
     /**
-     * Group by LedgerEntry.
+     * Group by Entry.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LedgerEntryGroupByArgs} args - Group by arguments.
+     * @param {EntryGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -14513,14 +14450,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends LedgerEntryGroupByArgs,
+      T extends EntryGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: LedgerEntryGroupByArgs['orderBy'] }
-        : { orderBy?: LedgerEntryGroupByArgs['orderBy'] },
+        ? { orderBy: EntryGroupByArgs['orderBy'] }
+        : { orderBy?: EntryGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -14569,20 +14506,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, LedgerEntryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLedgerEntryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, EntryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEntryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the LedgerEntry model
+   * Fields of the Entry model
    */
-  readonly fields: LedgerEntryFieldRefs;
+  readonly fields: EntryFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for LedgerEntry.
+   * The delegate class that acts as a "Promise-like" for Entry.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__LedgerEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__EntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     transaction<T extends LedgerTransactionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LedgerTransactionDefaultArgs<ExtArgs>>): Prisma__LedgerTransactionClient<$Result.GetResult<Prisma.$LedgerTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     account<T extends AccountDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AccountDefaultArgs<ExtArgs>>): Prisma__AccountClient<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
@@ -14612,431 +14549,430 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the LedgerEntry model
+   * Fields of the Entry model
    */
-  interface LedgerEntryFieldRefs {
-    readonly id: FieldRef<"LedgerEntry", 'String'>
-    readonly transactionId: FieldRef<"LedgerEntry", 'String'>
-    readonly accountId: FieldRef<"LedgerEntry", 'String'>
-    readonly amount: FieldRef<"LedgerEntry", 'BigInt'>
-    readonly direction: FieldRef<"LedgerEntry", 'EntryDirection'>
-    readonly createdAt: FieldRef<"LedgerEntry", 'DateTime'>
+  interface EntryFieldRefs {
+    readonly id: FieldRef<"Entry", 'String'>
+    readonly transactionId: FieldRef<"Entry", 'String'>
+    readonly accountId: FieldRef<"Entry", 'String'>
+    readonly amount: FieldRef<"Entry", 'BigInt'>
+    readonly createdAt: FieldRef<"Entry", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * LedgerEntry findUnique
+   * Entry findUnique
    */
-  export type LedgerEntryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * Filter, which LedgerEntry to fetch.
+     * Filter, which Entry to fetch.
      */
-    where: LedgerEntryWhereUniqueInput
+    where: EntryWhereUniqueInput
   }
 
   /**
-   * LedgerEntry findUniqueOrThrow
+   * Entry findUniqueOrThrow
    */
-  export type LedgerEntryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * Filter, which LedgerEntry to fetch.
+     * Filter, which Entry to fetch.
      */
-    where: LedgerEntryWhereUniqueInput
+    where: EntryWhereUniqueInput
   }
 
   /**
-   * LedgerEntry findFirst
+   * Entry findFirst
    */
-  export type LedgerEntryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * Filter, which LedgerEntry to fetch.
+     * Filter, which Entry to fetch.
      */
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LedgerEntries to fetch.
+     * Determine the order of Entries to fetch.
      */
-    orderBy?: LedgerEntryOrderByWithRelationInput | LedgerEntryOrderByWithRelationInput[]
+    orderBy?: EntryOrderByWithRelationInput | EntryOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for LedgerEntries.
+     * Sets the position for searching for Entries.
      */
-    cursor?: LedgerEntryWhereUniqueInput
+    cursor?: EntryWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LedgerEntries from the position of the cursor.
+     * Take `±n` Entries from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LedgerEntries.
+     * Skip the first `n` Entries.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LedgerEntries.
+     * Filter by unique combinations of Entries.
      */
-    distinct?: LedgerEntryScalarFieldEnum | LedgerEntryScalarFieldEnum[]
+    distinct?: EntryScalarFieldEnum | EntryScalarFieldEnum[]
   }
 
   /**
-   * LedgerEntry findFirstOrThrow
+   * Entry findFirstOrThrow
    */
-  export type LedgerEntryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * Filter, which LedgerEntry to fetch.
+     * Filter, which Entry to fetch.
      */
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LedgerEntries to fetch.
+     * Determine the order of Entries to fetch.
      */
-    orderBy?: LedgerEntryOrderByWithRelationInput | LedgerEntryOrderByWithRelationInput[]
+    orderBy?: EntryOrderByWithRelationInput | EntryOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for LedgerEntries.
+     * Sets the position for searching for Entries.
      */
-    cursor?: LedgerEntryWhereUniqueInput
+    cursor?: EntryWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LedgerEntries from the position of the cursor.
+     * Take `±n` Entries from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LedgerEntries.
+     * Skip the first `n` Entries.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LedgerEntries.
+     * Filter by unique combinations of Entries.
      */
-    distinct?: LedgerEntryScalarFieldEnum | LedgerEntryScalarFieldEnum[]
+    distinct?: EntryScalarFieldEnum | EntryScalarFieldEnum[]
   }
 
   /**
-   * LedgerEntry findMany
+   * Entry findMany
    */
-  export type LedgerEntryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * Filter, which LedgerEntries to fetch.
+     * Filter, which Entries to fetch.
      */
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LedgerEntries to fetch.
+     * Determine the order of Entries to fetch.
      */
-    orderBy?: LedgerEntryOrderByWithRelationInput | LedgerEntryOrderByWithRelationInput[]
+    orderBy?: EntryOrderByWithRelationInput | EntryOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing LedgerEntries.
+     * Sets the position for listing Entries.
      */
-    cursor?: LedgerEntryWhereUniqueInput
+    cursor?: EntryWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LedgerEntries from the position of the cursor.
+     * Take `±n` Entries from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LedgerEntries.
+     * Skip the first `n` Entries.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LedgerEntries.
+     * Filter by unique combinations of Entries.
      */
-    distinct?: LedgerEntryScalarFieldEnum | LedgerEntryScalarFieldEnum[]
+    distinct?: EntryScalarFieldEnum | EntryScalarFieldEnum[]
   }
 
   /**
-   * LedgerEntry create
+   * Entry create
    */
-  export type LedgerEntryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * The data needed to create a LedgerEntry.
+     * The data needed to create a Entry.
      */
-    data: XOR<LedgerEntryCreateInput, LedgerEntryUncheckedCreateInput>
+    data: XOR<EntryCreateInput, EntryUncheckedCreateInput>
   }
 
   /**
-   * LedgerEntry createMany
+   * Entry createMany
    */
-  export type LedgerEntryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many LedgerEntries.
+     * The data used to create many Entries.
      */
-    data: LedgerEntryCreateManyInput | LedgerEntryCreateManyInput[]
+    data: EntryCreateManyInput | EntryCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * LedgerEntry createManyAndReturn
+   * Entry createManyAndReturn
    */
-  export type LedgerEntryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelectCreateManyAndReturn<ExtArgs> | null
+    select?: EntrySelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
-     * The data used to create many LedgerEntries.
+     * The data used to create many Entries.
      */
-    data: LedgerEntryCreateManyInput | LedgerEntryCreateManyInput[]
+    data: EntryCreateManyInput | EntryCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: EntryIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * LedgerEntry update
+   * Entry update
    */
-  export type LedgerEntryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * The data needed to update a LedgerEntry.
+     * The data needed to update a Entry.
      */
-    data: XOR<LedgerEntryUpdateInput, LedgerEntryUncheckedUpdateInput>
+    data: XOR<EntryUpdateInput, EntryUncheckedUpdateInput>
     /**
-     * Choose, which LedgerEntry to update.
+     * Choose, which Entry to update.
      */
-    where: LedgerEntryWhereUniqueInput
+    where: EntryWhereUniqueInput
   }
 
   /**
-   * LedgerEntry updateMany
+   * Entry updateMany
    */
-  export type LedgerEntryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update LedgerEntries.
+     * The data used to update Entries.
      */
-    data: XOR<LedgerEntryUpdateManyMutationInput, LedgerEntryUncheckedUpdateManyInput>
+    data: XOR<EntryUpdateManyMutationInput, EntryUncheckedUpdateManyInput>
     /**
-     * Filter which LedgerEntries to update
+     * Filter which Entries to update
      */
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
     /**
-     * Limit how many LedgerEntries to update.
+     * Limit how many Entries to update.
      */
     limit?: number
   }
 
   /**
-   * LedgerEntry updateManyAndReturn
+   * Entry updateManyAndReturn
    */
-  export type LedgerEntryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelectUpdateManyAndReturn<ExtArgs> | null
+    select?: EntrySelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
-     * The data used to update LedgerEntries.
+     * The data used to update Entries.
      */
-    data: XOR<LedgerEntryUpdateManyMutationInput, LedgerEntryUncheckedUpdateManyInput>
+    data: XOR<EntryUpdateManyMutationInput, EntryUncheckedUpdateManyInput>
     /**
-     * Filter which LedgerEntries to update
+     * Filter which Entries to update
      */
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
     /**
-     * Limit how many LedgerEntries to update.
+     * Limit how many Entries to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: EntryIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * LedgerEntry upsert
+   * Entry upsert
    */
-  export type LedgerEntryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * The filter to search for the LedgerEntry to update in case it exists.
+     * The filter to search for the Entry to update in case it exists.
      */
-    where: LedgerEntryWhereUniqueInput
+    where: EntryWhereUniqueInput
     /**
-     * In case the LedgerEntry found by the `where` argument doesn't exist, create a new LedgerEntry with this data.
+     * In case the Entry found by the `where` argument doesn't exist, create a new Entry with this data.
      */
-    create: XOR<LedgerEntryCreateInput, LedgerEntryUncheckedCreateInput>
+    create: XOR<EntryCreateInput, EntryUncheckedCreateInput>
     /**
-     * In case the LedgerEntry was found with the provided `where` argument, update it with this data.
+     * In case the Entry was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<LedgerEntryUpdateInput, LedgerEntryUncheckedUpdateInput>
+    update: XOR<EntryUpdateInput, EntryUncheckedUpdateInput>
   }
 
   /**
-   * LedgerEntry delete
+   * Entry delete
    */
-  export type LedgerEntryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
     /**
-     * Filter which LedgerEntry to delete.
+     * Filter which Entry to delete.
      */
-    where: LedgerEntryWhereUniqueInput
+    where: EntryWhereUniqueInput
   }
 
   /**
-   * LedgerEntry deleteMany
+   * Entry deleteMany
    */
-  export type LedgerEntryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which LedgerEntries to delete
+     * Filter which Entries to delete
      */
-    where?: LedgerEntryWhereInput
+    where?: EntryWhereInput
     /**
-     * Limit how many LedgerEntries to delete.
+     * Limit how many Entries to delete.
      */
     limit?: number
   }
 
   /**
-   * LedgerEntry without action
+   * Entry without action
    */
-  export type LedgerEntryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EntryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LedgerEntry
+     * Select specific fields to fetch from the Entry
      */
-    select?: LedgerEntrySelect<ExtArgs> | null
+    select?: EntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LedgerEntry
+     * Omit specific fields from the Entry
      */
-    omit?: LedgerEntryOmit<ExtArgs> | null
+    omit?: EntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: LedgerEntryInclude<ExtArgs> | null
+    include?: EntryInclude<ExtArgs> | null
   }
 
 
@@ -15189,10 +15125,9 @@ export namespace Prisma {
 
   export const AccountScalarFieldEnum: {
     id: 'id',
-    name: 'name',
+    userId: 'userId',
     type: 'type',
     currency: 'currency',
-    metadata: 'metadata',
     createdAt: 'createdAt'
   };
 
@@ -15201,27 +15136,26 @@ export namespace Prisma {
 
   export const LedgerTransactionScalarFieldEnum: {
     id: 'id',
-    idempotencyKey: 'idempotencyKey',
-    status: 'status',
-    description: 'description',
+    userId: 'userId',
     reference: 'reference',
-    metadata: 'metadata',
-    createdAt: 'createdAt'
+    status: 'status',
+    idempotencyKey: 'idempotencyKey',
+    createdAt: 'createdAt',
+    postedAt: 'postedAt'
   };
 
   export type LedgerTransactionScalarFieldEnum = (typeof LedgerTransactionScalarFieldEnum)[keyof typeof LedgerTransactionScalarFieldEnum]
 
 
-  export const LedgerEntryScalarFieldEnum: {
+  export const EntryScalarFieldEnum: {
     id: 'id',
     transactionId: 'transactionId',
     accountId: 'accountId',
     amount: 'amount',
-    direction: 'direction',
     createdAt: 'createdAt'
   };
 
-  export type LedgerEntryScalarFieldEnum = (typeof LedgerEntryScalarFieldEnum)[keyof typeof LedgerEntryScalarFieldEnum]
+  export type EntryScalarFieldEnum = (typeof EntryScalarFieldEnum)[keyof typeof EntryScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -15348,34 +15282,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'AccountType'
-   */
-  export type EnumAccountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccountType'>
-    
-
-
-  /**
-   * Reference to a field of type 'AccountType[]'
-   */
-  export type ListEnumAccountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccountType[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'TransactionStatus'
-   */
-  export type EnumTransactionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'TransactionStatus[]'
-   */
-  export type ListEnumTransactionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionStatus[]'>
-    
-
-
-  /**
    * Reference to a field of type 'BigInt'
    */
   export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
@@ -15386,20 +15292,6 @@ export namespace Prisma {
    * Reference to a field of type 'BigInt[]'
    */
   export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'EntryDirection'
-   */
-  export type EnumEntryDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EntryDirection'>
-    
-
-
-  /**
-   * Reference to a field of type 'EntryDirection[]'
-   */
-  export type ListEnumEntryDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EntryDirection[]'>
     
   /**
    * Deep Input Types
@@ -16077,22 +15969,20 @@ export namespace Prisma {
     OR?: AccountWhereInput[]
     NOT?: AccountWhereInput | AccountWhereInput[]
     id?: StringFilter<"Account"> | string
-    name?: StringFilter<"Account"> | string
-    type?: EnumAccountTypeFilter<"Account"> | $Enums.AccountType
+    userId?: StringFilter<"Account"> | string
+    type?: StringFilter<"Account"> | string
     currency?: StringFilter<"Account"> | string
-    metadata?: JsonNullableFilter<"Account">
     createdAt?: DateTimeFilter<"Account"> | Date | string
-    entries?: LedgerEntryListRelationFilter
+    entries?: EntryListRelationFilter
   }
 
   export type AccountOrderByWithRelationInput = {
     id?: SortOrder
-    name?: SortOrder
+    userId?: SortOrder
     type?: SortOrder
     currency?: SortOrder
-    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    entries?: LedgerEntryOrderByRelationAggregateInput
+    entries?: EntryOrderByRelationAggregateInput
   }
 
   export type AccountWhereUniqueInput = Prisma.AtLeast<{
@@ -16100,20 +15990,18 @@ export namespace Prisma {
     AND?: AccountWhereInput | AccountWhereInput[]
     OR?: AccountWhereInput[]
     NOT?: AccountWhereInput | AccountWhereInput[]
-    name?: StringFilter<"Account"> | string
-    type?: EnumAccountTypeFilter<"Account"> | $Enums.AccountType
+    userId?: StringFilter<"Account"> | string
+    type?: StringFilter<"Account"> | string
     currency?: StringFilter<"Account"> | string
-    metadata?: JsonNullableFilter<"Account">
     createdAt?: DateTimeFilter<"Account"> | Date | string
-    entries?: LedgerEntryListRelationFilter
+    entries?: EntryListRelationFilter
   }, "id">
 
   export type AccountOrderByWithAggregationInput = {
     id?: SortOrder
-    name?: SortOrder
+    userId?: SortOrder
     type?: SortOrder
     currency?: SortOrder
-    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: AccountCountOrderByAggregateInput
     _max?: AccountMaxOrderByAggregateInput
@@ -16125,10 +16013,9 @@ export namespace Prisma {
     OR?: AccountScalarWhereWithAggregatesInput[]
     NOT?: AccountScalarWhereWithAggregatesInput | AccountScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Account"> | string
-    name?: StringWithAggregatesFilter<"Account"> | string
-    type?: EnumAccountTypeWithAggregatesFilter<"Account"> | $Enums.AccountType
+    userId?: StringWithAggregatesFilter<"Account"> | string
+    type?: StringWithAggregatesFilter<"Account"> | string
     currency?: StringWithAggregatesFilter<"Account"> | string
-    metadata?: JsonNullableWithAggregatesFilter<"Account">
     createdAt?: DateTimeWithAggregatesFilter<"Account"> | Date | string
   }
 
@@ -16137,48 +16024,48 @@ export namespace Prisma {
     OR?: LedgerTransactionWhereInput[]
     NOT?: LedgerTransactionWhereInput | LedgerTransactionWhereInput[]
     id?: StringFilter<"LedgerTransaction"> | string
+    userId?: StringFilter<"LedgerTransaction"> | string
+    reference?: StringFilter<"LedgerTransaction"> | string
+    status?: StringFilter<"LedgerTransaction"> | string
     idempotencyKey?: StringFilter<"LedgerTransaction"> | string
-    status?: EnumTransactionStatusFilter<"LedgerTransaction"> | $Enums.TransactionStatus
-    description?: StringFilter<"LedgerTransaction"> | string
-    reference?: StringNullableFilter<"LedgerTransaction"> | string | null
-    metadata?: JsonNullableFilter<"LedgerTransaction">
     createdAt?: DateTimeFilter<"LedgerTransaction"> | Date | string
-    entries?: LedgerEntryListRelationFilter
+    postedAt?: DateTimeNullableFilter<"LedgerTransaction"> | Date | string | null
+    entries?: EntryListRelationFilter
   }
 
   export type LedgerTransactionOrderByWithRelationInput = {
     id?: SortOrder
-    idempotencyKey?: SortOrder
+    userId?: SortOrder
+    reference?: SortOrder
     status?: SortOrder
-    description?: SortOrder
-    reference?: SortOrderInput | SortOrder
-    metadata?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
-    entries?: LedgerEntryOrderByRelationAggregateInput
+    postedAt?: SortOrderInput | SortOrder
+    entries?: EntryOrderByRelationAggregateInput
   }
 
   export type LedgerTransactionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    reference?: string
     idempotencyKey?: string
     AND?: LedgerTransactionWhereInput | LedgerTransactionWhereInput[]
     OR?: LedgerTransactionWhereInput[]
     NOT?: LedgerTransactionWhereInput | LedgerTransactionWhereInput[]
-    status?: EnumTransactionStatusFilter<"LedgerTransaction"> | $Enums.TransactionStatus
-    description?: StringFilter<"LedgerTransaction"> | string
-    reference?: StringNullableFilter<"LedgerTransaction"> | string | null
-    metadata?: JsonNullableFilter<"LedgerTransaction">
+    userId?: StringFilter<"LedgerTransaction"> | string
+    status?: StringFilter<"LedgerTransaction"> | string
     createdAt?: DateTimeFilter<"LedgerTransaction"> | Date | string
-    entries?: LedgerEntryListRelationFilter
-  }, "id" | "idempotencyKey">
+    postedAt?: DateTimeNullableFilter<"LedgerTransaction"> | Date | string | null
+    entries?: EntryListRelationFilter
+  }, "id" | "reference" | "idempotencyKey">
 
   export type LedgerTransactionOrderByWithAggregationInput = {
     id?: SortOrder
-    idempotencyKey?: SortOrder
+    userId?: SortOrder
+    reference?: SortOrder
     status?: SortOrder
-    description?: SortOrder
-    reference?: SortOrderInput | SortOrder
-    metadata?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    postedAt?: SortOrderInput | SortOrder
     _count?: LedgerTransactionCountOrderByAggregateInput
     _max?: LedgerTransactionMaxOrderByAggregateInput
     _min?: LedgerTransactionMinOrderByAggregateInput
@@ -16189,77 +16076,72 @@ export namespace Prisma {
     OR?: LedgerTransactionScalarWhereWithAggregatesInput[]
     NOT?: LedgerTransactionScalarWhereWithAggregatesInput | LedgerTransactionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"LedgerTransaction"> | string
+    userId?: StringWithAggregatesFilter<"LedgerTransaction"> | string
+    reference?: StringWithAggregatesFilter<"LedgerTransaction"> | string
+    status?: StringWithAggregatesFilter<"LedgerTransaction"> | string
     idempotencyKey?: StringWithAggregatesFilter<"LedgerTransaction"> | string
-    status?: EnumTransactionStatusWithAggregatesFilter<"LedgerTransaction"> | $Enums.TransactionStatus
-    description?: StringWithAggregatesFilter<"LedgerTransaction"> | string
-    reference?: StringNullableWithAggregatesFilter<"LedgerTransaction"> | string | null
-    metadata?: JsonNullableWithAggregatesFilter<"LedgerTransaction">
     createdAt?: DateTimeWithAggregatesFilter<"LedgerTransaction"> | Date | string
+    postedAt?: DateTimeNullableWithAggregatesFilter<"LedgerTransaction"> | Date | string | null
   }
 
-  export type LedgerEntryWhereInput = {
-    AND?: LedgerEntryWhereInput | LedgerEntryWhereInput[]
-    OR?: LedgerEntryWhereInput[]
-    NOT?: LedgerEntryWhereInput | LedgerEntryWhereInput[]
-    id?: StringFilter<"LedgerEntry"> | string
-    transactionId?: StringFilter<"LedgerEntry"> | string
-    accountId?: StringFilter<"LedgerEntry"> | string
-    amount?: BigIntFilter<"LedgerEntry"> | bigint | number
-    direction?: EnumEntryDirectionFilter<"LedgerEntry"> | $Enums.EntryDirection
-    createdAt?: DateTimeFilter<"LedgerEntry"> | Date | string
+  export type EntryWhereInput = {
+    AND?: EntryWhereInput | EntryWhereInput[]
+    OR?: EntryWhereInput[]
+    NOT?: EntryWhereInput | EntryWhereInput[]
+    id?: StringFilter<"Entry"> | string
+    transactionId?: StringFilter<"Entry"> | string
+    accountId?: StringFilter<"Entry"> | string
+    amount?: BigIntFilter<"Entry"> | bigint | number
+    createdAt?: DateTimeFilter<"Entry"> | Date | string
     transaction?: XOR<LedgerTransactionScalarRelationFilter, LedgerTransactionWhereInput>
     account?: XOR<AccountScalarRelationFilter, AccountWhereInput>
   }
 
-  export type LedgerEntryOrderByWithRelationInput = {
+  export type EntryOrderByWithRelationInput = {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
     amount?: SortOrder
-    direction?: SortOrder
     createdAt?: SortOrder
     transaction?: LedgerTransactionOrderByWithRelationInput
     account?: AccountOrderByWithRelationInput
   }
 
-  export type LedgerEntryWhereUniqueInput = Prisma.AtLeast<{
+  export type EntryWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: LedgerEntryWhereInput | LedgerEntryWhereInput[]
-    OR?: LedgerEntryWhereInput[]
-    NOT?: LedgerEntryWhereInput | LedgerEntryWhereInput[]
-    transactionId?: StringFilter<"LedgerEntry"> | string
-    accountId?: StringFilter<"LedgerEntry"> | string
-    amount?: BigIntFilter<"LedgerEntry"> | bigint | number
-    direction?: EnumEntryDirectionFilter<"LedgerEntry"> | $Enums.EntryDirection
-    createdAt?: DateTimeFilter<"LedgerEntry"> | Date | string
+    AND?: EntryWhereInput | EntryWhereInput[]
+    OR?: EntryWhereInput[]
+    NOT?: EntryWhereInput | EntryWhereInput[]
+    transactionId?: StringFilter<"Entry"> | string
+    accountId?: StringFilter<"Entry"> | string
+    amount?: BigIntFilter<"Entry"> | bigint | number
+    createdAt?: DateTimeFilter<"Entry"> | Date | string
     transaction?: XOR<LedgerTransactionScalarRelationFilter, LedgerTransactionWhereInput>
     account?: XOR<AccountScalarRelationFilter, AccountWhereInput>
   }, "id">
 
-  export type LedgerEntryOrderByWithAggregationInput = {
+  export type EntryOrderByWithAggregationInput = {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
     amount?: SortOrder
-    direction?: SortOrder
     createdAt?: SortOrder
-    _count?: LedgerEntryCountOrderByAggregateInput
-    _avg?: LedgerEntryAvgOrderByAggregateInput
-    _max?: LedgerEntryMaxOrderByAggregateInput
-    _min?: LedgerEntryMinOrderByAggregateInput
-    _sum?: LedgerEntrySumOrderByAggregateInput
+    _count?: EntryCountOrderByAggregateInput
+    _avg?: EntryAvgOrderByAggregateInput
+    _max?: EntryMaxOrderByAggregateInput
+    _min?: EntryMinOrderByAggregateInput
+    _sum?: EntrySumOrderByAggregateInput
   }
 
-  export type LedgerEntryScalarWhereWithAggregatesInput = {
-    AND?: LedgerEntryScalarWhereWithAggregatesInput | LedgerEntryScalarWhereWithAggregatesInput[]
-    OR?: LedgerEntryScalarWhereWithAggregatesInput[]
-    NOT?: LedgerEntryScalarWhereWithAggregatesInput | LedgerEntryScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"LedgerEntry"> | string
-    transactionId?: StringWithAggregatesFilter<"LedgerEntry"> | string
-    accountId?: StringWithAggregatesFilter<"LedgerEntry"> | string
-    amount?: BigIntWithAggregatesFilter<"LedgerEntry"> | bigint | number
-    direction?: EnumEntryDirectionWithAggregatesFilter<"LedgerEntry"> | $Enums.EntryDirection
-    createdAt?: DateTimeWithAggregatesFilter<"LedgerEntry"> | Date | string
+  export type EntryScalarWhereWithAggregatesInput = {
+    AND?: EntryScalarWhereWithAggregatesInput | EntryScalarWhereWithAggregatesInput[]
+    OR?: EntryScalarWhereWithAggregatesInput[]
+    NOT?: EntryScalarWhereWithAggregatesInput | EntryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Entry"> | string
+    transactionId?: StringWithAggregatesFilter<"Entry"> | string
+    accountId?: StringWithAggregatesFilter<"Entry"> | string
+    amount?: BigIntWithAggregatesFilter<"Entry"> | bigint | number
+    createdAt?: DateTimeWithAggregatesFilter<"Entry"> | Date | string
   }
 
   export type LeadCreateInput = {
@@ -16979,203 +16861,189 @@ export namespace Prisma {
 
   export type AccountCreateInput = {
     id?: string
-    name: string
-    type: $Enums.AccountType
+    userId: string
+    type: string
     currency?: string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    entries?: LedgerEntryCreateNestedManyWithoutAccountInput
+    entries?: EntryCreateNestedManyWithoutAccountInput
   }
 
   export type AccountUncheckedCreateInput = {
     id?: string
-    name: string
-    type: $Enums.AccountType
+    userId: string
+    type: string
     currency?: string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    entries?: LedgerEntryUncheckedCreateNestedManyWithoutAccountInput
+    entries?: EntryUncheckedCreateNestedManyWithoutAccountInput
   }
 
   export type AccountUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    type?: EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: LedgerEntryUpdateManyWithoutAccountNestedInput
+    entries?: EntryUpdateManyWithoutAccountNestedInput
   }
 
   export type AccountUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    type?: EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: LedgerEntryUncheckedUpdateManyWithoutAccountNestedInput
+    entries?: EntryUncheckedUpdateManyWithoutAccountNestedInput
   }
 
   export type AccountCreateManyInput = {
     id?: string
-    name: string
-    type: $Enums.AccountType
+    userId: string
+    type: string
     currency?: string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
   export type AccountUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    type?: EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AccountUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    type?: EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LedgerTransactionCreateInput = {
     id?: string
+    userId: string
+    reference: string
+    status?: string
     idempotencyKey: string
-    status?: $Enums.TransactionStatus
-    description: string
-    reference?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    entries?: LedgerEntryCreateNestedManyWithoutTransactionInput
+    postedAt?: Date | string | null
+    entries?: EntryCreateNestedManyWithoutTransactionInput
   }
 
   export type LedgerTransactionUncheckedCreateInput = {
     id?: string
+    userId: string
+    reference: string
+    status?: string
     idempotencyKey: string
-    status?: $Enums.TransactionStatus
-    description: string
-    reference?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    entries?: LedgerEntryUncheckedCreateNestedManyWithoutTransactionInput
+    postedAt?: Date | string | null
+    entries?: EntryUncheckedCreateNestedManyWithoutTransactionInput
   }
 
   export type LedgerTransactionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
-    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-    description?: StringFieldUpdateOperationsInput | string
-    reference?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: LedgerEntryUpdateManyWithoutTransactionNestedInput
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: EntryUpdateManyWithoutTransactionNestedInput
   }
 
   export type LedgerTransactionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
-    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-    description?: StringFieldUpdateOperationsInput | string
-    reference?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: LedgerEntryUncheckedUpdateManyWithoutTransactionNestedInput
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: EntryUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
   export type LedgerTransactionCreateManyInput = {
     id?: string
+    userId: string
+    reference: string
+    status?: string
     idempotencyKey: string
-    status?: $Enums.TransactionStatus
-    description: string
-    reference?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    postedAt?: Date | string | null
   }
 
   export type LedgerTransactionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
-    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-    description?: StringFieldUpdateOperationsInput | string
-    reference?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LedgerTransactionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
-    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-    description?: StringFieldUpdateOperationsInput | string
-    reference?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type LedgerEntryCreateInput = {
+  export type EntryCreateInput = {
     id?: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
     transaction: LedgerTransactionCreateNestedOneWithoutEntriesInput
     account: AccountCreateNestedOneWithoutEntriesInput
   }
 
-  export type LedgerEntryUncheckedCreateInput = {
+  export type EntryUncheckedCreateInput = {
     id?: string
     transactionId: string
     accountId: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
   }
 
-  export type LedgerEntryUpdateInput = {
+  export type EntryUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transaction?: LedgerTransactionUpdateOneRequiredWithoutEntriesNestedInput
     account?: AccountUpdateOneRequiredWithoutEntriesNestedInput
   }
 
-  export type LedgerEntryUncheckedUpdateInput = {
+  export type EntryUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LedgerEntryCreateManyInput = {
+  export type EntryCreateManyInput = {
     id?: string
     transactionId: string
     accountId: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
   }
 
-  export type LedgerEntryUpdateManyMutationInput = {
+  export type EntryUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LedgerEntryUncheckedUpdateManyInput = {
+  export type EntryUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17798,35 +17666,27 @@ export namespace Prisma {
     embedding?: SortOrder
   }
 
-  export type EnumAccountTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.AccountType | EnumAccountTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAccountTypeFilter<$PrismaModel> | $Enums.AccountType
+  export type EntryListRelationFilter = {
+    every?: EntryWhereInput
+    some?: EntryWhereInput
+    none?: EntryWhereInput
   }
 
-  export type LedgerEntryListRelationFilter = {
-    every?: LedgerEntryWhereInput
-    some?: LedgerEntryWhereInput
-    none?: LedgerEntryWhereInput
-  }
-
-  export type LedgerEntryOrderByRelationAggregateInput = {
+  export type EntryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type AccountCountOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
+    userId?: SortOrder
     type?: SortOrder
     currency?: SortOrder
-    metadata?: SortOrder
     createdAt?: SortOrder
   }
 
   export type AccountMaxOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
+    userId?: SortOrder
     type?: SortOrder
     currency?: SortOrder
     createdAt?: SortOrder
@@ -17834,65 +17694,40 @@ export namespace Prisma {
 
   export type AccountMinOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
+    userId?: SortOrder
     type?: SortOrder
     currency?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type EnumAccountTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AccountType | EnumAccountTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAccountTypeWithAggregatesFilter<$PrismaModel> | $Enums.AccountType
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAccountTypeFilter<$PrismaModel>
-    _max?: NestedEnumAccountTypeFilter<$PrismaModel>
-  }
-
-  export type EnumTransactionStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumTransactionStatusFilter<$PrismaModel> | $Enums.TransactionStatus
-  }
-
   export type LedgerTransactionCountOrderByAggregateInput = {
     id?: SortOrder
-    idempotencyKey?: SortOrder
-    status?: SortOrder
-    description?: SortOrder
+    userId?: SortOrder
     reference?: SortOrder
-    metadata?: SortOrder
+    status?: SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    postedAt?: SortOrder
   }
 
   export type LedgerTransactionMaxOrderByAggregateInput = {
     id?: SortOrder
-    idempotencyKey?: SortOrder
-    status?: SortOrder
-    description?: SortOrder
+    userId?: SortOrder
     reference?: SortOrder
+    status?: SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    postedAt?: SortOrder
   }
 
   export type LedgerTransactionMinOrderByAggregateInput = {
     id?: SortOrder
-    idempotencyKey?: SortOrder
-    status?: SortOrder
-    description?: SortOrder
+    userId?: SortOrder
     reference?: SortOrder
+    status?: SortOrder
+    idempotencyKey?: SortOrder
     createdAt?: SortOrder
-  }
-
-  export type EnumTransactionStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumTransactionStatusWithAggregatesFilter<$PrismaModel> | $Enums.TransactionStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTransactionStatusFilter<$PrismaModel>
-    _max?: NestedEnumTransactionStatusFilter<$PrismaModel>
+    postedAt?: SortOrder
   }
 
   export type BigIntFilter<$PrismaModel = never> = {
@@ -17906,13 +17741,6 @@ export namespace Prisma {
     not?: NestedBigIntFilter<$PrismaModel> | bigint | number
   }
 
-  export type EnumEntryDirectionFilter<$PrismaModel = never> = {
-    equals?: $Enums.EntryDirection | EnumEntryDirectionFieldRefInput<$PrismaModel>
-    in?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEntryDirectionFilter<$PrismaModel> | $Enums.EntryDirection
-  }
-
   export type LedgerTransactionScalarRelationFilter = {
     is?: LedgerTransactionWhereInput
     isNot?: LedgerTransactionWhereInput
@@ -17923,38 +17751,35 @@ export namespace Prisma {
     isNot?: AccountWhereInput
   }
 
-  export type LedgerEntryCountOrderByAggregateInput = {
+  export type EntryCountOrderByAggregateInput = {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
     amount?: SortOrder
-    direction?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type LedgerEntryAvgOrderByAggregateInput = {
+  export type EntryAvgOrderByAggregateInput = {
     amount?: SortOrder
   }
 
-  export type LedgerEntryMaxOrderByAggregateInput = {
+  export type EntryMaxOrderByAggregateInput = {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
     amount?: SortOrder
-    direction?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type LedgerEntryMinOrderByAggregateInput = {
+  export type EntryMinOrderByAggregateInput = {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
     amount?: SortOrder
-    direction?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type LedgerEntrySumOrderByAggregateInput = {
+  export type EntrySumOrderByAggregateInput = {
     amount?: SortOrder
   }
 
@@ -17972,16 +17797,6 @@ export namespace Prisma {
     _sum?: NestedBigIntFilter<$PrismaModel>
     _min?: NestedBigIntFilter<$PrismaModel>
     _max?: NestedBigIntFilter<$PrismaModel>
-  }
-
-  export type EnumEntryDirectionWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EntryDirection | EnumEntryDirectionFieldRefInput<$PrismaModel>
-    in?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEntryDirectionWithAggregatesFilter<$PrismaModel> | $Enums.EntryDirection
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEntryDirectionFilter<$PrismaModel>
-    _max?: NestedEnumEntryDirectionFilter<$PrismaModel>
   }
 
   export type DemoCreateNestedOneWithoutLeadInput = {
@@ -18187,96 +18002,88 @@ export namespace Prisma {
     push?: number | number[]
   }
 
-  export type LedgerEntryCreateNestedManyWithoutAccountInput = {
-    create?: XOR<LedgerEntryCreateWithoutAccountInput, LedgerEntryUncheckedCreateWithoutAccountInput> | LedgerEntryCreateWithoutAccountInput[] | LedgerEntryUncheckedCreateWithoutAccountInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutAccountInput | LedgerEntryCreateOrConnectWithoutAccountInput[]
-    createMany?: LedgerEntryCreateManyAccountInputEnvelope
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
+  export type EntryCreateNestedManyWithoutAccountInput = {
+    create?: XOR<EntryCreateWithoutAccountInput, EntryUncheckedCreateWithoutAccountInput> | EntryCreateWithoutAccountInput[] | EntryUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutAccountInput | EntryCreateOrConnectWithoutAccountInput[]
+    createMany?: EntryCreateManyAccountInputEnvelope
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
   }
 
-  export type LedgerEntryUncheckedCreateNestedManyWithoutAccountInput = {
-    create?: XOR<LedgerEntryCreateWithoutAccountInput, LedgerEntryUncheckedCreateWithoutAccountInput> | LedgerEntryCreateWithoutAccountInput[] | LedgerEntryUncheckedCreateWithoutAccountInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutAccountInput | LedgerEntryCreateOrConnectWithoutAccountInput[]
-    createMany?: LedgerEntryCreateManyAccountInputEnvelope
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
+  export type EntryUncheckedCreateNestedManyWithoutAccountInput = {
+    create?: XOR<EntryCreateWithoutAccountInput, EntryUncheckedCreateWithoutAccountInput> | EntryCreateWithoutAccountInput[] | EntryUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutAccountInput | EntryCreateOrConnectWithoutAccountInput[]
+    createMany?: EntryCreateManyAccountInputEnvelope
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
   }
 
-  export type EnumAccountTypeFieldUpdateOperationsInput = {
-    set?: $Enums.AccountType
+  export type EntryUpdateManyWithoutAccountNestedInput = {
+    create?: XOR<EntryCreateWithoutAccountInput, EntryUncheckedCreateWithoutAccountInput> | EntryCreateWithoutAccountInput[] | EntryUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutAccountInput | EntryCreateOrConnectWithoutAccountInput[]
+    upsert?: EntryUpsertWithWhereUniqueWithoutAccountInput | EntryUpsertWithWhereUniqueWithoutAccountInput[]
+    createMany?: EntryCreateManyAccountInputEnvelope
+    set?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    disconnect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    delete?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    update?: EntryUpdateWithWhereUniqueWithoutAccountInput | EntryUpdateWithWhereUniqueWithoutAccountInput[]
+    updateMany?: EntryUpdateManyWithWhereWithoutAccountInput | EntryUpdateManyWithWhereWithoutAccountInput[]
+    deleteMany?: EntryScalarWhereInput | EntryScalarWhereInput[]
   }
 
-  export type LedgerEntryUpdateManyWithoutAccountNestedInput = {
-    create?: XOR<LedgerEntryCreateWithoutAccountInput, LedgerEntryUncheckedCreateWithoutAccountInput> | LedgerEntryCreateWithoutAccountInput[] | LedgerEntryUncheckedCreateWithoutAccountInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutAccountInput | LedgerEntryCreateOrConnectWithoutAccountInput[]
-    upsert?: LedgerEntryUpsertWithWhereUniqueWithoutAccountInput | LedgerEntryUpsertWithWhereUniqueWithoutAccountInput[]
-    createMany?: LedgerEntryCreateManyAccountInputEnvelope
-    set?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    disconnect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    delete?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    update?: LedgerEntryUpdateWithWhereUniqueWithoutAccountInput | LedgerEntryUpdateWithWhereUniqueWithoutAccountInput[]
-    updateMany?: LedgerEntryUpdateManyWithWhereWithoutAccountInput | LedgerEntryUpdateManyWithWhereWithoutAccountInput[]
-    deleteMany?: LedgerEntryScalarWhereInput | LedgerEntryScalarWhereInput[]
+  export type EntryUncheckedUpdateManyWithoutAccountNestedInput = {
+    create?: XOR<EntryCreateWithoutAccountInput, EntryUncheckedCreateWithoutAccountInput> | EntryCreateWithoutAccountInput[] | EntryUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutAccountInput | EntryCreateOrConnectWithoutAccountInput[]
+    upsert?: EntryUpsertWithWhereUniqueWithoutAccountInput | EntryUpsertWithWhereUniqueWithoutAccountInput[]
+    createMany?: EntryCreateManyAccountInputEnvelope
+    set?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    disconnect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    delete?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    update?: EntryUpdateWithWhereUniqueWithoutAccountInput | EntryUpdateWithWhereUniqueWithoutAccountInput[]
+    updateMany?: EntryUpdateManyWithWhereWithoutAccountInput | EntryUpdateManyWithWhereWithoutAccountInput[]
+    deleteMany?: EntryScalarWhereInput | EntryScalarWhereInput[]
   }
 
-  export type LedgerEntryUncheckedUpdateManyWithoutAccountNestedInput = {
-    create?: XOR<LedgerEntryCreateWithoutAccountInput, LedgerEntryUncheckedCreateWithoutAccountInput> | LedgerEntryCreateWithoutAccountInput[] | LedgerEntryUncheckedCreateWithoutAccountInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutAccountInput | LedgerEntryCreateOrConnectWithoutAccountInput[]
-    upsert?: LedgerEntryUpsertWithWhereUniqueWithoutAccountInput | LedgerEntryUpsertWithWhereUniqueWithoutAccountInput[]
-    createMany?: LedgerEntryCreateManyAccountInputEnvelope
-    set?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    disconnect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    delete?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    update?: LedgerEntryUpdateWithWhereUniqueWithoutAccountInput | LedgerEntryUpdateWithWhereUniqueWithoutAccountInput[]
-    updateMany?: LedgerEntryUpdateManyWithWhereWithoutAccountInput | LedgerEntryUpdateManyWithWhereWithoutAccountInput[]
-    deleteMany?: LedgerEntryScalarWhereInput | LedgerEntryScalarWhereInput[]
+  export type EntryCreateNestedManyWithoutTransactionInput = {
+    create?: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput> | EntryCreateWithoutTransactionInput[] | EntryUncheckedCreateWithoutTransactionInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutTransactionInput | EntryCreateOrConnectWithoutTransactionInput[]
+    createMany?: EntryCreateManyTransactionInputEnvelope
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
   }
 
-  export type LedgerEntryCreateNestedManyWithoutTransactionInput = {
-    create?: XOR<LedgerEntryCreateWithoutTransactionInput, LedgerEntryUncheckedCreateWithoutTransactionInput> | LedgerEntryCreateWithoutTransactionInput[] | LedgerEntryUncheckedCreateWithoutTransactionInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutTransactionInput | LedgerEntryCreateOrConnectWithoutTransactionInput[]
-    createMany?: LedgerEntryCreateManyTransactionInputEnvelope
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
+  export type EntryUncheckedCreateNestedManyWithoutTransactionInput = {
+    create?: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput> | EntryCreateWithoutTransactionInput[] | EntryUncheckedCreateWithoutTransactionInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutTransactionInput | EntryCreateOrConnectWithoutTransactionInput[]
+    createMany?: EntryCreateManyTransactionInputEnvelope
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
   }
 
-  export type LedgerEntryUncheckedCreateNestedManyWithoutTransactionInput = {
-    create?: XOR<LedgerEntryCreateWithoutTransactionInput, LedgerEntryUncheckedCreateWithoutTransactionInput> | LedgerEntryCreateWithoutTransactionInput[] | LedgerEntryUncheckedCreateWithoutTransactionInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutTransactionInput | LedgerEntryCreateOrConnectWithoutTransactionInput[]
-    createMany?: LedgerEntryCreateManyTransactionInputEnvelope
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
+  export type EntryUpdateManyWithoutTransactionNestedInput = {
+    create?: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput> | EntryCreateWithoutTransactionInput[] | EntryUncheckedCreateWithoutTransactionInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutTransactionInput | EntryCreateOrConnectWithoutTransactionInput[]
+    upsert?: EntryUpsertWithWhereUniqueWithoutTransactionInput | EntryUpsertWithWhereUniqueWithoutTransactionInput[]
+    createMany?: EntryCreateManyTransactionInputEnvelope
+    set?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    disconnect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    delete?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    update?: EntryUpdateWithWhereUniqueWithoutTransactionInput | EntryUpdateWithWhereUniqueWithoutTransactionInput[]
+    updateMany?: EntryUpdateManyWithWhereWithoutTransactionInput | EntryUpdateManyWithWhereWithoutTransactionInput[]
+    deleteMany?: EntryScalarWhereInput | EntryScalarWhereInput[]
   }
 
-  export type EnumTransactionStatusFieldUpdateOperationsInput = {
-    set?: $Enums.TransactionStatus
-  }
-
-  export type LedgerEntryUpdateManyWithoutTransactionNestedInput = {
-    create?: XOR<LedgerEntryCreateWithoutTransactionInput, LedgerEntryUncheckedCreateWithoutTransactionInput> | LedgerEntryCreateWithoutTransactionInput[] | LedgerEntryUncheckedCreateWithoutTransactionInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutTransactionInput | LedgerEntryCreateOrConnectWithoutTransactionInput[]
-    upsert?: LedgerEntryUpsertWithWhereUniqueWithoutTransactionInput | LedgerEntryUpsertWithWhereUniqueWithoutTransactionInput[]
-    createMany?: LedgerEntryCreateManyTransactionInputEnvelope
-    set?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    disconnect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    delete?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    update?: LedgerEntryUpdateWithWhereUniqueWithoutTransactionInput | LedgerEntryUpdateWithWhereUniqueWithoutTransactionInput[]
-    updateMany?: LedgerEntryUpdateManyWithWhereWithoutTransactionInput | LedgerEntryUpdateManyWithWhereWithoutTransactionInput[]
-    deleteMany?: LedgerEntryScalarWhereInput | LedgerEntryScalarWhereInput[]
-  }
-
-  export type LedgerEntryUncheckedUpdateManyWithoutTransactionNestedInput = {
-    create?: XOR<LedgerEntryCreateWithoutTransactionInput, LedgerEntryUncheckedCreateWithoutTransactionInput> | LedgerEntryCreateWithoutTransactionInput[] | LedgerEntryUncheckedCreateWithoutTransactionInput[]
-    connectOrCreate?: LedgerEntryCreateOrConnectWithoutTransactionInput | LedgerEntryCreateOrConnectWithoutTransactionInput[]
-    upsert?: LedgerEntryUpsertWithWhereUniqueWithoutTransactionInput | LedgerEntryUpsertWithWhereUniqueWithoutTransactionInput[]
-    createMany?: LedgerEntryCreateManyTransactionInputEnvelope
-    set?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    disconnect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    delete?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    connect?: LedgerEntryWhereUniqueInput | LedgerEntryWhereUniqueInput[]
-    update?: LedgerEntryUpdateWithWhereUniqueWithoutTransactionInput | LedgerEntryUpdateWithWhereUniqueWithoutTransactionInput[]
-    updateMany?: LedgerEntryUpdateManyWithWhereWithoutTransactionInput | LedgerEntryUpdateManyWithWhereWithoutTransactionInput[]
-    deleteMany?: LedgerEntryScalarWhereInput | LedgerEntryScalarWhereInput[]
+  export type EntryUncheckedUpdateManyWithoutTransactionNestedInput = {
+    create?: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput> | EntryCreateWithoutTransactionInput[] | EntryUncheckedCreateWithoutTransactionInput[]
+    connectOrCreate?: EntryCreateOrConnectWithoutTransactionInput | EntryCreateOrConnectWithoutTransactionInput[]
+    upsert?: EntryUpsertWithWhereUniqueWithoutTransactionInput | EntryUpsertWithWhereUniqueWithoutTransactionInput[]
+    createMany?: EntryCreateManyTransactionInputEnvelope
+    set?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    disconnect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    delete?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+    update?: EntryUpdateWithWhereUniqueWithoutTransactionInput | EntryUpdateWithWhereUniqueWithoutTransactionInput[]
+    updateMany?: EntryUpdateManyWithWhereWithoutTransactionInput | EntryUpdateManyWithWhereWithoutTransactionInput[]
+    deleteMany?: EntryScalarWhereInput | EntryScalarWhereInput[]
   }
 
   export type LedgerTransactionCreateNestedOneWithoutEntriesInput = {
@@ -18297,10 +18104,6 @@ export namespace Prisma {
     decrement?: bigint | number
     multiply?: bigint | number
     divide?: bigint | number
-  }
-
-  export type EnumEntryDirectionFieldUpdateOperationsInput = {
-    set?: $Enums.EntryDirection
   }
 
   export type LedgerTransactionUpdateOneRequiredWithoutEntriesNestedInput = {
@@ -18543,40 +18346,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedEnumAccountTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.AccountType | EnumAccountTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAccountTypeFilter<$PrismaModel> | $Enums.AccountType
-  }
-
-  export type NestedEnumAccountTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AccountType | EnumAccountTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AccountType[] | ListEnumAccountTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAccountTypeWithAggregatesFilter<$PrismaModel> | $Enums.AccountType
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAccountTypeFilter<$PrismaModel>
-    _max?: NestedEnumAccountTypeFilter<$PrismaModel>
-  }
-
-  export type NestedEnumTransactionStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumTransactionStatusFilter<$PrismaModel> | $Enums.TransactionStatus
-  }
-
-  export type NestedEnumTransactionStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumTransactionStatusWithAggregatesFilter<$PrismaModel> | $Enums.TransactionStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTransactionStatusFilter<$PrismaModel>
-    _max?: NestedEnumTransactionStatusFilter<$PrismaModel>
-  }
-
   export type NestedBigIntFilter<$PrismaModel = never> = {
     equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
     in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
@@ -18586,13 +18355,6 @@ export namespace Prisma {
     gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
     gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
     not?: NestedBigIntFilter<$PrismaModel> | bigint | number
-  }
-
-  export type NestedEnumEntryDirectionFilter<$PrismaModel = never> = {
-    equals?: $Enums.EntryDirection | EnumEntryDirectionFieldRefInput<$PrismaModel>
-    in?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEntryDirectionFilter<$PrismaModel> | $Enums.EntryDirection
   }
 
   export type NestedBigIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -18609,16 +18371,6 @@ export namespace Prisma {
     _sum?: NestedBigIntFilter<$PrismaModel>
     _min?: NestedBigIntFilter<$PrismaModel>
     _max?: NestedBigIntFilter<$PrismaModel>
-  }
-
-  export type NestedEnumEntryDirectionWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EntryDirection | EnumEntryDirectionFieldRefInput<$PrismaModel>
-    in?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EntryDirection[] | ListEnumEntryDirectionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEntryDirectionWithAggregatesFilter<$PrismaModel> | $Enums.EntryDirection
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEntryDirectionFilter<$PrismaModel>
-    _max?: NestedEnumEntryDirectionFilter<$PrismaModel>
   }
 
   export type DemoCreateWithoutLeadInput = {
@@ -19093,120 +18845,115 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutLeadNestedInput
   }
 
-  export type LedgerEntryCreateWithoutAccountInput = {
+  export type EntryCreateWithoutAccountInput = {
     id?: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
     transaction: LedgerTransactionCreateNestedOneWithoutEntriesInput
   }
 
-  export type LedgerEntryUncheckedCreateWithoutAccountInput = {
+  export type EntryUncheckedCreateWithoutAccountInput = {
     id?: string
     transactionId: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
   }
 
-  export type LedgerEntryCreateOrConnectWithoutAccountInput = {
-    where: LedgerEntryWhereUniqueInput
-    create: XOR<LedgerEntryCreateWithoutAccountInput, LedgerEntryUncheckedCreateWithoutAccountInput>
+  export type EntryCreateOrConnectWithoutAccountInput = {
+    where: EntryWhereUniqueInput
+    create: XOR<EntryCreateWithoutAccountInput, EntryUncheckedCreateWithoutAccountInput>
   }
 
-  export type LedgerEntryCreateManyAccountInputEnvelope = {
-    data: LedgerEntryCreateManyAccountInput | LedgerEntryCreateManyAccountInput[]
+  export type EntryCreateManyAccountInputEnvelope = {
+    data: EntryCreateManyAccountInput | EntryCreateManyAccountInput[]
     skipDuplicates?: boolean
   }
 
-  export type LedgerEntryUpsertWithWhereUniqueWithoutAccountInput = {
-    where: LedgerEntryWhereUniqueInput
-    update: XOR<LedgerEntryUpdateWithoutAccountInput, LedgerEntryUncheckedUpdateWithoutAccountInput>
-    create: XOR<LedgerEntryCreateWithoutAccountInput, LedgerEntryUncheckedCreateWithoutAccountInput>
+  export type EntryUpsertWithWhereUniqueWithoutAccountInput = {
+    where: EntryWhereUniqueInput
+    update: XOR<EntryUpdateWithoutAccountInput, EntryUncheckedUpdateWithoutAccountInput>
+    create: XOR<EntryCreateWithoutAccountInput, EntryUncheckedCreateWithoutAccountInput>
   }
 
-  export type LedgerEntryUpdateWithWhereUniqueWithoutAccountInput = {
-    where: LedgerEntryWhereUniqueInput
-    data: XOR<LedgerEntryUpdateWithoutAccountInput, LedgerEntryUncheckedUpdateWithoutAccountInput>
+  export type EntryUpdateWithWhereUniqueWithoutAccountInput = {
+    where: EntryWhereUniqueInput
+    data: XOR<EntryUpdateWithoutAccountInput, EntryUncheckedUpdateWithoutAccountInput>
   }
 
-  export type LedgerEntryUpdateManyWithWhereWithoutAccountInput = {
-    where: LedgerEntryScalarWhereInput
-    data: XOR<LedgerEntryUpdateManyMutationInput, LedgerEntryUncheckedUpdateManyWithoutAccountInput>
+  export type EntryUpdateManyWithWhereWithoutAccountInput = {
+    where: EntryScalarWhereInput
+    data: XOR<EntryUpdateManyMutationInput, EntryUncheckedUpdateManyWithoutAccountInput>
   }
 
-  export type LedgerEntryScalarWhereInput = {
-    AND?: LedgerEntryScalarWhereInput | LedgerEntryScalarWhereInput[]
-    OR?: LedgerEntryScalarWhereInput[]
-    NOT?: LedgerEntryScalarWhereInput | LedgerEntryScalarWhereInput[]
-    id?: StringFilter<"LedgerEntry"> | string
-    transactionId?: StringFilter<"LedgerEntry"> | string
-    accountId?: StringFilter<"LedgerEntry"> | string
-    amount?: BigIntFilter<"LedgerEntry"> | bigint | number
-    direction?: EnumEntryDirectionFilter<"LedgerEntry"> | $Enums.EntryDirection
-    createdAt?: DateTimeFilter<"LedgerEntry"> | Date | string
+  export type EntryScalarWhereInput = {
+    AND?: EntryScalarWhereInput | EntryScalarWhereInput[]
+    OR?: EntryScalarWhereInput[]
+    NOT?: EntryScalarWhereInput | EntryScalarWhereInput[]
+    id?: StringFilter<"Entry"> | string
+    transactionId?: StringFilter<"Entry"> | string
+    accountId?: StringFilter<"Entry"> | string
+    amount?: BigIntFilter<"Entry"> | bigint | number
+    createdAt?: DateTimeFilter<"Entry"> | Date | string
   }
 
-  export type LedgerEntryCreateWithoutTransactionInput = {
+  export type EntryCreateWithoutTransactionInput = {
     id?: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
     account: AccountCreateNestedOneWithoutEntriesInput
   }
 
-  export type LedgerEntryUncheckedCreateWithoutTransactionInput = {
+  export type EntryUncheckedCreateWithoutTransactionInput = {
     id?: string
     accountId: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
   }
 
-  export type LedgerEntryCreateOrConnectWithoutTransactionInput = {
-    where: LedgerEntryWhereUniqueInput
-    create: XOR<LedgerEntryCreateWithoutTransactionInput, LedgerEntryUncheckedCreateWithoutTransactionInput>
+  export type EntryCreateOrConnectWithoutTransactionInput = {
+    where: EntryWhereUniqueInput
+    create: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput>
   }
 
-  export type LedgerEntryCreateManyTransactionInputEnvelope = {
-    data: LedgerEntryCreateManyTransactionInput | LedgerEntryCreateManyTransactionInput[]
+  export type EntryCreateManyTransactionInputEnvelope = {
+    data: EntryCreateManyTransactionInput | EntryCreateManyTransactionInput[]
     skipDuplicates?: boolean
   }
 
-  export type LedgerEntryUpsertWithWhereUniqueWithoutTransactionInput = {
-    where: LedgerEntryWhereUniqueInput
-    update: XOR<LedgerEntryUpdateWithoutTransactionInput, LedgerEntryUncheckedUpdateWithoutTransactionInput>
-    create: XOR<LedgerEntryCreateWithoutTransactionInput, LedgerEntryUncheckedCreateWithoutTransactionInput>
+  export type EntryUpsertWithWhereUniqueWithoutTransactionInput = {
+    where: EntryWhereUniqueInput
+    update: XOR<EntryUpdateWithoutTransactionInput, EntryUncheckedUpdateWithoutTransactionInput>
+    create: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput>
   }
 
-  export type LedgerEntryUpdateWithWhereUniqueWithoutTransactionInput = {
-    where: LedgerEntryWhereUniqueInput
-    data: XOR<LedgerEntryUpdateWithoutTransactionInput, LedgerEntryUncheckedUpdateWithoutTransactionInput>
+  export type EntryUpdateWithWhereUniqueWithoutTransactionInput = {
+    where: EntryWhereUniqueInput
+    data: XOR<EntryUpdateWithoutTransactionInput, EntryUncheckedUpdateWithoutTransactionInput>
   }
 
-  export type LedgerEntryUpdateManyWithWhereWithoutTransactionInput = {
-    where: LedgerEntryScalarWhereInput
-    data: XOR<LedgerEntryUpdateManyMutationInput, LedgerEntryUncheckedUpdateManyWithoutTransactionInput>
+  export type EntryUpdateManyWithWhereWithoutTransactionInput = {
+    where: EntryScalarWhereInput
+    data: XOR<EntryUpdateManyMutationInput, EntryUncheckedUpdateManyWithoutTransactionInput>
   }
 
   export type LedgerTransactionCreateWithoutEntriesInput = {
     id?: string
+    userId: string
+    reference: string
+    status?: string
     idempotencyKey: string
-    status?: $Enums.TransactionStatus
-    description: string
-    reference?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    postedAt?: Date | string | null
   }
 
   export type LedgerTransactionUncheckedCreateWithoutEntriesInput = {
     id?: string
+    userId: string
+    reference: string
+    status?: string
     idempotencyKey: string
-    status?: $Enums.TransactionStatus
-    description: string
-    reference?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    postedAt?: Date | string | null
   }
 
   export type LedgerTransactionCreateOrConnectWithoutEntriesInput = {
@@ -19216,19 +18963,17 @@ export namespace Prisma {
 
   export type AccountCreateWithoutEntriesInput = {
     id?: string
-    name: string
-    type: $Enums.AccountType
+    userId: string
+    type: string
     currency?: string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
   export type AccountUncheckedCreateWithoutEntriesInput = {
     id?: string
-    name: string
-    type: $Enums.AccountType
+    userId: string
+    type: string
     currency?: string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -19250,22 +18995,22 @@ export namespace Prisma {
 
   export type LedgerTransactionUpdateWithoutEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
-    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-    description?: StringFieldUpdateOperationsInput | string
-    reference?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LedgerTransactionUncheckedUpdateWithoutEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
-    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-    description?: StringFieldUpdateOperationsInput | string
-    reference?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type AccountUpsertWithoutEntriesInput = {
@@ -19281,19 +19026,17 @@ export namespace Prisma {
 
   export type AccountUpdateWithoutEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    type?: EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AccountUncheckedUpdateWithoutEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    type?: EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -19361,67 +19104,59 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LedgerEntryCreateManyAccountInput = {
+  export type EntryCreateManyAccountInput = {
     id?: string
     transactionId: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
   }
 
-  export type LedgerEntryUpdateWithoutAccountInput = {
+  export type EntryUpdateWithoutAccountInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transaction?: LedgerTransactionUpdateOneRequiredWithoutEntriesNestedInput
   }
 
-  export type LedgerEntryUncheckedUpdateWithoutAccountInput = {
+  export type EntryUncheckedUpdateWithoutAccountInput = {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LedgerEntryUncheckedUpdateManyWithoutAccountInput = {
+  export type EntryUncheckedUpdateManyWithoutAccountInput = {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LedgerEntryCreateManyTransactionInput = {
+  export type EntryCreateManyTransactionInput = {
     id?: string
     accountId: string
     amount: bigint | number
-    direction: $Enums.EntryDirection
     createdAt?: Date | string
   }
 
-  export type LedgerEntryUpdateWithoutTransactionInput = {
+  export type EntryUpdateWithoutTransactionInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     account?: AccountUpdateOneRequiredWithoutEntriesNestedInput
   }
 
-  export type LedgerEntryUncheckedUpdateWithoutTransactionInput = {
+  export type EntryUncheckedUpdateWithoutTransactionInput = {
     id?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LedgerEntryUncheckedUpdateManyWithoutTransactionInput = {
+  export type EntryUncheckedUpdateManyWithoutTransactionInput = {
     id?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
     amount?: BigIntFieldUpdateOperationsInput | bigint | number
-    direction?: EnumEntryDirectionFieldUpdateOperationsInput | $Enums.EntryDirection
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

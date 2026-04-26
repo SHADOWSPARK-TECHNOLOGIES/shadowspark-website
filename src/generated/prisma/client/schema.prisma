@@ -127,57 +127,32 @@ model Embedding {
 
 // --- HARDENED FINANCIAL CORE ---
 
-enum AccountType {
-  ASSET
-  LIABILITY
-  EQUITY
-  REVENUE
-  EXPENSE
-}
-
-enum TransactionStatus {
-  PENDING
-  POSTED
-  FAILED
-  REVERSED
-}
-
-enum EntryDirection {
-  DEBIT
-  CREDIT
-}
-
 model Account {
-  id        String        @id @default(uuid())
-  name      String
-  type      AccountType
-  currency  String        @default("NGN")
-  metadata  Json?
-  entries   LedgerEntry[]
-  createdAt DateTime      @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // "WALLET" | "EXPENSE" | "INCOME" | "CLEARING"
+  currency  String   @default("NGN")
+  entries   Entry[]
+  createdAt DateTime @default(now())
 }
 
 model LedgerTransaction {
-  id             String            @id @default(uuid())
-  idempotencyKey String            @unique
-  status         TransactionStatus @default(PENDING)
-  description    String
-  reference      String?
-  metadata       Json?
-  entries        LedgerEntry[]
-  createdAt      DateTime          @default(now())
+  id             String    @id @default(cuid())
+  userId         String
+  reference      String    @unique
+  status         String    @default("PENDING") // PENDING | POSTED | REVERSED | FAILED
+  idempotencyKey String    @unique
+  entries        Entry[]
+  createdAt      DateTime  @default(now())
+  postedAt       DateTime?
 }
 
-model LedgerEntry {
-  id            String            @id @default(uuid())
+model Entry {
+  id            String            @id @default(cuid())
   transactionId String
-  transaction   LedgerTransaction @relation(fields: [transactionId], references: [id])
   accountId     String
+  amount        BigInt // positive = credit, negative = debit, in Kobo
+  transaction   LedgerTransaction @relation(fields: [transactionId], references: [id])
   account       Account           @relation(fields: [accountId], references: [id])
-  amount        BigInt
-  direction     EntryDirection
   createdAt     DateTime          @default(now())
-
-  @@index([accountId])
-  @@index([transactionId])
 }

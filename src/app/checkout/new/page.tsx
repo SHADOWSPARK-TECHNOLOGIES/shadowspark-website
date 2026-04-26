@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import CheckoutClient from "@/components/CheckoutClient";
+import CheckoutClient from "../[leadId]/CheckoutClient";
 
 function Skeleton({ className }: { className: string }) {
   return <div className={`animate-pulse rounded-lg bg-gray-800 ${className}`} />;
@@ -52,7 +52,7 @@ export default function NewCheckoutPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4">
       <Suspense fallback={<CheckoutSkeleton />}>
-        <CheckoutClient />
+        <CheckoutClient leadId="new" />
       </Suspense>
     </div>
   );

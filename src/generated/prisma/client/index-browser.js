@@ -228,29 +228,27 @@ exports.Prisma.EmbeddingScalarFieldEnum = {
 
 exports.Prisma.AccountScalarFieldEnum = {
   id: 'id',
-  name: 'name',
+  userId: 'userId',
   type: 'type',
   currency: 'currency',
-  metadata: 'metadata',
   createdAt: 'createdAt'
 };
 
 exports.Prisma.LedgerTransactionScalarFieldEnum = {
   id: 'id',
-  idempotencyKey: 'idempotencyKey',
-  status: 'status',
-  description: 'description',
+  userId: 'userId',
   reference: 'reference',
-  metadata: 'metadata',
-  createdAt: 'createdAt'
+  status: 'status',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt',
+  postedAt: 'postedAt'
 };
 
-exports.Prisma.LedgerEntryScalarFieldEnum = {
+exports.Prisma.EntryScalarFieldEnum = {
   id: 'id',
   transactionId: 'transactionId',
   accountId: 'accountId',
   amount: 'amount',
-  direction: 'direction',
   createdAt: 'createdAt'
 };
 
@@ -279,25 +277,7 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-exports.AccountType = exports.$Enums.AccountType = {
-  ASSET: 'ASSET',
-  LIABILITY: 'LIABILITY',
-  EQUITY: 'EQUITY',
-  REVENUE: 'REVENUE',
-  EXPENSE: 'EXPENSE'
-};
 
-exports.TransactionStatus = exports.$Enums.TransactionStatus = {
-  PENDING: 'PENDING',
-  POSTED: 'POSTED',
-  FAILED: 'FAILED',
-  REVERSED: 'REVERSED'
-};
-
-exports.EntryDirection = exports.$Enums.EntryDirection = {
-  DEBIT: 'DEBIT',
-  CREDIT: 'CREDIT'
-};
 
 exports.Prisma.ModelName = {
   Lead: 'Lead',
@@ -311,7 +291,7 @@ exports.Prisma.ModelName = {
   Embedding: 'Embedding',
   Account: 'Account',
   LedgerTransaction: 'LedgerTransaction',
-  LedgerEntry: 'LedgerEntry'
+  Entry: 'Entry'
 };
 
 /**
