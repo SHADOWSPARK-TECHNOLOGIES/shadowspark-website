@@ -24,6 +24,16 @@ export type Lead = $Result.DefaultSelection<Prisma.$LeadPayload>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model TokenizedAsset
+ * 
+ */
+export type TokenizedAsset = $Result.DefaultSelection<Prisma.$TokenizedAssetPayload>
+/**
+ * Model TokenHolder
+ * 
+ */
+export type TokenHolder = $Result.DefaultSelection<Prisma.$TokenHolderPayload>
+/**
  * Model Payment
  * 
  */
@@ -60,19 +70,30 @@ export type KnowledgeEmbedding = $Result.DefaultSelection<Prisma.$KnowledgeEmbed
 export type Embedding = $Result.DefaultSelection<Prisma.$EmbeddingPayload>
 /**
  * Model Account
- * 
+ * Chart of Accounts — types: WALLET (asset), CLEARING (liability),
+ * INCOME (revenue), EXPENSE (cost), EQUITY (capital).
  */
 export type Account = $Result.DefaultSelection<Prisma.$AccountPayload>
 /**
  * Model LedgerTransaction
- * 
+ * A single double-entry transaction. Every transaction
+ * must have balanced entries (sum debits = sum credits).
+ * State machine: PENDING → POSTED, PENDING → REVERSED, POSTED → REVERSED.
  */
 export type LedgerTransaction = $Result.DefaultSelection<Prisma.$LedgerTransactionPayload>
 /**
  * Model Entry
- * 
+ * Individual entry leg. Each entry carries either a debit
+ * amount (positive) or a credit amount (positive). For any
+ * transaction, Σ(debits) must equal Σ(credits).
  */
 export type Entry = $Result.DefaultSelection<Prisma.$EntryPayload>
+/**
+ * Model LedgerIdempotency
+ * Optional dedicated table for idempotency lookups.
+ * Avoids scanning LedgerTransaction for retried operations.
+ */
+export type LedgerIdempotency = $Result.DefaultSelection<Prisma.$LedgerIdempotencyPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -216,6 +237,26 @@ export class PrismaClient<
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.tokenizedAsset`: Exposes CRUD operations for the **TokenizedAsset** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TokenizedAssets
+    * const tokenizedAssets = await prisma.tokenizedAsset.findMany()
+    * ```
+    */
+  get tokenizedAsset(): Prisma.TokenizedAssetDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tokenHolder`: Exposes CRUD operations for the **TokenHolder** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TokenHolders
+    * const tokenHolders = await prisma.tokenHolder.findMany()
+    * ```
+    */
+  get tokenHolder(): Prisma.TokenHolderDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.payment`: Exposes CRUD operations for the **Payment** model.
     * Example usage:
     * ```ts
@@ -314,6 +355,16 @@ export class PrismaClient<
     * ```
     */
   get entry(): Prisma.EntryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ledgerIdempotency`: Exposes CRUD operations for the **LedgerIdempotency** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LedgerIdempotencies
+    * const ledgerIdempotencies = await prisma.ledgerIdempotency.findMany()
+    * ```
+    */
+  get ledgerIdempotency(): Prisma.LedgerIdempotencyDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -750,6 +801,8 @@ export namespace Prisma {
   export const ModelName: {
     Lead: 'Lead',
     User: 'User',
+    TokenizedAsset: 'TokenizedAsset',
+    TokenHolder: 'TokenHolder',
     Payment: 'Payment',
     Demo: 'Demo',
     SystemEvent: 'SystemEvent',
@@ -759,7 +812,8 @@ export namespace Prisma {
     Embedding: 'Embedding',
     Account: 'Account',
     LedgerTransaction: 'LedgerTransaction',
-    Entry: 'Entry'
+    Entry: 'Entry',
+    LedgerIdempotency: 'LedgerIdempotency'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -775,7 +829,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "lead" | "user" | "payment" | "demo" | "systemEvent" | "sniperTarget" | "emailEvent" | "knowledgeEmbedding" | "embedding" | "account" | "ledgerTransaction" | "entry"
+      modelProps: "lead" | "user" | "tokenizedAsset" | "tokenHolder" | "payment" | "demo" | "systemEvent" | "sniperTarget" | "emailEvent" | "knowledgeEmbedding" | "embedding" | "account" | "ledgerTransaction" | "entry" | "ledgerIdempotency"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -924,6 +978,154 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      TokenizedAsset: {
+        payload: Prisma.$TokenizedAssetPayload<ExtArgs>
+        fields: Prisma.TokenizedAssetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TokenizedAssetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TokenizedAssetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>
+          }
+          findFirst: {
+            args: Prisma.TokenizedAssetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TokenizedAssetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>
+          }
+          findMany: {
+            args: Prisma.TokenizedAssetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>[]
+          }
+          create: {
+            args: Prisma.TokenizedAssetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>
+          }
+          createMany: {
+            args: Prisma.TokenizedAssetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TokenizedAssetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>[]
+          }
+          delete: {
+            args: Prisma.TokenizedAssetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>
+          }
+          update: {
+            args: Prisma.TokenizedAssetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>
+          }
+          deleteMany: {
+            args: Prisma.TokenizedAssetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TokenizedAssetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TokenizedAssetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>[]
+          }
+          upsert: {
+            args: Prisma.TokenizedAssetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenizedAssetPayload>
+          }
+          aggregate: {
+            args: Prisma.TokenizedAssetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTokenizedAsset>
+          }
+          groupBy: {
+            args: Prisma.TokenizedAssetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TokenizedAssetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TokenizedAssetCountArgs<ExtArgs>
+            result: $Utils.Optional<TokenizedAssetCountAggregateOutputType> | number
+          }
+        }
+      }
+      TokenHolder: {
+        payload: Prisma.$TokenHolderPayload<ExtArgs>
+        fields: Prisma.TokenHolderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TokenHolderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TokenHolderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>
+          }
+          findFirst: {
+            args: Prisma.TokenHolderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TokenHolderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>
+          }
+          findMany: {
+            args: Prisma.TokenHolderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>[]
+          }
+          create: {
+            args: Prisma.TokenHolderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>
+          }
+          createMany: {
+            args: Prisma.TokenHolderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TokenHolderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>[]
+          }
+          delete: {
+            args: Prisma.TokenHolderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>
+          }
+          update: {
+            args: Prisma.TokenHolderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>
+          }
+          deleteMany: {
+            args: Prisma.TokenHolderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TokenHolderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TokenHolderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>[]
+          }
+          upsert: {
+            args: Prisma.TokenHolderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TokenHolderPayload>
+          }
+          aggregate: {
+            args: Prisma.TokenHolderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTokenHolder>
+          }
+          groupBy: {
+            args: Prisma.TokenHolderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TokenHolderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TokenHolderCountArgs<ExtArgs>
+            result: $Utils.Optional<TokenHolderCountAggregateOutputType> | number
           }
         }
       }
@@ -1651,6 +1853,80 @@ export namespace Prisma {
           }
         }
       }
+      LedgerIdempotency: {
+        payload: Prisma.$LedgerIdempotencyPayload<ExtArgs>
+        fields: Prisma.LedgerIdempotencyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LedgerIdempotencyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LedgerIdempotencyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>
+          }
+          findFirst: {
+            args: Prisma.LedgerIdempotencyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LedgerIdempotencyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>
+          }
+          findMany: {
+            args: Prisma.LedgerIdempotencyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>[]
+          }
+          create: {
+            args: Prisma.LedgerIdempotencyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>
+          }
+          createMany: {
+            args: Prisma.LedgerIdempotencyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LedgerIdempotencyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>[]
+          }
+          delete: {
+            args: Prisma.LedgerIdempotencyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>
+          }
+          update: {
+            args: Prisma.LedgerIdempotencyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>
+          }
+          deleteMany: {
+            args: Prisma.LedgerIdempotencyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LedgerIdempotencyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LedgerIdempotencyUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>[]
+          }
+          upsert: {
+            args: Prisma.LedgerIdempotencyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerIdempotencyPayload>
+          }
+          aggregate: {
+            args: Prisma.LedgerIdempotencyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLedgerIdempotency>
+          }
+          groupBy: {
+            args: Prisma.LedgerIdempotencyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LedgerIdempotencyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LedgerIdempotencyCountArgs<ExtArgs>
+            result: $Utils.Optional<LedgerIdempotencyCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1761,6 +2037,8 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     lead?: LeadOmit
     user?: UserOmit
+    tokenizedAsset?: TokenizedAssetOmit
+    tokenHolder?: TokenHolderOmit
     payment?: PaymentOmit
     demo?: DemoOmit
     systemEvent?: SystemEventOmit
@@ -1771,6 +2049,7 @@ export namespace Prisma {
     account?: AccountOmit
     ledgerTransaction?: LedgerTransactionOmit
     entry?: EntryOmit
+    ledgerIdempotency?: LedgerIdempotencyOmit
   }
 
   /* Types for Logging */
@@ -1883,6 +2162,37 @@ export namespace Prisma {
    */
   export type LeadCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentWhereInput
+  }
+
+
+  /**
+   * Count Type TokenizedAssetCountOutputType
+   */
+
+  export type TokenizedAssetCountOutputType = {
+    tokenHolders: number
+  }
+
+  export type TokenizedAssetCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tokenHolders?: boolean | TokenizedAssetCountOutputTypeCountTokenHoldersArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TokenizedAssetCountOutputType without action
+   */
+  export type TokenizedAssetCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAssetCountOutputType
+     */
+    select?: TokenizedAssetCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TokenizedAssetCountOutputType without action
+   */
+  export type TokenizedAssetCountOutputTypeCountTokenHoldersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TokenHolderWhereInput
   }
 
 
@@ -4270,6 +4580,2354 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TokenizedAsset
+   */
+
+  export type AggregateTokenizedAsset = {
+    _count: TokenizedAssetCountAggregateOutputType | null
+    _avg: TokenizedAssetAvgAggregateOutputType | null
+    _sum: TokenizedAssetSumAggregateOutputType | null
+    _min: TokenizedAssetMinAggregateOutputType | null
+    _max: TokenizedAssetMaxAggregateOutputType | null
+  }
+
+  export type TokenizedAssetAvgAggregateOutputType = {
+    totalShares: number | null
+    availableShares: number | null
+    pricePerShare: Decimal | null
+  }
+
+  export type TokenizedAssetSumAggregateOutputType = {
+    totalShares: number | null
+    availableShares: number | null
+    pricePerShare: Decimal | null
+  }
+
+  export type TokenizedAssetMinAggregateOutputType = {
+    id: string | null
+    assetType: string | null
+    name: string | null
+    location: string | null
+    totalShares: number | null
+    availableShares: number | null
+    pricePerShare: Decimal | null
+    currency: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TokenizedAssetMaxAggregateOutputType = {
+    id: string | null
+    assetType: string | null
+    name: string | null
+    location: string | null
+    totalShares: number | null
+    availableShares: number | null
+    pricePerShare: Decimal | null
+    currency: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TokenizedAssetCountAggregateOutputType = {
+    id: number
+    assetType: number
+    name: number
+    location: number
+    totalShares: number
+    availableShares: number
+    pricePerShare: number
+    currency: number
+    metadata: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TokenizedAssetAvgAggregateInputType = {
+    totalShares?: true
+    availableShares?: true
+    pricePerShare?: true
+  }
+
+  export type TokenizedAssetSumAggregateInputType = {
+    totalShares?: true
+    availableShares?: true
+    pricePerShare?: true
+  }
+
+  export type TokenizedAssetMinAggregateInputType = {
+    id?: true
+    assetType?: true
+    name?: true
+    location?: true
+    totalShares?: true
+    availableShares?: true
+    pricePerShare?: true
+    currency?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TokenizedAssetMaxAggregateInputType = {
+    id?: true
+    assetType?: true
+    name?: true
+    location?: true
+    totalShares?: true
+    availableShares?: true
+    pricePerShare?: true
+    currency?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TokenizedAssetCountAggregateInputType = {
+    id?: true
+    assetType?: true
+    name?: true
+    location?: true
+    totalShares?: true
+    availableShares?: true
+    pricePerShare?: true
+    currency?: true
+    metadata?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TokenizedAssetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TokenizedAsset to aggregate.
+     */
+    where?: TokenizedAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenizedAssets to fetch.
+     */
+    orderBy?: TokenizedAssetOrderByWithRelationInput | TokenizedAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TokenizedAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenizedAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenizedAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TokenizedAssets
+    **/
+    _count?: true | TokenizedAssetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TokenizedAssetAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TokenizedAssetSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TokenizedAssetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TokenizedAssetMaxAggregateInputType
+  }
+
+  export type GetTokenizedAssetAggregateType<T extends TokenizedAssetAggregateArgs> = {
+        [P in keyof T & keyof AggregateTokenizedAsset]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTokenizedAsset[P]>
+      : GetScalarType<T[P], AggregateTokenizedAsset[P]>
+  }
+
+
+
+
+  export type TokenizedAssetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TokenizedAssetWhereInput
+    orderBy?: TokenizedAssetOrderByWithAggregationInput | TokenizedAssetOrderByWithAggregationInput[]
+    by: TokenizedAssetScalarFieldEnum[] | TokenizedAssetScalarFieldEnum
+    having?: TokenizedAssetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TokenizedAssetCountAggregateInputType | true
+    _avg?: TokenizedAssetAvgAggregateInputType
+    _sum?: TokenizedAssetSumAggregateInputType
+    _min?: TokenizedAssetMinAggregateInputType
+    _max?: TokenizedAssetMaxAggregateInputType
+  }
+
+  export type TokenizedAssetGroupByOutputType = {
+    id: string
+    assetType: string
+    name: string
+    location: string | null
+    totalShares: number
+    availableShares: number
+    pricePerShare: Decimal
+    currency: string
+    metadata: JsonValue | null
+    status: string
+    createdAt: Date
+    updatedAt: Date
+    _count: TokenizedAssetCountAggregateOutputType | null
+    _avg: TokenizedAssetAvgAggregateOutputType | null
+    _sum: TokenizedAssetSumAggregateOutputType | null
+    _min: TokenizedAssetMinAggregateOutputType | null
+    _max: TokenizedAssetMaxAggregateOutputType | null
+  }
+
+  type GetTokenizedAssetGroupByPayload<T extends TokenizedAssetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TokenizedAssetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TokenizedAssetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TokenizedAssetGroupByOutputType[P]>
+            : GetScalarType<T[P], TokenizedAssetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TokenizedAssetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    assetType?: boolean
+    name?: boolean
+    location?: boolean
+    totalShares?: boolean
+    availableShares?: boolean
+    pricePerShare?: boolean
+    currency?: boolean
+    metadata?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tokenHolders?: boolean | TokenizedAsset$tokenHoldersArgs<ExtArgs>
+    _count?: boolean | TokenizedAssetCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tokenizedAsset"]>
+
+  export type TokenizedAssetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    assetType?: boolean
+    name?: boolean
+    location?: boolean
+    totalShares?: boolean
+    availableShares?: boolean
+    pricePerShare?: boolean
+    currency?: boolean
+    metadata?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tokenizedAsset"]>
+
+  export type TokenizedAssetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    assetType?: boolean
+    name?: boolean
+    location?: boolean
+    totalShares?: boolean
+    availableShares?: boolean
+    pricePerShare?: boolean
+    currency?: boolean
+    metadata?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tokenizedAsset"]>
+
+  export type TokenizedAssetSelectScalar = {
+    id?: boolean
+    assetType?: boolean
+    name?: boolean
+    location?: boolean
+    totalShares?: boolean
+    availableShares?: boolean
+    pricePerShare?: boolean
+    currency?: boolean
+    metadata?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TokenizedAssetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "assetType" | "name" | "location" | "totalShares" | "availableShares" | "pricePerShare" | "currency" | "metadata" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["tokenizedAsset"]>
+  export type TokenizedAssetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tokenHolders?: boolean | TokenizedAsset$tokenHoldersArgs<ExtArgs>
+    _count?: boolean | TokenizedAssetCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TokenizedAssetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type TokenizedAssetIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $TokenizedAssetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TokenizedAsset"
+    objects: {
+      tokenHolders: Prisma.$TokenHolderPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      assetType: string
+      name: string
+      location: string | null
+      totalShares: number
+      availableShares: number
+      pricePerShare: Prisma.Decimal
+      currency: string
+      metadata: Prisma.JsonValue | null
+      status: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["tokenizedAsset"]>
+    composites: {}
+  }
+
+  type TokenizedAssetGetPayload<S extends boolean | null | undefined | TokenizedAssetDefaultArgs> = $Result.GetResult<Prisma.$TokenizedAssetPayload, S>
+
+  type TokenizedAssetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TokenizedAssetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TokenizedAssetCountAggregateInputType | true
+    }
+
+  export interface TokenizedAssetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TokenizedAsset'], meta: { name: 'TokenizedAsset' } }
+    /**
+     * Find zero or one TokenizedAsset that matches the filter.
+     * @param {TokenizedAssetFindUniqueArgs} args - Arguments to find a TokenizedAsset
+     * @example
+     * // Get one TokenizedAsset
+     * const tokenizedAsset = await prisma.tokenizedAsset.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TokenizedAssetFindUniqueArgs>(args: SelectSubset<T, TokenizedAssetFindUniqueArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TokenizedAsset that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TokenizedAssetFindUniqueOrThrowArgs} args - Arguments to find a TokenizedAsset
+     * @example
+     * // Get one TokenizedAsset
+     * const tokenizedAsset = await prisma.tokenizedAsset.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TokenizedAssetFindUniqueOrThrowArgs>(args: SelectSubset<T, TokenizedAssetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TokenizedAsset that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenizedAssetFindFirstArgs} args - Arguments to find a TokenizedAsset
+     * @example
+     * // Get one TokenizedAsset
+     * const tokenizedAsset = await prisma.tokenizedAsset.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TokenizedAssetFindFirstArgs>(args?: SelectSubset<T, TokenizedAssetFindFirstArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TokenizedAsset that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenizedAssetFindFirstOrThrowArgs} args - Arguments to find a TokenizedAsset
+     * @example
+     * // Get one TokenizedAsset
+     * const tokenizedAsset = await prisma.tokenizedAsset.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TokenizedAssetFindFirstOrThrowArgs>(args?: SelectSubset<T, TokenizedAssetFindFirstOrThrowArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TokenizedAssets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenizedAssetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TokenizedAssets
+     * const tokenizedAssets = await prisma.tokenizedAsset.findMany()
+     * 
+     * // Get first 10 TokenizedAssets
+     * const tokenizedAssets = await prisma.tokenizedAsset.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tokenizedAssetWithIdOnly = await prisma.tokenizedAsset.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TokenizedAssetFindManyArgs>(args?: SelectSubset<T, TokenizedAssetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TokenizedAsset.
+     * @param {TokenizedAssetCreateArgs} args - Arguments to create a TokenizedAsset.
+     * @example
+     * // Create one TokenizedAsset
+     * const TokenizedAsset = await prisma.tokenizedAsset.create({
+     *   data: {
+     *     // ... data to create a TokenizedAsset
+     *   }
+     * })
+     * 
+     */
+    create<T extends TokenizedAssetCreateArgs>(args: SelectSubset<T, TokenizedAssetCreateArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TokenizedAssets.
+     * @param {TokenizedAssetCreateManyArgs} args - Arguments to create many TokenizedAssets.
+     * @example
+     * // Create many TokenizedAssets
+     * const tokenizedAsset = await prisma.tokenizedAsset.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TokenizedAssetCreateManyArgs>(args?: SelectSubset<T, TokenizedAssetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TokenizedAssets and returns the data saved in the database.
+     * @param {TokenizedAssetCreateManyAndReturnArgs} args - Arguments to create many TokenizedAssets.
+     * @example
+     * // Create many TokenizedAssets
+     * const tokenizedAsset = await prisma.tokenizedAsset.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TokenizedAssets and only return the `id`
+     * const tokenizedAssetWithIdOnly = await prisma.tokenizedAsset.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TokenizedAssetCreateManyAndReturnArgs>(args?: SelectSubset<T, TokenizedAssetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TokenizedAsset.
+     * @param {TokenizedAssetDeleteArgs} args - Arguments to delete one TokenizedAsset.
+     * @example
+     * // Delete one TokenizedAsset
+     * const TokenizedAsset = await prisma.tokenizedAsset.delete({
+     *   where: {
+     *     // ... filter to delete one TokenizedAsset
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TokenizedAssetDeleteArgs>(args: SelectSubset<T, TokenizedAssetDeleteArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TokenizedAsset.
+     * @param {TokenizedAssetUpdateArgs} args - Arguments to update one TokenizedAsset.
+     * @example
+     * // Update one TokenizedAsset
+     * const tokenizedAsset = await prisma.tokenizedAsset.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TokenizedAssetUpdateArgs>(args: SelectSubset<T, TokenizedAssetUpdateArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TokenizedAssets.
+     * @param {TokenizedAssetDeleteManyArgs} args - Arguments to filter TokenizedAssets to delete.
+     * @example
+     * // Delete a few TokenizedAssets
+     * const { count } = await prisma.tokenizedAsset.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TokenizedAssetDeleteManyArgs>(args?: SelectSubset<T, TokenizedAssetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TokenizedAssets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenizedAssetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TokenizedAssets
+     * const tokenizedAsset = await prisma.tokenizedAsset.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TokenizedAssetUpdateManyArgs>(args: SelectSubset<T, TokenizedAssetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TokenizedAssets and returns the data updated in the database.
+     * @param {TokenizedAssetUpdateManyAndReturnArgs} args - Arguments to update many TokenizedAssets.
+     * @example
+     * // Update many TokenizedAssets
+     * const tokenizedAsset = await prisma.tokenizedAsset.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TokenizedAssets and only return the `id`
+     * const tokenizedAssetWithIdOnly = await prisma.tokenizedAsset.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TokenizedAssetUpdateManyAndReturnArgs>(args: SelectSubset<T, TokenizedAssetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TokenizedAsset.
+     * @param {TokenizedAssetUpsertArgs} args - Arguments to update or create a TokenizedAsset.
+     * @example
+     * // Update or create a TokenizedAsset
+     * const tokenizedAsset = await prisma.tokenizedAsset.upsert({
+     *   create: {
+     *     // ... data to create a TokenizedAsset
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TokenizedAsset we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TokenizedAssetUpsertArgs>(args: SelectSubset<T, TokenizedAssetUpsertArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TokenizedAssets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenizedAssetCountArgs} args - Arguments to filter TokenizedAssets to count.
+     * @example
+     * // Count the number of TokenizedAssets
+     * const count = await prisma.tokenizedAsset.count({
+     *   where: {
+     *     // ... the filter for the TokenizedAssets we want to count
+     *   }
+     * })
+    **/
+    count<T extends TokenizedAssetCountArgs>(
+      args?: Subset<T, TokenizedAssetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TokenizedAssetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TokenizedAsset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenizedAssetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TokenizedAssetAggregateArgs>(args: Subset<T, TokenizedAssetAggregateArgs>): Prisma.PrismaPromise<GetTokenizedAssetAggregateType<T>>
+
+    /**
+     * Group by TokenizedAsset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenizedAssetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TokenizedAssetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TokenizedAssetGroupByArgs['orderBy'] }
+        : { orderBy?: TokenizedAssetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TokenizedAssetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTokenizedAssetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TokenizedAsset model
+   */
+  readonly fields: TokenizedAssetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TokenizedAsset.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TokenizedAssetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tokenHolders<T extends TokenizedAsset$tokenHoldersArgs<ExtArgs> = {}>(args?: Subset<T, TokenizedAsset$tokenHoldersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TokenizedAsset model
+   */
+  interface TokenizedAssetFieldRefs {
+    readonly id: FieldRef<"TokenizedAsset", 'String'>
+    readonly assetType: FieldRef<"TokenizedAsset", 'String'>
+    readonly name: FieldRef<"TokenizedAsset", 'String'>
+    readonly location: FieldRef<"TokenizedAsset", 'String'>
+    readonly totalShares: FieldRef<"TokenizedAsset", 'Int'>
+    readonly availableShares: FieldRef<"TokenizedAsset", 'Int'>
+    readonly pricePerShare: FieldRef<"TokenizedAsset", 'Decimal'>
+    readonly currency: FieldRef<"TokenizedAsset", 'String'>
+    readonly metadata: FieldRef<"TokenizedAsset", 'Json'>
+    readonly status: FieldRef<"TokenizedAsset", 'String'>
+    readonly createdAt: FieldRef<"TokenizedAsset", 'DateTime'>
+    readonly updatedAt: FieldRef<"TokenizedAsset", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TokenizedAsset findUnique
+   */
+  export type TokenizedAssetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenizedAsset to fetch.
+     */
+    where: TokenizedAssetWhereUniqueInput
+  }
+
+  /**
+   * TokenizedAsset findUniqueOrThrow
+   */
+  export type TokenizedAssetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenizedAsset to fetch.
+     */
+    where: TokenizedAssetWhereUniqueInput
+  }
+
+  /**
+   * TokenizedAsset findFirst
+   */
+  export type TokenizedAssetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenizedAsset to fetch.
+     */
+    where?: TokenizedAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenizedAssets to fetch.
+     */
+    orderBy?: TokenizedAssetOrderByWithRelationInput | TokenizedAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TokenizedAssets.
+     */
+    cursor?: TokenizedAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenizedAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenizedAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TokenizedAssets.
+     */
+    distinct?: TokenizedAssetScalarFieldEnum | TokenizedAssetScalarFieldEnum[]
+  }
+
+  /**
+   * TokenizedAsset findFirstOrThrow
+   */
+  export type TokenizedAssetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenizedAsset to fetch.
+     */
+    where?: TokenizedAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenizedAssets to fetch.
+     */
+    orderBy?: TokenizedAssetOrderByWithRelationInput | TokenizedAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TokenizedAssets.
+     */
+    cursor?: TokenizedAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenizedAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenizedAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TokenizedAssets.
+     */
+    distinct?: TokenizedAssetScalarFieldEnum | TokenizedAssetScalarFieldEnum[]
+  }
+
+  /**
+   * TokenizedAsset findMany
+   */
+  export type TokenizedAssetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenizedAssets to fetch.
+     */
+    where?: TokenizedAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenizedAssets to fetch.
+     */
+    orderBy?: TokenizedAssetOrderByWithRelationInput | TokenizedAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TokenizedAssets.
+     */
+    cursor?: TokenizedAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenizedAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenizedAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TokenizedAssets.
+     */
+    distinct?: TokenizedAssetScalarFieldEnum | TokenizedAssetScalarFieldEnum[]
+  }
+
+  /**
+   * TokenizedAsset create
+   */
+  export type TokenizedAssetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TokenizedAsset.
+     */
+    data: XOR<TokenizedAssetCreateInput, TokenizedAssetUncheckedCreateInput>
+  }
+
+  /**
+   * TokenizedAsset createMany
+   */
+  export type TokenizedAssetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TokenizedAssets.
+     */
+    data: TokenizedAssetCreateManyInput | TokenizedAssetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TokenizedAsset createManyAndReturn
+   */
+  export type TokenizedAssetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * The data used to create many TokenizedAssets.
+     */
+    data: TokenizedAssetCreateManyInput | TokenizedAssetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TokenizedAsset update
+   */
+  export type TokenizedAssetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TokenizedAsset.
+     */
+    data: XOR<TokenizedAssetUpdateInput, TokenizedAssetUncheckedUpdateInput>
+    /**
+     * Choose, which TokenizedAsset to update.
+     */
+    where: TokenizedAssetWhereUniqueInput
+  }
+
+  /**
+   * TokenizedAsset updateMany
+   */
+  export type TokenizedAssetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TokenizedAssets.
+     */
+    data: XOR<TokenizedAssetUpdateManyMutationInput, TokenizedAssetUncheckedUpdateManyInput>
+    /**
+     * Filter which TokenizedAssets to update
+     */
+    where?: TokenizedAssetWhereInput
+    /**
+     * Limit how many TokenizedAssets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TokenizedAsset updateManyAndReturn
+   */
+  export type TokenizedAssetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * The data used to update TokenizedAssets.
+     */
+    data: XOR<TokenizedAssetUpdateManyMutationInput, TokenizedAssetUncheckedUpdateManyInput>
+    /**
+     * Filter which TokenizedAssets to update
+     */
+    where?: TokenizedAssetWhereInput
+    /**
+     * Limit how many TokenizedAssets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TokenizedAsset upsert
+   */
+  export type TokenizedAssetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TokenizedAsset to update in case it exists.
+     */
+    where: TokenizedAssetWhereUniqueInput
+    /**
+     * In case the TokenizedAsset found by the `where` argument doesn't exist, create a new TokenizedAsset with this data.
+     */
+    create: XOR<TokenizedAssetCreateInput, TokenizedAssetUncheckedCreateInput>
+    /**
+     * In case the TokenizedAsset was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TokenizedAssetUpdateInput, TokenizedAssetUncheckedUpdateInput>
+  }
+
+  /**
+   * TokenizedAsset delete
+   */
+  export type TokenizedAssetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+    /**
+     * Filter which TokenizedAsset to delete.
+     */
+    where: TokenizedAssetWhereUniqueInput
+  }
+
+  /**
+   * TokenizedAsset deleteMany
+   */
+  export type TokenizedAssetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TokenizedAssets to delete
+     */
+    where?: TokenizedAssetWhereInput
+    /**
+     * Limit how many TokenizedAssets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TokenizedAsset.tokenHolders
+   */
+  export type TokenizedAsset$tokenHoldersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    where?: TokenHolderWhereInput
+    orderBy?: TokenHolderOrderByWithRelationInput | TokenHolderOrderByWithRelationInput[]
+    cursor?: TokenHolderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TokenHolderScalarFieldEnum | TokenHolderScalarFieldEnum[]
+  }
+
+  /**
+   * TokenizedAsset without action
+   */
+  export type TokenizedAssetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenizedAsset
+     */
+    select?: TokenizedAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenizedAsset
+     */
+    omit?: TokenizedAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenizedAssetInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TokenHolder
+   */
+
+  export type AggregateTokenHolder = {
+    _count: TokenHolderCountAggregateOutputType | null
+    _avg: TokenHolderAvgAggregateOutputType | null
+    _sum: TokenHolderSumAggregateOutputType | null
+    _min: TokenHolderMinAggregateOutputType | null
+    _max: TokenHolderMaxAggregateOutputType | null
+  }
+
+  export type TokenHolderAvgAggregateOutputType = {
+    shares: number | null
+    purchasePrice: Decimal | null
+    totalPaid: Decimal | null
+  }
+
+  export type TokenHolderSumAggregateOutputType = {
+    shares: number | null
+    purchasePrice: Decimal | null
+    totalPaid: Decimal | null
+  }
+
+  export type TokenHolderMinAggregateOutputType = {
+    id: string | null
+    tokenizedAssetId: string | null
+    leadId: string | null
+    shares: number | null
+    purchasePrice: Decimal | null
+    totalPaid: Decimal | null
+    transactionId: string | null
+    purchasedAt: Date | null
+  }
+
+  export type TokenHolderMaxAggregateOutputType = {
+    id: string | null
+    tokenizedAssetId: string | null
+    leadId: string | null
+    shares: number | null
+    purchasePrice: Decimal | null
+    totalPaid: Decimal | null
+    transactionId: string | null
+    purchasedAt: Date | null
+  }
+
+  export type TokenHolderCountAggregateOutputType = {
+    id: number
+    tokenizedAssetId: number
+    leadId: number
+    shares: number
+    purchasePrice: number
+    totalPaid: number
+    transactionId: number
+    purchasedAt: number
+    _all: number
+  }
+
+
+  export type TokenHolderAvgAggregateInputType = {
+    shares?: true
+    purchasePrice?: true
+    totalPaid?: true
+  }
+
+  export type TokenHolderSumAggregateInputType = {
+    shares?: true
+    purchasePrice?: true
+    totalPaid?: true
+  }
+
+  export type TokenHolderMinAggregateInputType = {
+    id?: true
+    tokenizedAssetId?: true
+    leadId?: true
+    shares?: true
+    purchasePrice?: true
+    totalPaid?: true
+    transactionId?: true
+    purchasedAt?: true
+  }
+
+  export type TokenHolderMaxAggregateInputType = {
+    id?: true
+    tokenizedAssetId?: true
+    leadId?: true
+    shares?: true
+    purchasePrice?: true
+    totalPaid?: true
+    transactionId?: true
+    purchasedAt?: true
+  }
+
+  export type TokenHolderCountAggregateInputType = {
+    id?: true
+    tokenizedAssetId?: true
+    leadId?: true
+    shares?: true
+    purchasePrice?: true
+    totalPaid?: true
+    transactionId?: true
+    purchasedAt?: true
+    _all?: true
+  }
+
+  export type TokenHolderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TokenHolder to aggregate.
+     */
+    where?: TokenHolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenHolders to fetch.
+     */
+    orderBy?: TokenHolderOrderByWithRelationInput | TokenHolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TokenHolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenHolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenHolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TokenHolders
+    **/
+    _count?: true | TokenHolderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TokenHolderAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TokenHolderSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TokenHolderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TokenHolderMaxAggregateInputType
+  }
+
+  export type GetTokenHolderAggregateType<T extends TokenHolderAggregateArgs> = {
+        [P in keyof T & keyof AggregateTokenHolder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTokenHolder[P]>
+      : GetScalarType<T[P], AggregateTokenHolder[P]>
+  }
+
+
+
+
+  export type TokenHolderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TokenHolderWhereInput
+    orderBy?: TokenHolderOrderByWithAggregationInput | TokenHolderOrderByWithAggregationInput[]
+    by: TokenHolderScalarFieldEnum[] | TokenHolderScalarFieldEnum
+    having?: TokenHolderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TokenHolderCountAggregateInputType | true
+    _avg?: TokenHolderAvgAggregateInputType
+    _sum?: TokenHolderSumAggregateInputType
+    _min?: TokenHolderMinAggregateInputType
+    _max?: TokenHolderMaxAggregateInputType
+  }
+
+  export type TokenHolderGroupByOutputType = {
+    id: string
+    tokenizedAssetId: string
+    leadId: string | null
+    shares: number
+    purchasePrice: Decimal
+    totalPaid: Decimal
+    transactionId: string | null
+    purchasedAt: Date
+    _count: TokenHolderCountAggregateOutputType | null
+    _avg: TokenHolderAvgAggregateOutputType | null
+    _sum: TokenHolderSumAggregateOutputType | null
+    _min: TokenHolderMinAggregateOutputType | null
+    _max: TokenHolderMaxAggregateOutputType | null
+  }
+
+  type GetTokenHolderGroupByPayload<T extends TokenHolderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TokenHolderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TokenHolderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TokenHolderGroupByOutputType[P]>
+            : GetScalarType<T[P], TokenHolderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TokenHolderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tokenizedAssetId?: boolean
+    leadId?: boolean
+    shares?: boolean
+    purchasePrice?: boolean
+    totalPaid?: boolean
+    transactionId?: boolean
+    purchasedAt?: boolean
+    tokenizedAsset?: boolean | TokenizedAssetDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tokenHolder"]>
+
+  export type TokenHolderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tokenizedAssetId?: boolean
+    leadId?: boolean
+    shares?: boolean
+    purchasePrice?: boolean
+    totalPaid?: boolean
+    transactionId?: boolean
+    purchasedAt?: boolean
+    tokenizedAsset?: boolean | TokenizedAssetDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tokenHolder"]>
+
+  export type TokenHolderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tokenizedAssetId?: boolean
+    leadId?: boolean
+    shares?: boolean
+    purchasePrice?: boolean
+    totalPaid?: boolean
+    transactionId?: boolean
+    purchasedAt?: boolean
+    tokenizedAsset?: boolean | TokenizedAssetDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tokenHolder"]>
+
+  export type TokenHolderSelectScalar = {
+    id?: boolean
+    tokenizedAssetId?: boolean
+    leadId?: boolean
+    shares?: boolean
+    purchasePrice?: boolean
+    totalPaid?: boolean
+    transactionId?: boolean
+    purchasedAt?: boolean
+  }
+
+  export type TokenHolderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tokenizedAssetId" | "leadId" | "shares" | "purchasePrice" | "totalPaid" | "transactionId" | "purchasedAt", ExtArgs["result"]["tokenHolder"]>
+  export type TokenHolderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tokenizedAsset?: boolean | TokenizedAssetDefaultArgs<ExtArgs>
+  }
+  export type TokenHolderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tokenizedAsset?: boolean | TokenizedAssetDefaultArgs<ExtArgs>
+  }
+  export type TokenHolderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tokenizedAsset?: boolean | TokenizedAssetDefaultArgs<ExtArgs>
+  }
+
+  export type $TokenHolderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TokenHolder"
+    objects: {
+      tokenizedAsset: Prisma.$TokenizedAssetPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tokenizedAssetId: string
+      leadId: string | null
+      shares: number
+      purchasePrice: Prisma.Decimal
+      totalPaid: Prisma.Decimal
+      transactionId: string | null
+      purchasedAt: Date
+    }, ExtArgs["result"]["tokenHolder"]>
+    composites: {}
+  }
+
+  type TokenHolderGetPayload<S extends boolean | null | undefined | TokenHolderDefaultArgs> = $Result.GetResult<Prisma.$TokenHolderPayload, S>
+
+  type TokenHolderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TokenHolderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TokenHolderCountAggregateInputType | true
+    }
+
+  export interface TokenHolderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TokenHolder'], meta: { name: 'TokenHolder' } }
+    /**
+     * Find zero or one TokenHolder that matches the filter.
+     * @param {TokenHolderFindUniqueArgs} args - Arguments to find a TokenHolder
+     * @example
+     * // Get one TokenHolder
+     * const tokenHolder = await prisma.tokenHolder.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TokenHolderFindUniqueArgs>(args: SelectSubset<T, TokenHolderFindUniqueArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TokenHolder that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TokenHolderFindUniqueOrThrowArgs} args - Arguments to find a TokenHolder
+     * @example
+     * // Get one TokenHolder
+     * const tokenHolder = await prisma.tokenHolder.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TokenHolderFindUniqueOrThrowArgs>(args: SelectSubset<T, TokenHolderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TokenHolder that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenHolderFindFirstArgs} args - Arguments to find a TokenHolder
+     * @example
+     * // Get one TokenHolder
+     * const tokenHolder = await prisma.tokenHolder.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TokenHolderFindFirstArgs>(args?: SelectSubset<T, TokenHolderFindFirstArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TokenHolder that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenHolderFindFirstOrThrowArgs} args - Arguments to find a TokenHolder
+     * @example
+     * // Get one TokenHolder
+     * const tokenHolder = await prisma.tokenHolder.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TokenHolderFindFirstOrThrowArgs>(args?: SelectSubset<T, TokenHolderFindFirstOrThrowArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TokenHolders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenHolderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TokenHolders
+     * const tokenHolders = await prisma.tokenHolder.findMany()
+     * 
+     * // Get first 10 TokenHolders
+     * const tokenHolders = await prisma.tokenHolder.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tokenHolderWithIdOnly = await prisma.tokenHolder.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TokenHolderFindManyArgs>(args?: SelectSubset<T, TokenHolderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TokenHolder.
+     * @param {TokenHolderCreateArgs} args - Arguments to create a TokenHolder.
+     * @example
+     * // Create one TokenHolder
+     * const TokenHolder = await prisma.tokenHolder.create({
+     *   data: {
+     *     // ... data to create a TokenHolder
+     *   }
+     * })
+     * 
+     */
+    create<T extends TokenHolderCreateArgs>(args: SelectSubset<T, TokenHolderCreateArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TokenHolders.
+     * @param {TokenHolderCreateManyArgs} args - Arguments to create many TokenHolders.
+     * @example
+     * // Create many TokenHolders
+     * const tokenHolder = await prisma.tokenHolder.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TokenHolderCreateManyArgs>(args?: SelectSubset<T, TokenHolderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TokenHolders and returns the data saved in the database.
+     * @param {TokenHolderCreateManyAndReturnArgs} args - Arguments to create many TokenHolders.
+     * @example
+     * // Create many TokenHolders
+     * const tokenHolder = await prisma.tokenHolder.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TokenHolders and only return the `id`
+     * const tokenHolderWithIdOnly = await prisma.tokenHolder.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TokenHolderCreateManyAndReturnArgs>(args?: SelectSubset<T, TokenHolderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TokenHolder.
+     * @param {TokenHolderDeleteArgs} args - Arguments to delete one TokenHolder.
+     * @example
+     * // Delete one TokenHolder
+     * const TokenHolder = await prisma.tokenHolder.delete({
+     *   where: {
+     *     // ... filter to delete one TokenHolder
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TokenHolderDeleteArgs>(args: SelectSubset<T, TokenHolderDeleteArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TokenHolder.
+     * @param {TokenHolderUpdateArgs} args - Arguments to update one TokenHolder.
+     * @example
+     * // Update one TokenHolder
+     * const tokenHolder = await prisma.tokenHolder.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TokenHolderUpdateArgs>(args: SelectSubset<T, TokenHolderUpdateArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TokenHolders.
+     * @param {TokenHolderDeleteManyArgs} args - Arguments to filter TokenHolders to delete.
+     * @example
+     * // Delete a few TokenHolders
+     * const { count } = await prisma.tokenHolder.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TokenHolderDeleteManyArgs>(args?: SelectSubset<T, TokenHolderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TokenHolders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenHolderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TokenHolders
+     * const tokenHolder = await prisma.tokenHolder.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TokenHolderUpdateManyArgs>(args: SelectSubset<T, TokenHolderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TokenHolders and returns the data updated in the database.
+     * @param {TokenHolderUpdateManyAndReturnArgs} args - Arguments to update many TokenHolders.
+     * @example
+     * // Update many TokenHolders
+     * const tokenHolder = await prisma.tokenHolder.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TokenHolders and only return the `id`
+     * const tokenHolderWithIdOnly = await prisma.tokenHolder.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TokenHolderUpdateManyAndReturnArgs>(args: SelectSubset<T, TokenHolderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TokenHolder.
+     * @param {TokenHolderUpsertArgs} args - Arguments to update or create a TokenHolder.
+     * @example
+     * // Update or create a TokenHolder
+     * const tokenHolder = await prisma.tokenHolder.upsert({
+     *   create: {
+     *     // ... data to create a TokenHolder
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TokenHolder we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TokenHolderUpsertArgs>(args: SelectSubset<T, TokenHolderUpsertArgs<ExtArgs>>): Prisma__TokenHolderClient<$Result.GetResult<Prisma.$TokenHolderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TokenHolders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenHolderCountArgs} args - Arguments to filter TokenHolders to count.
+     * @example
+     * // Count the number of TokenHolders
+     * const count = await prisma.tokenHolder.count({
+     *   where: {
+     *     // ... the filter for the TokenHolders we want to count
+     *   }
+     * })
+    **/
+    count<T extends TokenHolderCountArgs>(
+      args?: Subset<T, TokenHolderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TokenHolderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TokenHolder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenHolderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TokenHolderAggregateArgs>(args: Subset<T, TokenHolderAggregateArgs>): Prisma.PrismaPromise<GetTokenHolderAggregateType<T>>
+
+    /**
+     * Group by TokenHolder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TokenHolderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TokenHolderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TokenHolderGroupByArgs['orderBy'] }
+        : { orderBy?: TokenHolderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TokenHolderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTokenHolderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TokenHolder model
+   */
+  readonly fields: TokenHolderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TokenHolder.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TokenHolderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tokenizedAsset<T extends TokenizedAssetDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TokenizedAssetDefaultArgs<ExtArgs>>): Prisma__TokenizedAssetClient<$Result.GetResult<Prisma.$TokenizedAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TokenHolder model
+   */
+  interface TokenHolderFieldRefs {
+    readonly id: FieldRef<"TokenHolder", 'String'>
+    readonly tokenizedAssetId: FieldRef<"TokenHolder", 'String'>
+    readonly leadId: FieldRef<"TokenHolder", 'String'>
+    readonly shares: FieldRef<"TokenHolder", 'Int'>
+    readonly purchasePrice: FieldRef<"TokenHolder", 'Decimal'>
+    readonly totalPaid: FieldRef<"TokenHolder", 'Decimal'>
+    readonly transactionId: FieldRef<"TokenHolder", 'String'>
+    readonly purchasedAt: FieldRef<"TokenHolder", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TokenHolder findUnique
+   */
+  export type TokenHolderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenHolder to fetch.
+     */
+    where: TokenHolderWhereUniqueInput
+  }
+
+  /**
+   * TokenHolder findUniqueOrThrow
+   */
+  export type TokenHolderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenHolder to fetch.
+     */
+    where: TokenHolderWhereUniqueInput
+  }
+
+  /**
+   * TokenHolder findFirst
+   */
+  export type TokenHolderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenHolder to fetch.
+     */
+    where?: TokenHolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenHolders to fetch.
+     */
+    orderBy?: TokenHolderOrderByWithRelationInput | TokenHolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TokenHolders.
+     */
+    cursor?: TokenHolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenHolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenHolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TokenHolders.
+     */
+    distinct?: TokenHolderScalarFieldEnum | TokenHolderScalarFieldEnum[]
+  }
+
+  /**
+   * TokenHolder findFirstOrThrow
+   */
+  export type TokenHolderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenHolder to fetch.
+     */
+    where?: TokenHolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenHolders to fetch.
+     */
+    orderBy?: TokenHolderOrderByWithRelationInput | TokenHolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TokenHolders.
+     */
+    cursor?: TokenHolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenHolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenHolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TokenHolders.
+     */
+    distinct?: TokenHolderScalarFieldEnum | TokenHolderScalarFieldEnum[]
+  }
+
+  /**
+   * TokenHolder findMany
+   */
+  export type TokenHolderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * Filter, which TokenHolders to fetch.
+     */
+    where?: TokenHolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TokenHolders to fetch.
+     */
+    orderBy?: TokenHolderOrderByWithRelationInput | TokenHolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TokenHolders.
+     */
+    cursor?: TokenHolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TokenHolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TokenHolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TokenHolders.
+     */
+    distinct?: TokenHolderScalarFieldEnum | TokenHolderScalarFieldEnum[]
+  }
+
+  /**
+   * TokenHolder create
+   */
+  export type TokenHolderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TokenHolder.
+     */
+    data: XOR<TokenHolderCreateInput, TokenHolderUncheckedCreateInput>
+  }
+
+  /**
+   * TokenHolder createMany
+   */
+  export type TokenHolderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TokenHolders.
+     */
+    data: TokenHolderCreateManyInput | TokenHolderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TokenHolder createManyAndReturn
+   */
+  export type TokenHolderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * The data used to create many TokenHolders.
+     */
+    data: TokenHolderCreateManyInput | TokenHolderCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TokenHolder update
+   */
+  export type TokenHolderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TokenHolder.
+     */
+    data: XOR<TokenHolderUpdateInput, TokenHolderUncheckedUpdateInput>
+    /**
+     * Choose, which TokenHolder to update.
+     */
+    where: TokenHolderWhereUniqueInput
+  }
+
+  /**
+   * TokenHolder updateMany
+   */
+  export type TokenHolderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TokenHolders.
+     */
+    data: XOR<TokenHolderUpdateManyMutationInput, TokenHolderUncheckedUpdateManyInput>
+    /**
+     * Filter which TokenHolders to update
+     */
+    where?: TokenHolderWhereInput
+    /**
+     * Limit how many TokenHolders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TokenHolder updateManyAndReturn
+   */
+  export type TokenHolderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * The data used to update TokenHolders.
+     */
+    data: XOR<TokenHolderUpdateManyMutationInput, TokenHolderUncheckedUpdateManyInput>
+    /**
+     * Filter which TokenHolders to update
+     */
+    where?: TokenHolderWhereInput
+    /**
+     * Limit how many TokenHolders to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TokenHolder upsert
+   */
+  export type TokenHolderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TokenHolder to update in case it exists.
+     */
+    where: TokenHolderWhereUniqueInput
+    /**
+     * In case the TokenHolder found by the `where` argument doesn't exist, create a new TokenHolder with this data.
+     */
+    create: XOR<TokenHolderCreateInput, TokenHolderUncheckedCreateInput>
+    /**
+     * In case the TokenHolder was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TokenHolderUpdateInput, TokenHolderUncheckedUpdateInput>
+  }
+
+  /**
+   * TokenHolder delete
+   */
+  export type TokenHolderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
+    /**
+     * Filter which TokenHolder to delete.
+     */
+    where: TokenHolderWhereUniqueInput
+  }
+
+  /**
+   * TokenHolder deleteMany
+   */
+  export type TokenHolderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TokenHolders to delete
+     */
+    where?: TokenHolderWhereInput
+    /**
+     * Limit how many TokenHolders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TokenHolder without action
+   */
+  export type TokenHolderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TokenHolder
+     */
+    select?: TokenHolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TokenHolder
+     */
+    omit?: TokenHolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TokenHolderInclude<ExtArgs> | null
   }
 
 
@@ -12784,9 +15442,11 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     reference: string | null
-    status: string | null
+    description: string | null
+    state: string | null
     idempotencyKey: string | null
     createdAt: Date | null
+    updatedAt: Date | null
     postedAt: Date | null
   }
 
@@ -12794,9 +15454,11 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     reference: string | null
-    status: string | null
+    description: string | null
+    state: string | null
     idempotencyKey: string | null
     createdAt: Date | null
+    updatedAt: Date | null
     postedAt: Date | null
   }
 
@@ -12804,9 +15466,11 @@ export namespace Prisma {
     id: number
     userId: number
     reference: number
-    status: number
+    description: number
+    state: number
     idempotencyKey: number
     createdAt: number
+    updatedAt: number
     postedAt: number
     _all: number
   }
@@ -12816,9 +15480,11 @@ export namespace Prisma {
     id?: true
     userId?: true
     reference?: true
-    status?: true
+    description?: true
+    state?: true
     idempotencyKey?: true
     createdAt?: true
+    updatedAt?: true
     postedAt?: true
   }
 
@@ -12826,9 +15492,11 @@ export namespace Prisma {
     id?: true
     userId?: true
     reference?: true
-    status?: true
+    description?: true
+    state?: true
     idempotencyKey?: true
     createdAt?: true
+    updatedAt?: true
     postedAt?: true
   }
 
@@ -12836,9 +15504,11 @@ export namespace Prisma {
     id?: true
     userId?: true
     reference?: true
-    status?: true
+    description?: true
+    state?: true
     idempotencyKey?: true
     createdAt?: true
+    updatedAt?: true
     postedAt?: true
     _all?: true
   }
@@ -12919,9 +15589,11 @@ export namespace Prisma {
     id: string
     userId: string
     reference: string
-    status: string
+    description: string | null
+    state: string
     idempotencyKey: string
     createdAt: Date
+    updatedAt: Date
     postedAt: Date | null
     _count: LedgerTransactionCountAggregateOutputType | null
     _min: LedgerTransactionMinAggregateOutputType | null
@@ -12946,11 +15618,14 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     reference?: boolean
-    status?: boolean
+    description?: boolean
+    state?: boolean
     idempotencyKey?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     postedAt?: boolean
     entries?: boolean | LedgerTransaction$entriesArgs<ExtArgs>
+    idempotency?: boolean | LedgerTransaction$idempotencyArgs<ExtArgs>
     _count?: boolean | LedgerTransactionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["ledgerTransaction"]>
 
@@ -12958,9 +15633,11 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     reference?: boolean
-    status?: boolean
+    description?: boolean
+    state?: boolean
     idempotencyKey?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     postedAt?: boolean
   }, ExtArgs["result"]["ledgerTransaction"]>
 
@@ -12968,9 +15645,11 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     reference?: boolean
-    status?: boolean
+    description?: boolean
+    state?: boolean
     idempotencyKey?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     postedAt?: boolean
   }, ExtArgs["result"]["ledgerTransaction"]>
 
@@ -12978,15 +15657,18 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     reference?: boolean
-    status?: boolean
+    description?: boolean
+    state?: boolean
     idempotencyKey?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     postedAt?: boolean
   }
 
-  export type LedgerTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "reference" | "status" | "idempotencyKey" | "createdAt" | "postedAt", ExtArgs["result"]["ledgerTransaction"]>
+  export type LedgerTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "reference" | "description" | "state" | "idempotencyKey" | "createdAt" | "updatedAt" | "postedAt", ExtArgs["result"]["ledgerTransaction"]>
   export type LedgerTransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     entries?: boolean | LedgerTransaction$entriesArgs<ExtArgs>
+    idempotency?: boolean | LedgerTransaction$idempotencyArgs<ExtArgs>
     _count?: boolean | LedgerTransactionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LedgerTransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12996,14 +15678,17 @@ export namespace Prisma {
     name: "LedgerTransaction"
     objects: {
       entries: Prisma.$EntryPayload<ExtArgs>[]
+      idempotency: Prisma.$LedgerIdempotencyPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
       reference: string
-      status: string
+      description: string | null
+      state: string
       idempotencyKey: string
       createdAt: Date
+      updatedAt: Date
       postedAt: Date | null
     }, ExtArgs["result"]["ledgerTransaction"]>
     composites: {}
@@ -13400,6 +16085,7 @@ export namespace Prisma {
   export interface Prisma__LedgerTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     entries<T extends LedgerTransaction$entriesArgs<ExtArgs> = {}>(args?: Subset<T, LedgerTransaction$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    idempotency<T extends LedgerTransaction$idempotencyArgs<ExtArgs> = {}>(args?: Subset<T, LedgerTransaction$idempotencyArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13432,9 +16118,11 @@ export namespace Prisma {
     readonly id: FieldRef<"LedgerTransaction", 'String'>
     readonly userId: FieldRef<"LedgerTransaction", 'String'>
     readonly reference: FieldRef<"LedgerTransaction", 'String'>
-    readonly status: FieldRef<"LedgerTransaction", 'String'>
+    readonly description: FieldRef<"LedgerTransaction", 'String'>
+    readonly state: FieldRef<"LedgerTransaction", 'String'>
     readonly idempotencyKey: FieldRef<"LedgerTransaction", 'String'>
     readonly createdAt: FieldRef<"LedgerTransaction", 'DateTime'>
+    readonly updatedAt: FieldRef<"LedgerTransaction", 'DateTime'>
     readonly postedAt: FieldRef<"LedgerTransaction", 'DateTime'>
   }
     
@@ -13853,6 +16541,25 @@ export namespace Prisma {
   }
 
   /**
+   * LedgerTransaction.idempotency
+   */
+  export type LedgerTransaction$idempotencyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    where?: LedgerIdempotencyWhereInput
+  }
+
+  /**
    * LedgerTransaction without action
    */
   export type LedgerTransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13884,18 +16591,23 @@ export namespace Prisma {
   }
 
   export type EntryAvgAggregateOutputType = {
-    amount: number | null
+    debit: number | null
+    credit: number | null
   }
 
   export type EntrySumAggregateOutputType = {
-    amount: bigint | null
+    debit: bigint | null
+    credit: bigint | null
   }
 
   export type EntryMinAggregateOutputType = {
     id: string | null
     transactionId: string | null
     accountId: string | null
-    amount: bigint | null
+    debit: bigint | null
+    credit: bigint | null
+    currency: string | null
+    description: string | null
     createdAt: Date | null
   }
 
@@ -13903,7 +16615,10 @@ export namespace Prisma {
     id: string | null
     transactionId: string | null
     accountId: string | null
-    amount: bigint | null
+    debit: bigint | null
+    credit: bigint | null
+    currency: string | null
+    description: string | null
     createdAt: Date | null
   }
 
@@ -13911,25 +16626,33 @@ export namespace Prisma {
     id: number
     transactionId: number
     accountId: number
-    amount: number
+    debit: number
+    credit: number
+    currency: number
+    description: number
     createdAt: number
     _all: number
   }
 
 
   export type EntryAvgAggregateInputType = {
-    amount?: true
+    debit?: true
+    credit?: true
   }
 
   export type EntrySumAggregateInputType = {
-    amount?: true
+    debit?: true
+    credit?: true
   }
 
   export type EntryMinAggregateInputType = {
     id?: true
     transactionId?: true
     accountId?: true
-    amount?: true
+    debit?: true
+    credit?: true
+    currency?: true
+    description?: true
     createdAt?: true
   }
 
@@ -13937,7 +16660,10 @@ export namespace Prisma {
     id?: true
     transactionId?: true
     accountId?: true
-    amount?: true
+    debit?: true
+    credit?: true
+    currency?: true
+    description?: true
     createdAt?: true
   }
 
@@ -13945,7 +16671,10 @@ export namespace Prisma {
     id?: true
     transactionId?: true
     accountId?: true
-    amount?: true
+    debit?: true
+    credit?: true
+    currency?: true
+    description?: true
     createdAt?: true
     _all?: true
   }
@@ -14040,7 +16769,10 @@ export namespace Prisma {
     id: string
     transactionId: string
     accountId: string
-    amount: bigint
+    debit: bigint
+    credit: bigint
+    currency: string
+    description: string | null
     createdAt: Date
     _count: EntryCountAggregateOutputType | null
     _avg: EntryAvgAggregateOutputType | null
@@ -14067,7 +16799,10 @@ export namespace Prisma {
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
-    amount?: boolean
+    debit?: boolean
+    credit?: boolean
+    currency?: boolean
+    description?: boolean
     createdAt?: boolean
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
@@ -14077,7 +16812,10 @@ export namespace Prisma {
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
-    amount?: boolean
+    debit?: boolean
+    credit?: boolean
+    currency?: boolean
+    description?: boolean
     createdAt?: boolean
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
@@ -14087,7 +16825,10 @@ export namespace Prisma {
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
-    amount?: boolean
+    debit?: boolean
+    credit?: boolean
+    currency?: boolean
+    description?: boolean
     createdAt?: boolean
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
@@ -14097,11 +16838,14 @@ export namespace Prisma {
     id?: boolean
     transactionId?: boolean
     accountId?: boolean
-    amount?: boolean
+    debit?: boolean
+    credit?: boolean
+    currency?: boolean
+    description?: boolean
     createdAt?: boolean
   }
 
-  export type EntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "transactionId" | "accountId" | "amount" | "createdAt", ExtArgs["result"]["entry"]>
+  export type EntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "transactionId" | "accountId" | "debit" | "credit" | "currency" | "description" | "createdAt", ExtArgs["result"]["entry"]>
   export type EntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
     account?: boolean | AccountDefaultArgs<ExtArgs>
@@ -14125,7 +16869,10 @@ export namespace Prisma {
       id: string
       transactionId: string
       accountId: string
-      amount: bigint
+      debit: bigint
+      credit: bigint
+      currency: string
+      description: string | null
       createdAt: Date
     }, ExtArgs["result"]["entry"]>
     composites: {}
@@ -14555,7 +17302,10 @@ export namespace Prisma {
     readonly id: FieldRef<"Entry", 'String'>
     readonly transactionId: FieldRef<"Entry", 'String'>
     readonly accountId: FieldRef<"Entry", 'String'>
-    readonly amount: FieldRef<"Entry", 'BigInt'>
+    readonly debit: FieldRef<"Entry", 'BigInt'>
+    readonly credit: FieldRef<"Entry", 'BigInt'>
+    readonly currency: FieldRef<"Entry", 'String'>
+    readonly description: FieldRef<"Entry", 'String'>
     readonly createdAt: FieldRef<"Entry", 'DateTime'>
   }
     
@@ -14977,6 +17727,1056 @@ export namespace Prisma {
 
 
   /**
+   * Model LedgerIdempotency
+   */
+
+  export type AggregateLedgerIdempotency = {
+    _count: LedgerIdempotencyCountAggregateOutputType | null
+    _min: LedgerIdempotencyMinAggregateOutputType | null
+    _max: LedgerIdempotencyMaxAggregateOutputType | null
+  }
+
+  export type LedgerIdempotencyMinAggregateOutputType = {
+    id: string | null
+    idempotencyKey: string | null
+    transactionId: string | null
+    createdAt: Date | null
+  }
+
+  export type LedgerIdempotencyMaxAggregateOutputType = {
+    id: string | null
+    idempotencyKey: string | null
+    transactionId: string | null
+    createdAt: Date | null
+  }
+
+  export type LedgerIdempotencyCountAggregateOutputType = {
+    id: number
+    idempotencyKey: number
+    transactionId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type LedgerIdempotencyMinAggregateInputType = {
+    id?: true
+    idempotencyKey?: true
+    transactionId?: true
+    createdAt?: true
+  }
+
+  export type LedgerIdempotencyMaxAggregateInputType = {
+    id?: true
+    idempotencyKey?: true
+    transactionId?: true
+    createdAt?: true
+  }
+
+  export type LedgerIdempotencyCountAggregateInputType = {
+    id?: true
+    idempotencyKey?: true
+    transactionId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type LedgerIdempotencyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LedgerIdempotency to aggregate.
+     */
+    where?: LedgerIdempotencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerIdempotencies to fetch.
+     */
+    orderBy?: LedgerIdempotencyOrderByWithRelationInput | LedgerIdempotencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LedgerIdempotencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerIdempotencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerIdempotencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LedgerIdempotencies
+    **/
+    _count?: true | LedgerIdempotencyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LedgerIdempotencyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LedgerIdempotencyMaxAggregateInputType
+  }
+
+  export type GetLedgerIdempotencyAggregateType<T extends LedgerIdempotencyAggregateArgs> = {
+        [P in keyof T & keyof AggregateLedgerIdempotency]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLedgerIdempotency[P]>
+      : GetScalarType<T[P], AggregateLedgerIdempotency[P]>
+  }
+
+
+
+
+  export type LedgerIdempotencyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LedgerIdempotencyWhereInput
+    orderBy?: LedgerIdempotencyOrderByWithAggregationInput | LedgerIdempotencyOrderByWithAggregationInput[]
+    by: LedgerIdempotencyScalarFieldEnum[] | LedgerIdempotencyScalarFieldEnum
+    having?: LedgerIdempotencyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LedgerIdempotencyCountAggregateInputType | true
+    _min?: LedgerIdempotencyMinAggregateInputType
+    _max?: LedgerIdempotencyMaxAggregateInputType
+  }
+
+  export type LedgerIdempotencyGroupByOutputType = {
+    id: string
+    idempotencyKey: string
+    transactionId: string
+    createdAt: Date
+    _count: LedgerIdempotencyCountAggregateOutputType | null
+    _min: LedgerIdempotencyMinAggregateOutputType | null
+    _max: LedgerIdempotencyMaxAggregateOutputType | null
+  }
+
+  type GetLedgerIdempotencyGroupByPayload<T extends LedgerIdempotencyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LedgerIdempotencyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LedgerIdempotencyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LedgerIdempotencyGroupByOutputType[P]>
+            : GetScalarType<T[P], LedgerIdempotencyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LedgerIdempotencySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    idempotencyKey?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ledgerIdempotency"]>
+
+  export type LedgerIdempotencySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    idempotencyKey?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ledgerIdempotency"]>
+
+  export type LedgerIdempotencySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    idempotencyKey?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+    transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ledgerIdempotency"]>
+
+  export type LedgerIdempotencySelectScalar = {
+    id?: boolean
+    idempotencyKey?: boolean
+    transactionId?: boolean
+    createdAt?: boolean
+  }
+
+  export type LedgerIdempotencyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "idempotencyKey" | "transactionId" | "createdAt", ExtArgs["result"]["ledgerIdempotency"]>
+  export type LedgerIdempotencyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
+  }
+  export type LedgerIdempotencyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
+  }
+  export type LedgerIdempotencyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transaction?: boolean | LedgerTransactionDefaultArgs<ExtArgs>
+  }
+
+  export type $LedgerIdempotencyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LedgerIdempotency"
+    objects: {
+      transaction: Prisma.$LedgerTransactionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      idempotencyKey: string
+      transactionId: string
+      createdAt: Date
+    }, ExtArgs["result"]["ledgerIdempotency"]>
+    composites: {}
+  }
+
+  type LedgerIdempotencyGetPayload<S extends boolean | null | undefined | LedgerIdempotencyDefaultArgs> = $Result.GetResult<Prisma.$LedgerIdempotencyPayload, S>
+
+  type LedgerIdempotencyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LedgerIdempotencyFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LedgerIdempotencyCountAggregateInputType | true
+    }
+
+  export interface LedgerIdempotencyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LedgerIdempotency'], meta: { name: 'LedgerIdempotency' } }
+    /**
+     * Find zero or one LedgerIdempotency that matches the filter.
+     * @param {LedgerIdempotencyFindUniqueArgs} args - Arguments to find a LedgerIdempotency
+     * @example
+     * // Get one LedgerIdempotency
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LedgerIdempotencyFindUniqueArgs>(args: SelectSubset<T, LedgerIdempotencyFindUniqueArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LedgerIdempotency that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LedgerIdempotencyFindUniqueOrThrowArgs} args - Arguments to find a LedgerIdempotency
+     * @example
+     * // Get one LedgerIdempotency
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LedgerIdempotencyFindUniqueOrThrowArgs>(args: SelectSubset<T, LedgerIdempotencyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LedgerIdempotency that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerIdempotencyFindFirstArgs} args - Arguments to find a LedgerIdempotency
+     * @example
+     * // Get one LedgerIdempotency
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LedgerIdempotencyFindFirstArgs>(args?: SelectSubset<T, LedgerIdempotencyFindFirstArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LedgerIdempotency that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerIdempotencyFindFirstOrThrowArgs} args - Arguments to find a LedgerIdempotency
+     * @example
+     * // Get one LedgerIdempotency
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LedgerIdempotencyFindFirstOrThrowArgs>(args?: SelectSubset<T, LedgerIdempotencyFindFirstOrThrowArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LedgerIdempotencies that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerIdempotencyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LedgerIdempotencies
+     * const ledgerIdempotencies = await prisma.ledgerIdempotency.findMany()
+     * 
+     * // Get first 10 LedgerIdempotencies
+     * const ledgerIdempotencies = await prisma.ledgerIdempotency.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ledgerIdempotencyWithIdOnly = await prisma.ledgerIdempotency.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LedgerIdempotencyFindManyArgs>(args?: SelectSubset<T, LedgerIdempotencyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LedgerIdempotency.
+     * @param {LedgerIdempotencyCreateArgs} args - Arguments to create a LedgerIdempotency.
+     * @example
+     * // Create one LedgerIdempotency
+     * const LedgerIdempotency = await prisma.ledgerIdempotency.create({
+     *   data: {
+     *     // ... data to create a LedgerIdempotency
+     *   }
+     * })
+     * 
+     */
+    create<T extends LedgerIdempotencyCreateArgs>(args: SelectSubset<T, LedgerIdempotencyCreateArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LedgerIdempotencies.
+     * @param {LedgerIdempotencyCreateManyArgs} args - Arguments to create many LedgerIdempotencies.
+     * @example
+     * // Create many LedgerIdempotencies
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LedgerIdempotencyCreateManyArgs>(args?: SelectSubset<T, LedgerIdempotencyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LedgerIdempotencies and returns the data saved in the database.
+     * @param {LedgerIdempotencyCreateManyAndReturnArgs} args - Arguments to create many LedgerIdempotencies.
+     * @example
+     * // Create many LedgerIdempotencies
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LedgerIdempotencies and only return the `id`
+     * const ledgerIdempotencyWithIdOnly = await prisma.ledgerIdempotency.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LedgerIdempotencyCreateManyAndReturnArgs>(args?: SelectSubset<T, LedgerIdempotencyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LedgerIdempotency.
+     * @param {LedgerIdempotencyDeleteArgs} args - Arguments to delete one LedgerIdempotency.
+     * @example
+     * // Delete one LedgerIdempotency
+     * const LedgerIdempotency = await prisma.ledgerIdempotency.delete({
+     *   where: {
+     *     // ... filter to delete one LedgerIdempotency
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LedgerIdempotencyDeleteArgs>(args: SelectSubset<T, LedgerIdempotencyDeleteArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LedgerIdempotency.
+     * @param {LedgerIdempotencyUpdateArgs} args - Arguments to update one LedgerIdempotency.
+     * @example
+     * // Update one LedgerIdempotency
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LedgerIdempotencyUpdateArgs>(args: SelectSubset<T, LedgerIdempotencyUpdateArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LedgerIdempotencies.
+     * @param {LedgerIdempotencyDeleteManyArgs} args - Arguments to filter LedgerIdempotencies to delete.
+     * @example
+     * // Delete a few LedgerIdempotencies
+     * const { count } = await prisma.ledgerIdempotency.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LedgerIdempotencyDeleteManyArgs>(args?: SelectSubset<T, LedgerIdempotencyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LedgerIdempotencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerIdempotencyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LedgerIdempotencies
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LedgerIdempotencyUpdateManyArgs>(args: SelectSubset<T, LedgerIdempotencyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LedgerIdempotencies and returns the data updated in the database.
+     * @param {LedgerIdempotencyUpdateManyAndReturnArgs} args - Arguments to update many LedgerIdempotencies.
+     * @example
+     * // Update many LedgerIdempotencies
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LedgerIdempotencies and only return the `id`
+     * const ledgerIdempotencyWithIdOnly = await prisma.ledgerIdempotency.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LedgerIdempotencyUpdateManyAndReturnArgs>(args: SelectSubset<T, LedgerIdempotencyUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LedgerIdempotency.
+     * @param {LedgerIdempotencyUpsertArgs} args - Arguments to update or create a LedgerIdempotency.
+     * @example
+     * // Update or create a LedgerIdempotency
+     * const ledgerIdempotency = await prisma.ledgerIdempotency.upsert({
+     *   create: {
+     *     // ... data to create a LedgerIdempotency
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LedgerIdempotency we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LedgerIdempotencyUpsertArgs>(args: SelectSubset<T, LedgerIdempotencyUpsertArgs<ExtArgs>>): Prisma__LedgerIdempotencyClient<$Result.GetResult<Prisma.$LedgerIdempotencyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LedgerIdempotencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerIdempotencyCountArgs} args - Arguments to filter LedgerIdempotencies to count.
+     * @example
+     * // Count the number of LedgerIdempotencies
+     * const count = await prisma.ledgerIdempotency.count({
+     *   where: {
+     *     // ... the filter for the LedgerIdempotencies we want to count
+     *   }
+     * })
+    **/
+    count<T extends LedgerIdempotencyCountArgs>(
+      args?: Subset<T, LedgerIdempotencyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LedgerIdempotencyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LedgerIdempotency.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerIdempotencyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LedgerIdempotencyAggregateArgs>(args: Subset<T, LedgerIdempotencyAggregateArgs>): Prisma.PrismaPromise<GetLedgerIdempotencyAggregateType<T>>
+
+    /**
+     * Group by LedgerIdempotency.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerIdempotencyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LedgerIdempotencyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LedgerIdempotencyGroupByArgs['orderBy'] }
+        : { orderBy?: LedgerIdempotencyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LedgerIdempotencyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLedgerIdempotencyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LedgerIdempotency model
+   */
+  readonly fields: LedgerIdempotencyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LedgerIdempotency.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LedgerIdempotencyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    transaction<T extends LedgerTransactionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LedgerTransactionDefaultArgs<ExtArgs>>): Prisma__LedgerTransactionClient<$Result.GetResult<Prisma.$LedgerTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LedgerIdempotency model
+   */
+  interface LedgerIdempotencyFieldRefs {
+    readonly id: FieldRef<"LedgerIdempotency", 'String'>
+    readonly idempotencyKey: FieldRef<"LedgerIdempotency", 'String'>
+    readonly transactionId: FieldRef<"LedgerIdempotency", 'String'>
+    readonly createdAt: FieldRef<"LedgerIdempotency", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LedgerIdempotency findUnique
+   */
+  export type LedgerIdempotencyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerIdempotency to fetch.
+     */
+    where: LedgerIdempotencyWhereUniqueInput
+  }
+
+  /**
+   * LedgerIdempotency findUniqueOrThrow
+   */
+  export type LedgerIdempotencyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerIdempotency to fetch.
+     */
+    where: LedgerIdempotencyWhereUniqueInput
+  }
+
+  /**
+   * LedgerIdempotency findFirst
+   */
+  export type LedgerIdempotencyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerIdempotency to fetch.
+     */
+    where?: LedgerIdempotencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerIdempotencies to fetch.
+     */
+    orderBy?: LedgerIdempotencyOrderByWithRelationInput | LedgerIdempotencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LedgerIdempotencies.
+     */
+    cursor?: LedgerIdempotencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerIdempotencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerIdempotencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerIdempotencies.
+     */
+    distinct?: LedgerIdempotencyScalarFieldEnum | LedgerIdempotencyScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerIdempotency findFirstOrThrow
+   */
+  export type LedgerIdempotencyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerIdempotency to fetch.
+     */
+    where?: LedgerIdempotencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerIdempotencies to fetch.
+     */
+    orderBy?: LedgerIdempotencyOrderByWithRelationInput | LedgerIdempotencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LedgerIdempotencies.
+     */
+    cursor?: LedgerIdempotencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerIdempotencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerIdempotencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerIdempotencies.
+     */
+    distinct?: LedgerIdempotencyScalarFieldEnum | LedgerIdempotencyScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerIdempotency findMany
+   */
+  export type LedgerIdempotencyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerIdempotencies to fetch.
+     */
+    where?: LedgerIdempotencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerIdempotencies to fetch.
+     */
+    orderBy?: LedgerIdempotencyOrderByWithRelationInput | LedgerIdempotencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LedgerIdempotencies.
+     */
+    cursor?: LedgerIdempotencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerIdempotencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerIdempotencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerIdempotencies.
+     */
+    distinct?: LedgerIdempotencyScalarFieldEnum | LedgerIdempotencyScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerIdempotency create
+   */
+  export type LedgerIdempotencyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LedgerIdempotency.
+     */
+    data: XOR<LedgerIdempotencyCreateInput, LedgerIdempotencyUncheckedCreateInput>
+  }
+
+  /**
+   * LedgerIdempotency createMany
+   */
+  export type LedgerIdempotencyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LedgerIdempotencies.
+     */
+    data: LedgerIdempotencyCreateManyInput | LedgerIdempotencyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LedgerIdempotency createManyAndReturn
+   */
+  export type LedgerIdempotencyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * The data used to create many LedgerIdempotencies.
+     */
+    data: LedgerIdempotencyCreateManyInput | LedgerIdempotencyCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LedgerIdempotency update
+   */
+  export type LedgerIdempotencyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LedgerIdempotency.
+     */
+    data: XOR<LedgerIdempotencyUpdateInput, LedgerIdempotencyUncheckedUpdateInput>
+    /**
+     * Choose, which LedgerIdempotency to update.
+     */
+    where: LedgerIdempotencyWhereUniqueInput
+  }
+
+  /**
+   * LedgerIdempotency updateMany
+   */
+  export type LedgerIdempotencyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LedgerIdempotencies.
+     */
+    data: XOR<LedgerIdempotencyUpdateManyMutationInput, LedgerIdempotencyUncheckedUpdateManyInput>
+    /**
+     * Filter which LedgerIdempotencies to update
+     */
+    where?: LedgerIdempotencyWhereInput
+    /**
+     * Limit how many LedgerIdempotencies to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LedgerIdempotency updateManyAndReturn
+   */
+  export type LedgerIdempotencyUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * The data used to update LedgerIdempotencies.
+     */
+    data: XOR<LedgerIdempotencyUpdateManyMutationInput, LedgerIdempotencyUncheckedUpdateManyInput>
+    /**
+     * Filter which LedgerIdempotencies to update
+     */
+    where?: LedgerIdempotencyWhereInput
+    /**
+     * Limit how many LedgerIdempotencies to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LedgerIdempotency upsert
+   */
+  export type LedgerIdempotencyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LedgerIdempotency to update in case it exists.
+     */
+    where: LedgerIdempotencyWhereUniqueInput
+    /**
+     * In case the LedgerIdempotency found by the `where` argument doesn't exist, create a new LedgerIdempotency with this data.
+     */
+    create: XOR<LedgerIdempotencyCreateInput, LedgerIdempotencyUncheckedCreateInput>
+    /**
+     * In case the LedgerIdempotency was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LedgerIdempotencyUpdateInput, LedgerIdempotencyUncheckedUpdateInput>
+  }
+
+  /**
+   * LedgerIdempotency delete
+   */
+  export type LedgerIdempotencyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+    /**
+     * Filter which LedgerIdempotency to delete.
+     */
+    where: LedgerIdempotencyWhereUniqueInput
+  }
+
+  /**
+   * LedgerIdempotency deleteMany
+   */
+  export type LedgerIdempotencyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LedgerIdempotencies to delete
+     */
+    where?: LedgerIdempotencyWhereInput
+    /**
+     * Limit how many LedgerIdempotencies to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LedgerIdempotency without action
+   */
+  export type LedgerIdempotencyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerIdempotency
+     */
+    select?: LedgerIdempotencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerIdempotency
+     */
+    omit?: LedgerIdempotencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerIdempotencyInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15023,6 +18823,38 @@ export namespace Prisma {
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const TokenizedAssetScalarFieldEnum: {
+    id: 'id',
+    assetType: 'assetType',
+    name: 'name',
+    location: 'location',
+    totalShares: 'totalShares',
+    availableShares: 'availableShares',
+    pricePerShare: 'pricePerShare',
+    currency: 'currency',
+    metadata: 'metadata',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TokenizedAssetScalarFieldEnum = (typeof TokenizedAssetScalarFieldEnum)[keyof typeof TokenizedAssetScalarFieldEnum]
+
+
+  export const TokenHolderScalarFieldEnum: {
+    id: 'id',
+    tokenizedAssetId: 'tokenizedAssetId',
+    leadId: 'leadId',
+    shares: 'shares',
+    purchasePrice: 'purchasePrice',
+    totalPaid: 'totalPaid',
+    transactionId: 'transactionId',
+    purchasedAt: 'purchasedAt'
+  };
+
+  export type TokenHolderScalarFieldEnum = (typeof TokenHolderScalarFieldEnum)[keyof typeof TokenHolderScalarFieldEnum]
 
 
   export const PaymentScalarFieldEnum: {
@@ -15138,9 +18970,11 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     reference: 'reference',
-    status: 'status',
+    description: 'description',
+    state: 'state',
     idempotencyKey: 'idempotencyKey',
     createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
     postedAt: 'postedAt'
   };
 
@@ -15151,11 +18985,24 @@ export namespace Prisma {
     id: 'id',
     transactionId: 'transactionId',
     accountId: 'accountId',
-    amount: 'amount',
+    debit: 'debit',
+    credit: 'credit',
+    currency: 'currency',
+    description: 'description',
     createdAt: 'createdAt'
   };
 
   export type EntryScalarFieldEnum = (typeof EntryScalarFieldEnum)[keyof typeof EntryScalarFieldEnum]
+
+
+  export const LedgerIdempotencyScalarFieldEnum: {
+    id: 'id',
+    idempotencyKey: 'idempotencyKey',
+    transactionId: 'transactionId',
+    createdAt: 'createdAt'
+  };
+
+  export type LedgerIdempotencyScalarFieldEnum = (typeof LedgerIdempotencyScalarFieldEnum)[keyof typeof LedgerIdempotencyScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -15264,6 +19111,20 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal[]'
+   */
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -15476,6 +19337,170 @@ export namespace Prisma {
     password?: StringWithAggregatesFilter<"User"> | string
     role?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type TokenizedAssetWhereInput = {
+    AND?: TokenizedAssetWhereInput | TokenizedAssetWhereInput[]
+    OR?: TokenizedAssetWhereInput[]
+    NOT?: TokenizedAssetWhereInput | TokenizedAssetWhereInput[]
+    id?: StringFilter<"TokenizedAsset"> | string
+    assetType?: StringFilter<"TokenizedAsset"> | string
+    name?: StringFilter<"TokenizedAsset"> | string
+    location?: StringNullableFilter<"TokenizedAsset"> | string | null
+    totalShares?: IntFilter<"TokenizedAsset"> | number
+    availableShares?: IntFilter<"TokenizedAsset"> | number
+    pricePerShare?: DecimalFilter<"TokenizedAsset"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"TokenizedAsset"> | string
+    metadata?: JsonNullableFilter<"TokenizedAsset">
+    status?: StringFilter<"TokenizedAsset"> | string
+    createdAt?: DateTimeFilter<"TokenizedAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"TokenizedAsset"> | Date | string
+    tokenHolders?: TokenHolderListRelationFilter
+  }
+
+  export type TokenizedAssetOrderByWithRelationInput = {
+    id?: SortOrder
+    assetType?: SortOrder
+    name?: SortOrder
+    location?: SortOrderInput | SortOrder
+    totalShares?: SortOrder
+    availableShares?: SortOrder
+    pricePerShare?: SortOrder
+    currency?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tokenHolders?: TokenHolderOrderByRelationAggregateInput
+  }
+
+  export type TokenizedAssetWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TokenizedAssetWhereInput | TokenizedAssetWhereInput[]
+    OR?: TokenizedAssetWhereInput[]
+    NOT?: TokenizedAssetWhereInput | TokenizedAssetWhereInput[]
+    assetType?: StringFilter<"TokenizedAsset"> | string
+    name?: StringFilter<"TokenizedAsset"> | string
+    location?: StringNullableFilter<"TokenizedAsset"> | string | null
+    totalShares?: IntFilter<"TokenizedAsset"> | number
+    availableShares?: IntFilter<"TokenizedAsset"> | number
+    pricePerShare?: DecimalFilter<"TokenizedAsset"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"TokenizedAsset"> | string
+    metadata?: JsonNullableFilter<"TokenizedAsset">
+    status?: StringFilter<"TokenizedAsset"> | string
+    createdAt?: DateTimeFilter<"TokenizedAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"TokenizedAsset"> | Date | string
+    tokenHolders?: TokenHolderListRelationFilter
+  }, "id">
+
+  export type TokenizedAssetOrderByWithAggregationInput = {
+    id?: SortOrder
+    assetType?: SortOrder
+    name?: SortOrder
+    location?: SortOrderInput | SortOrder
+    totalShares?: SortOrder
+    availableShares?: SortOrder
+    pricePerShare?: SortOrder
+    currency?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TokenizedAssetCountOrderByAggregateInput
+    _avg?: TokenizedAssetAvgOrderByAggregateInput
+    _max?: TokenizedAssetMaxOrderByAggregateInput
+    _min?: TokenizedAssetMinOrderByAggregateInput
+    _sum?: TokenizedAssetSumOrderByAggregateInput
+  }
+
+  export type TokenizedAssetScalarWhereWithAggregatesInput = {
+    AND?: TokenizedAssetScalarWhereWithAggregatesInput | TokenizedAssetScalarWhereWithAggregatesInput[]
+    OR?: TokenizedAssetScalarWhereWithAggregatesInput[]
+    NOT?: TokenizedAssetScalarWhereWithAggregatesInput | TokenizedAssetScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TokenizedAsset"> | string
+    assetType?: StringWithAggregatesFilter<"TokenizedAsset"> | string
+    name?: StringWithAggregatesFilter<"TokenizedAsset"> | string
+    location?: StringNullableWithAggregatesFilter<"TokenizedAsset"> | string | null
+    totalShares?: IntWithAggregatesFilter<"TokenizedAsset"> | number
+    availableShares?: IntWithAggregatesFilter<"TokenizedAsset"> | number
+    pricePerShare?: DecimalWithAggregatesFilter<"TokenizedAsset"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"TokenizedAsset"> | string
+    metadata?: JsonNullableWithAggregatesFilter<"TokenizedAsset">
+    status?: StringWithAggregatesFilter<"TokenizedAsset"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"TokenizedAsset"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TokenizedAsset"> | Date | string
+  }
+
+  export type TokenHolderWhereInput = {
+    AND?: TokenHolderWhereInput | TokenHolderWhereInput[]
+    OR?: TokenHolderWhereInput[]
+    NOT?: TokenHolderWhereInput | TokenHolderWhereInput[]
+    id?: StringFilter<"TokenHolder"> | string
+    tokenizedAssetId?: StringFilter<"TokenHolder"> | string
+    leadId?: StringNullableFilter<"TokenHolder"> | string | null
+    shares?: IntFilter<"TokenHolder"> | number
+    purchasePrice?: DecimalFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    transactionId?: StringNullableFilter<"TokenHolder"> | string | null
+    purchasedAt?: DateTimeFilter<"TokenHolder"> | Date | string
+    tokenizedAsset?: XOR<TokenizedAssetScalarRelationFilter, TokenizedAssetWhereInput>
+  }
+
+  export type TokenHolderOrderByWithRelationInput = {
+    id?: SortOrder
+    tokenizedAssetId?: SortOrder
+    leadId?: SortOrderInput | SortOrder
+    shares?: SortOrder
+    purchasePrice?: SortOrder
+    totalPaid?: SortOrder
+    transactionId?: SortOrderInput | SortOrder
+    purchasedAt?: SortOrder
+    tokenizedAsset?: TokenizedAssetOrderByWithRelationInput
+  }
+
+  export type TokenHolderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TokenHolderWhereInput | TokenHolderWhereInput[]
+    OR?: TokenHolderWhereInput[]
+    NOT?: TokenHolderWhereInput | TokenHolderWhereInput[]
+    tokenizedAssetId?: StringFilter<"TokenHolder"> | string
+    leadId?: StringNullableFilter<"TokenHolder"> | string | null
+    shares?: IntFilter<"TokenHolder"> | number
+    purchasePrice?: DecimalFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    transactionId?: StringNullableFilter<"TokenHolder"> | string | null
+    purchasedAt?: DateTimeFilter<"TokenHolder"> | Date | string
+    tokenizedAsset?: XOR<TokenizedAssetScalarRelationFilter, TokenizedAssetWhereInput>
+  }, "id">
+
+  export type TokenHolderOrderByWithAggregationInput = {
+    id?: SortOrder
+    tokenizedAssetId?: SortOrder
+    leadId?: SortOrderInput | SortOrder
+    shares?: SortOrder
+    purchasePrice?: SortOrder
+    totalPaid?: SortOrder
+    transactionId?: SortOrderInput | SortOrder
+    purchasedAt?: SortOrder
+    _count?: TokenHolderCountOrderByAggregateInput
+    _avg?: TokenHolderAvgOrderByAggregateInput
+    _max?: TokenHolderMaxOrderByAggregateInput
+    _min?: TokenHolderMinOrderByAggregateInput
+    _sum?: TokenHolderSumOrderByAggregateInput
+  }
+
+  export type TokenHolderScalarWhereWithAggregatesInput = {
+    AND?: TokenHolderScalarWhereWithAggregatesInput | TokenHolderScalarWhereWithAggregatesInput[]
+    OR?: TokenHolderScalarWhereWithAggregatesInput[]
+    NOT?: TokenHolderScalarWhereWithAggregatesInput | TokenHolderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TokenHolder"> | string
+    tokenizedAssetId?: StringWithAggregatesFilter<"TokenHolder"> | string
+    leadId?: StringNullableWithAggregatesFilter<"TokenHolder"> | string | null
+    shares?: IntWithAggregatesFilter<"TokenHolder"> | number
+    purchasePrice?: DecimalWithAggregatesFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalWithAggregatesFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    transactionId?: StringNullableWithAggregatesFilter<"TokenHolder"> | string | null
+    purchasedAt?: DateTimeWithAggregatesFilter<"TokenHolder"> | Date | string
   }
 
   export type PaymentWhereInput = {
@@ -16026,22 +20051,28 @@ export namespace Prisma {
     id?: StringFilter<"LedgerTransaction"> | string
     userId?: StringFilter<"LedgerTransaction"> | string
     reference?: StringFilter<"LedgerTransaction"> | string
-    status?: StringFilter<"LedgerTransaction"> | string
+    description?: StringNullableFilter<"LedgerTransaction"> | string | null
+    state?: StringFilter<"LedgerTransaction"> | string
     idempotencyKey?: StringFilter<"LedgerTransaction"> | string
     createdAt?: DateTimeFilter<"LedgerTransaction"> | Date | string
+    updatedAt?: DateTimeFilter<"LedgerTransaction"> | Date | string
     postedAt?: DateTimeNullableFilter<"LedgerTransaction"> | Date | string | null
     entries?: EntryListRelationFilter
+    idempotency?: XOR<LedgerIdempotencyNullableScalarRelationFilter, LedgerIdempotencyWhereInput> | null
   }
 
   export type LedgerTransactionOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
     reference?: SortOrder
-    status?: SortOrder
+    description?: SortOrderInput | SortOrder
+    state?: SortOrder
     idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     postedAt?: SortOrderInput | SortOrder
     entries?: EntryOrderByRelationAggregateInput
+    idempotency?: LedgerIdempotencyOrderByWithRelationInput
   }
 
   export type LedgerTransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -16052,19 +20083,24 @@ export namespace Prisma {
     OR?: LedgerTransactionWhereInput[]
     NOT?: LedgerTransactionWhereInput | LedgerTransactionWhereInput[]
     userId?: StringFilter<"LedgerTransaction"> | string
-    status?: StringFilter<"LedgerTransaction"> | string
+    description?: StringNullableFilter<"LedgerTransaction"> | string | null
+    state?: StringFilter<"LedgerTransaction"> | string
     createdAt?: DateTimeFilter<"LedgerTransaction"> | Date | string
+    updatedAt?: DateTimeFilter<"LedgerTransaction"> | Date | string
     postedAt?: DateTimeNullableFilter<"LedgerTransaction"> | Date | string | null
     entries?: EntryListRelationFilter
+    idempotency?: XOR<LedgerIdempotencyNullableScalarRelationFilter, LedgerIdempotencyWhereInput> | null
   }, "id" | "reference" | "idempotencyKey">
 
   export type LedgerTransactionOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
     reference?: SortOrder
-    status?: SortOrder
+    description?: SortOrderInput | SortOrder
+    state?: SortOrder
     idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     postedAt?: SortOrderInput | SortOrder
     _count?: LedgerTransactionCountOrderByAggregateInput
     _max?: LedgerTransactionMaxOrderByAggregateInput
@@ -16078,9 +20114,11 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"LedgerTransaction"> | string
     userId?: StringWithAggregatesFilter<"LedgerTransaction"> | string
     reference?: StringWithAggregatesFilter<"LedgerTransaction"> | string
-    status?: StringWithAggregatesFilter<"LedgerTransaction"> | string
+    description?: StringNullableWithAggregatesFilter<"LedgerTransaction"> | string | null
+    state?: StringWithAggregatesFilter<"LedgerTransaction"> | string
     idempotencyKey?: StringWithAggregatesFilter<"LedgerTransaction"> | string
     createdAt?: DateTimeWithAggregatesFilter<"LedgerTransaction"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LedgerTransaction"> | Date | string
     postedAt?: DateTimeNullableWithAggregatesFilter<"LedgerTransaction"> | Date | string | null
   }
 
@@ -16091,7 +20129,10 @@ export namespace Prisma {
     id?: StringFilter<"Entry"> | string
     transactionId?: StringFilter<"Entry"> | string
     accountId?: StringFilter<"Entry"> | string
-    amount?: BigIntFilter<"Entry"> | bigint | number
+    debit?: BigIntFilter<"Entry"> | bigint | number
+    credit?: BigIntFilter<"Entry"> | bigint | number
+    currency?: StringFilter<"Entry"> | string
+    description?: StringNullableFilter<"Entry"> | string | null
     createdAt?: DateTimeFilter<"Entry"> | Date | string
     transaction?: XOR<LedgerTransactionScalarRelationFilter, LedgerTransactionWhereInput>
     account?: XOR<AccountScalarRelationFilter, AccountWhereInput>
@@ -16101,7 +20142,10 @@ export namespace Prisma {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
-    amount?: SortOrder
+    debit?: SortOrder
+    credit?: SortOrder
+    currency?: SortOrder
+    description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     transaction?: LedgerTransactionOrderByWithRelationInput
     account?: AccountOrderByWithRelationInput
@@ -16114,7 +20158,10 @@ export namespace Prisma {
     NOT?: EntryWhereInput | EntryWhereInput[]
     transactionId?: StringFilter<"Entry"> | string
     accountId?: StringFilter<"Entry"> | string
-    amount?: BigIntFilter<"Entry"> | bigint | number
+    debit?: BigIntFilter<"Entry"> | bigint | number
+    credit?: BigIntFilter<"Entry"> | bigint | number
+    currency?: StringFilter<"Entry"> | string
+    description?: StringNullableFilter<"Entry"> | string | null
     createdAt?: DateTimeFilter<"Entry"> | Date | string
     transaction?: XOR<LedgerTransactionScalarRelationFilter, LedgerTransactionWhereInput>
     account?: XOR<AccountScalarRelationFilter, AccountWhereInput>
@@ -16124,7 +20171,10 @@ export namespace Prisma {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
-    amount?: SortOrder
+    debit?: SortOrder
+    credit?: SortOrder
+    currency?: SortOrder
+    description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: EntryCountOrderByAggregateInput
     _avg?: EntryAvgOrderByAggregateInput
@@ -16140,8 +20190,61 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Entry"> | string
     transactionId?: StringWithAggregatesFilter<"Entry"> | string
     accountId?: StringWithAggregatesFilter<"Entry"> | string
-    amount?: BigIntWithAggregatesFilter<"Entry"> | bigint | number
+    debit?: BigIntWithAggregatesFilter<"Entry"> | bigint | number
+    credit?: BigIntWithAggregatesFilter<"Entry"> | bigint | number
+    currency?: StringWithAggregatesFilter<"Entry"> | string
+    description?: StringNullableWithAggregatesFilter<"Entry"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Entry"> | Date | string
+  }
+
+  export type LedgerIdempotencyWhereInput = {
+    AND?: LedgerIdempotencyWhereInput | LedgerIdempotencyWhereInput[]
+    OR?: LedgerIdempotencyWhereInput[]
+    NOT?: LedgerIdempotencyWhereInput | LedgerIdempotencyWhereInput[]
+    id?: StringFilter<"LedgerIdempotency"> | string
+    idempotencyKey?: StringFilter<"LedgerIdempotency"> | string
+    transactionId?: StringFilter<"LedgerIdempotency"> | string
+    createdAt?: DateTimeFilter<"LedgerIdempotency"> | Date | string
+    transaction?: XOR<LedgerTransactionScalarRelationFilter, LedgerTransactionWhereInput>
+  }
+
+  export type LedgerIdempotencyOrderByWithRelationInput = {
+    id?: SortOrder
+    idempotencyKey?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+    transaction?: LedgerTransactionOrderByWithRelationInput
+  }
+
+  export type LedgerIdempotencyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    idempotencyKey?: string
+    transactionId?: string
+    AND?: LedgerIdempotencyWhereInput | LedgerIdempotencyWhereInput[]
+    OR?: LedgerIdempotencyWhereInput[]
+    NOT?: LedgerIdempotencyWhereInput | LedgerIdempotencyWhereInput[]
+    createdAt?: DateTimeFilter<"LedgerIdempotency"> | Date | string
+    transaction?: XOR<LedgerTransactionScalarRelationFilter, LedgerTransactionWhereInput>
+  }, "id" | "idempotencyKey" | "transactionId">
+
+  export type LedgerIdempotencyOrderByWithAggregationInput = {
+    id?: SortOrder
+    idempotencyKey?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+    _count?: LedgerIdempotencyCountOrderByAggregateInput
+    _max?: LedgerIdempotencyMaxOrderByAggregateInput
+    _min?: LedgerIdempotencyMinOrderByAggregateInput
+  }
+
+  export type LedgerIdempotencyScalarWhereWithAggregatesInput = {
+    AND?: LedgerIdempotencyScalarWhereWithAggregatesInput | LedgerIdempotencyScalarWhereWithAggregatesInput[]
+    OR?: LedgerIdempotencyScalarWhereWithAggregatesInput[]
+    NOT?: LedgerIdempotencyScalarWhereWithAggregatesInput | LedgerIdempotencyScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LedgerIdempotency"> | string
+    idempotencyKey?: StringWithAggregatesFilter<"LedgerIdempotency"> | string
+    transactionId?: StringWithAggregatesFilter<"LedgerIdempotency"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"LedgerIdempotency"> | Date | string
   }
 
   export type LeadCreateInput = {
@@ -16357,6 +20460,191 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     role?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenizedAssetCreateInput = {
+    id?: string
+    assetType: string
+    name: string
+    location?: string | null
+    totalShares: number
+    availableShares: number
+    pricePerShare: Decimal | DecimalJsLike | number | string
+    currency?: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tokenHolders?: TokenHolderCreateNestedManyWithoutTokenizedAssetInput
+  }
+
+  export type TokenizedAssetUncheckedCreateInput = {
+    id?: string
+    assetType: string
+    name: string
+    location?: string | null
+    totalShares: number
+    availableShares: number
+    pricePerShare: Decimal | DecimalJsLike | number | string
+    currency?: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tokenHolders?: TokenHolderUncheckedCreateNestedManyWithoutTokenizedAssetInput
+  }
+
+  export type TokenizedAssetUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assetType?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    totalShares?: IntFieldUpdateOperationsInput | number
+    availableShares?: IntFieldUpdateOperationsInput | number
+    pricePerShare?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenHolders?: TokenHolderUpdateManyWithoutTokenizedAssetNestedInput
+  }
+
+  export type TokenizedAssetUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assetType?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    totalShares?: IntFieldUpdateOperationsInput | number
+    availableShares?: IntFieldUpdateOperationsInput | number
+    pricePerShare?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenHolders?: TokenHolderUncheckedUpdateManyWithoutTokenizedAssetNestedInput
+  }
+
+  export type TokenizedAssetCreateManyInput = {
+    id?: string
+    assetType: string
+    name: string
+    location?: string | null
+    totalShares: number
+    availableShares: number
+    pricePerShare: Decimal | DecimalJsLike | number | string
+    currency?: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TokenizedAssetUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assetType?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    totalShares?: IntFieldUpdateOperationsInput | number
+    availableShares?: IntFieldUpdateOperationsInput | number
+    pricePerShare?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenizedAssetUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assetType?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    totalShares?: IntFieldUpdateOperationsInput | number
+    availableShares?: IntFieldUpdateOperationsInput | number
+    pricePerShare?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenHolderCreateInput = {
+    id?: string
+    leadId?: string | null
+    shares: number
+    purchasePrice: Decimal | DecimalJsLike | number | string
+    totalPaid: Decimal | DecimalJsLike | number | string
+    transactionId?: string | null
+    purchasedAt?: Date | string
+    tokenizedAsset: TokenizedAssetCreateNestedOneWithoutTokenHoldersInput
+  }
+
+  export type TokenHolderUncheckedCreateInput = {
+    id?: string
+    tokenizedAssetId: string
+    leadId?: string | null
+    shares: number
+    purchasePrice: Decimal | DecimalJsLike | number | string
+    totalPaid: Decimal | DecimalJsLike | number | string
+    transactionId?: string | null
+    purchasedAt?: Date | string
+  }
+
+  export type TokenHolderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    shares?: IntFieldUpdateOperationsInput | number
+    purchasePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchasedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenizedAsset?: TokenizedAssetUpdateOneRequiredWithoutTokenHoldersNestedInput
+  }
+
+  export type TokenHolderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenizedAssetId?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    shares?: IntFieldUpdateOperationsInput | number
+    purchasePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchasedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenHolderCreateManyInput = {
+    id?: string
+    tokenizedAssetId: string
+    leadId?: string | null
+    shares: number
+    purchasePrice: Decimal | DecimalJsLike | number | string
+    totalPaid: Decimal | DecimalJsLike | number | string
+    transactionId?: string | null
+    purchasedAt?: Date | string
+  }
+
+  export type TokenHolderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    shares?: IntFieldUpdateOperationsInput | number
+    purchasePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchasedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenHolderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenizedAssetId?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    shares?: IntFieldUpdateOperationsInput | number
+    purchasePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchasedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentCreateInput = {
@@ -16923,53 +21211,67 @@ export namespace Prisma {
     id?: string
     userId: string
     reference: string
-    status?: string
+    description?: string | null
+    state?: string
     idempotencyKey: string
     createdAt?: Date | string
+    updatedAt?: Date | string
     postedAt?: Date | string | null
     entries?: EntryCreateNestedManyWithoutTransactionInput
+    idempotency?: LedgerIdempotencyCreateNestedOneWithoutTransactionInput
   }
 
   export type LedgerTransactionUncheckedCreateInput = {
     id?: string
     userId: string
     reference: string
-    status?: string
+    description?: string | null
+    state?: string
     idempotencyKey: string
     createdAt?: Date | string
+    updatedAt?: Date | string
     postedAt?: Date | string | null
     entries?: EntryUncheckedCreateNestedManyWithoutTransactionInput
+    idempotency?: LedgerIdempotencyUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type LedgerTransactionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     reference?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     entries?: EntryUpdateManyWithoutTransactionNestedInput
+    idempotency?: LedgerIdempotencyUpdateOneWithoutTransactionNestedInput
   }
 
   export type LedgerTransactionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     reference?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     entries?: EntryUncheckedUpdateManyWithoutTransactionNestedInput
+    idempotency?: LedgerIdempotencyUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type LedgerTransactionCreateManyInput = {
     id?: string
     userId: string
     reference: string
-    status?: string
+    description?: string | null
+    state?: string
     idempotencyKey: string
     createdAt?: Date | string
+    updatedAt?: Date | string
     postedAt?: Date | string | null
   }
 
@@ -16977,9 +21279,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     reference?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
@@ -16987,15 +21291,20 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     reference?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type EntryCreateInput = {
     id?: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
     transaction: LedgerTransactionCreateNestedOneWithoutEntriesInput
     account: AccountCreateNestedOneWithoutEntriesInput
@@ -17005,13 +21314,19 @@ export namespace Prisma {
     id?: string
     transactionId: string
     accountId: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
   }
 
   export type EntryUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transaction?: LedgerTransactionUpdateOneRequiredWithoutEntriesNestedInput
     account?: AccountUpdateOneRequiredWithoutEntriesNestedInput
@@ -17021,7 +21336,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17029,13 +21347,19 @@ export namespace Prisma {
     id?: string
     transactionId: string
     accountId: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
   }
 
   export type EntryUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17043,7 +21367,58 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerIdempotencyCreateInput = {
+    id?: string
+    idempotencyKey: string
+    createdAt?: Date | string
+    transaction: LedgerTransactionCreateNestedOneWithoutIdempotencyInput
+  }
+
+  export type LedgerIdempotencyUncheckedCreateInput = {
+    id?: string
+    idempotencyKey: string
+    transactionId: string
+    createdAt?: Date | string
+  }
+
+  export type LedgerIdempotencyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transaction?: LedgerTransactionUpdateOneRequiredWithoutIdempotencyNestedInput
+  }
+
+  export type LedgerIdempotencyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerIdempotencyCreateManyInput = {
+    id?: string
+    idempotencyKey: string
+    transactionId: string
+    createdAt?: Date | string
+  }
+
+  export type LedgerIdempotencyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerIdempotencyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17384,6 +21759,164 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type TokenHolderListRelationFilter = {
+    every?: TokenHolderWhereInput
+    some?: TokenHolderWhereInput
+    none?: TokenHolderWhereInput
+  }
+
+  export type TokenHolderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TokenizedAssetCountOrderByAggregateInput = {
+    id?: SortOrder
+    assetType?: SortOrder
+    name?: SortOrder
+    location?: SortOrder
+    totalShares?: SortOrder
+    availableShares?: SortOrder
+    pricePerShare?: SortOrder
+    currency?: SortOrder
+    metadata?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TokenizedAssetAvgOrderByAggregateInput = {
+    totalShares?: SortOrder
+    availableShares?: SortOrder
+    pricePerShare?: SortOrder
+  }
+
+  export type TokenizedAssetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    assetType?: SortOrder
+    name?: SortOrder
+    location?: SortOrder
+    totalShares?: SortOrder
+    availableShares?: SortOrder
+    pricePerShare?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TokenizedAssetMinOrderByAggregateInput = {
+    id?: SortOrder
+    assetType?: SortOrder
+    name?: SortOrder
+    location?: SortOrder
+    totalShares?: SortOrder
+    availableShares?: SortOrder
+    pricePerShare?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TokenizedAssetSumOrderByAggregateInput = {
+    totalShares?: SortOrder
+    availableShares?: SortOrder
+    pricePerShare?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type TokenizedAssetScalarRelationFilter = {
+    is?: TokenizedAssetWhereInput
+    isNot?: TokenizedAssetWhereInput
+  }
+
+  export type TokenHolderCountOrderByAggregateInput = {
+    id?: SortOrder
+    tokenizedAssetId?: SortOrder
+    leadId?: SortOrder
+    shares?: SortOrder
+    purchasePrice?: SortOrder
+    totalPaid?: SortOrder
+    transactionId?: SortOrder
+    purchasedAt?: SortOrder
+  }
+
+  export type TokenHolderAvgOrderByAggregateInput = {
+    shares?: SortOrder
+    purchasePrice?: SortOrder
+    totalPaid?: SortOrder
+  }
+
+  export type TokenHolderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tokenizedAssetId?: SortOrder
+    leadId?: SortOrder
+    shares?: SortOrder
+    purchasePrice?: SortOrder
+    totalPaid?: SortOrder
+    transactionId?: SortOrder
+    purchasedAt?: SortOrder
+  }
+
+  export type TokenHolderMinOrderByAggregateInput = {
+    id?: SortOrder
+    tokenizedAssetId?: SortOrder
+    leadId?: SortOrder
+    shares?: SortOrder
+    purchasePrice?: SortOrder
+    totalPaid?: SortOrder
+    transactionId?: SortOrder
+    purchasedAt?: SortOrder
+  }
+
+  export type TokenHolderSumOrderByAggregateInput = {
+    shares?: SortOrder
+    purchasePrice?: SortOrder
+    totalPaid?: SortOrder
+  }
+
   export type LeadScalarRelationFilter = {
     is?: LeadWhereInput
     isNot?: LeadWhereInput
@@ -17425,22 +21958,6 @@ export namespace Prisma {
 
   export type PaymentSumOrderByAggregateInput = {
     amount?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type DemoCountOrderByAggregateInput = {
@@ -17700,13 +22217,20 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type LedgerIdempotencyNullableScalarRelationFilter = {
+    is?: LedgerIdempotencyWhereInput | null
+    isNot?: LedgerIdempotencyWhereInput | null
+  }
+
   export type LedgerTransactionCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     reference?: SortOrder
-    status?: SortOrder
+    description?: SortOrder
+    state?: SortOrder
     idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     postedAt?: SortOrder
   }
 
@@ -17714,9 +22238,11 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     reference?: SortOrder
-    status?: SortOrder
+    description?: SortOrder
+    state?: SortOrder
     idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     postedAt?: SortOrder
   }
 
@@ -17724,9 +22250,11 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     reference?: SortOrder
-    status?: SortOrder
+    description?: SortOrder
+    state?: SortOrder
     idempotencyKey?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     postedAt?: SortOrder
   }
 
@@ -17755,19 +22283,26 @@ export namespace Prisma {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
-    amount?: SortOrder
+    debit?: SortOrder
+    credit?: SortOrder
+    currency?: SortOrder
+    description?: SortOrder
     createdAt?: SortOrder
   }
 
   export type EntryAvgOrderByAggregateInput = {
-    amount?: SortOrder
+    debit?: SortOrder
+    credit?: SortOrder
   }
 
   export type EntryMaxOrderByAggregateInput = {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
-    amount?: SortOrder
+    debit?: SortOrder
+    credit?: SortOrder
+    currency?: SortOrder
+    description?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -17775,12 +22310,16 @@ export namespace Prisma {
     id?: SortOrder
     transactionId?: SortOrder
     accountId?: SortOrder
-    amount?: SortOrder
+    debit?: SortOrder
+    credit?: SortOrder
+    currency?: SortOrder
+    description?: SortOrder
     createdAt?: SortOrder
   }
 
   export type EntrySumOrderByAggregateInput = {
-    amount?: SortOrder
+    debit?: SortOrder
+    credit?: SortOrder
   }
 
   export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -17797,6 +22336,27 @@ export namespace Prisma {
     _sum?: NestedBigIntFilter<$PrismaModel>
     _min?: NestedBigIntFilter<$PrismaModel>
     _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type LedgerIdempotencyCountOrderByAggregateInput = {
+    id?: SortOrder
+    idempotencyKey?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type LedgerIdempotencyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    idempotencyKey?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type LedgerIdempotencyMinOrderByAggregateInput = {
+    id?: SortOrder
+    idempotencyKey?: SortOrder
+    transactionId?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type DemoCreateNestedOneWithoutLeadInput = {
@@ -17943,10 +22503,18 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
-  export type LeadCreateNestedOneWithoutPaymentsInput = {
-    create?: XOR<LeadCreateWithoutPaymentsInput, LeadUncheckedCreateWithoutPaymentsInput>
-    connectOrCreate?: LeadCreateOrConnectWithoutPaymentsInput
-    connect?: LeadWhereUniqueInput
+  export type TokenHolderCreateNestedManyWithoutTokenizedAssetInput = {
+    create?: XOR<TokenHolderCreateWithoutTokenizedAssetInput, TokenHolderUncheckedCreateWithoutTokenizedAssetInput> | TokenHolderCreateWithoutTokenizedAssetInput[] | TokenHolderUncheckedCreateWithoutTokenizedAssetInput[]
+    connectOrCreate?: TokenHolderCreateOrConnectWithoutTokenizedAssetInput | TokenHolderCreateOrConnectWithoutTokenizedAssetInput[]
+    createMany?: TokenHolderCreateManyTokenizedAssetInputEnvelope
+    connect?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+  }
+
+  export type TokenHolderUncheckedCreateNestedManyWithoutTokenizedAssetInput = {
+    create?: XOR<TokenHolderCreateWithoutTokenizedAssetInput, TokenHolderUncheckedCreateWithoutTokenizedAssetInput> | TokenHolderCreateWithoutTokenizedAssetInput[] | TokenHolderUncheckedCreateWithoutTokenizedAssetInput[]
+    connectOrCreate?: TokenHolderCreateOrConnectWithoutTokenizedAssetInput | TokenHolderCreateOrConnectWithoutTokenizedAssetInput[]
+    createMany?: TokenHolderCreateManyTokenizedAssetInputEnvelope
+    connect?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -17955,6 +22523,62 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type TokenHolderUpdateManyWithoutTokenizedAssetNestedInput = {
+    create?: XOR<TokenHolderCreateWithoutTokenizedAssetInput, TokenHolderUncheckedCreateWithoutTokenizedAssetInput> | TokenHolderCreateWithoutTokenizedAssetInput[] | TokenHolderUncheckedCreateWithoutTokenizedAssetInput[]
+    connectOrCreate?: TokenHolderCreateOrConnectWithoutTokenizedAssetInput | TokenHolderCreateOrConnectWithoutTokenizedAssetInput[]
+    upsert?: TokenHolderUpsertWithWhereUniqueWithoutTokenizedAssetInput | TokenHolderUpsertWithWhereUniqueWithoutTokenizedAssetInput[]
+    createMany?: TokenHolderCreateManyTokenizedAssetInputEnvelope
+    set?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    disconnect?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    delete?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    connect?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    update?: TokenHolderUpdateWithWhereUniqueWithoutTokenizedAssetInput | TokenHolderUpdateWithWhereUniqueWithoutTokenizedAssetInput[]
+    updateMany?: TokenHolderUpdateManyWithWhereWithoutTokenizedAssetInput | TokenHolderUpdateManyWithWhereWithoutTokenizedAssetInput[]
+    deleteMany?: TokenHolderScalarWhereInput | TokenHolderScalarWhereInput[]
+  }
+
+  export type TokenHolderUncheckedUpdateManyWithoutTokenizedAssetNestedInput = {
+    create?: XOR<TokenHolderCreateWithoutTokenizedAssetInput, TokenHolderUncheckedCreateWithoutTokenizedAssetInput> | TokenHolderCreateWithoutTokenizedAssetInput[] | TokenHolderUncheckedCreateWithoutTokenizedAssetInput[]
+    connectOrCreate?: TokenHolderCreateOrConnectWithoutTokenizedAssetInput | TokenHolderCreateOrConnectWithoutTokenizedAssetInput[]
+    upsert?: TokenHolderUpsertWithWhereUniqueWithoutTokenizedAssetInput | TokenHolderUpsertWithWhereUniqueWithoutTokenizedAssetInput[]
+    createMany?: TokenHolderCreateManyTokenizedAssetInputEnvelope
+    set?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    disconnect?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    delete?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    connect?: TokenHolderWhereUniqueInput | TokenHolderWhereUniqueInput[]
+    update?: TokenHolderUpdateWithWhereUniqueWithoutTokenizedAssetInput | TokenHolderUpdateWithWhereUniqueWithoutTokenizedAssetInput[]
+    updateMany?: TokenHolderUpdateManyWithWhereWithoutTokenizedAssetInput | TokenHolderUpdateManyWithWhereWithoutTokenizedAssetInput[]
+    deleteMany?: TokenHolderScalarWhereInput | TokenHolderScalarWhereInput[]
+  }
+
+  export type TokenizedAssetCreateNestedOneWithoutTokenHoldersInput = {
+    create?: XOR<TokenizedAssetCreateWithoutTokenHoldersInput, TokenizedAssetUncheckedCreateWithoutTokenHoldersInput>
+    connectOrCreate?: TokenizedAssetCreateOrConnectWithoutTokenHoldersInput
+    connect?: TokenizedAssetWhereUniqueInput
+  }
+
+  export type TokenizedAssetUpdateOneRequiredWithoutTokenHoldersNestedInput = {
+    create?: XOR<TokenizedAssetCreateWithoutTokenHoldersInput, TokenizedAssetUncheckedCreateWithoutTokenHoldersInput>
+    connectOrCreate?: TokenizedAssetCreateOrConnectWithoutTokenHoldersInput
+    upsert?: TokenizedAssetUpsertWithoutTokenHoldersInput
+    connect?: TokenizedAssetWhereUniqueInput
+    update?: XOR<XOR<TokenizedAssetUpdateToOneWithWhereWithoutTokenHoldersInput, TokenizedAssetUpdateWithoutTokenHoldersInput>, TokenizedAssetUncheckedUpdateWithoutTokenHoldersInput>
+  }
+
+  export type LeadCreateNestedOneWithoutPaymentsInput = {
+    create?: XOR<LeadCreateWithoutPaymentsInput, LeadUncheckedCreateWithoutPaymentsInput>
+    connectOrCreate?: LeadCreateOrConnectWithoutPaymentsInput
+    connect?: LeadWhereUniqueInput
   }
 
   export type LeadUpdateOneRequiredWithoutPaymentsNestedInput = {
@@ -18051,11 +22675,23 @@ export namespace Prisma {
     connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
   }
 
+  export type LedgerIdempotencyCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<LedgerIdempotencyCreateWithoutTransactionInput, LedgerIdempotencyUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: LedgerIdempotencyCreateOrConnectWithoutTransactionInput
+    connect?: LedgerIdempotencyWhereUniqueInput
+  }
+
   export type EntryUncheckedCreateNestedManyWithoutTransactionInput = {
     create?: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput> | EntryCreateWithoutTransactionInput[] | EntryUncheckedCreateWithoutTransactionInput[]
     connectOrCreate?: EntryCreateOrConnectWithoutTransactionInput | EntryCreateOrConnectWithoutTransactionInput[]
     createMany?: EntryCreateManyTransactionInputEnvelope
     connect?: EntryWhereUniqueInput | EntryWhereUniqueInput[]
+  }
+
+  export type LedgerIdempotencyUncheckedCreateNestedOneWithoutTransactionInput = {
+    create?: XOR<LedgerIdempotencyCreateWithoutTransactionInput, LedgerIdempotencyUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: LedgerIdempotencyCreateOrConnectWithoutTransactionInput
+    connect?: LedgerIdempotencyWhereUniqueInput
   }
 
   export type EntryUpdateManyWithoutTransactionNestedInput = {
@@ -18072,6 +22708,16 @@ export namespace Prisma {
     deleteMany?: EntryScalarWhereInput | EntryScalarWhereInput[]
   }
 
+  export type LedgerIdempotencyUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<LedgerIdempotencyCreateWithoutTransactionInput, LedgerIdempotencyUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: LedgerIdempotencyCreateOrConnectWithoutTransactionInput
+    upsert?: LedgerIdempotencyUpsertWithoutTransactionInput
+    disconnect?: LedgerIdempotencyWhereInput | boolean
+    delete?: LedgerIdempotencyWhereInput | boolean
+    connect?: LedgerIdempotencyWhereUniqueInput
+    update?: XOR<XOR<LedgerIdempotencyUpdateToOneWithWhereWithoutTransactionInput, LedgerIdempotencyUpdateWithoutTransactionInput>, LedgerIdempotencyUncheckedUpdateWithoutTransactionInput>
+  }
+
   export type EntryUncheckedUpdateManyWithoutTransactionNestedInput = {
     create?: XOR<EntryCreateWithoutTransactionInput, EntryUncheckedCreateWithoutTransactionInput> | EntryCreateWithoutTransactionInput[] | EntryUncheckedCreateWithoutTransactionInput[]
     connectOrCreate?: EntryCreateOrConnectWithoutTransactionInput | EntryCreateOrConnectWithoutTransactionInput[]
@@ -18084,6 +22730,16 @@ export namespace Prisma {
     update?: EntryUpdateWithWhereUniqueWithoutTransactionInput | EntryUpdateWithWhereUniqueWithoutTransactionInput[]
     updateMany?: EntryUpdateManyWithWhereWithoutTransactionInput | EntryUpdateManyWithWhereWithoutTransactionInput[]
     deleteMany?: EntryScalarWhereInput | EntryScalarWhereInput[]
+  }
+
+  export type LedgerIdempotencyUncheckedUpdateOneWithoutTransactionNestedInput = {
+    create?: XOR<LedgerIdempotencyCreateWithoutTransactionInput, LedgerIdempotencyUncheckedCreateWithoutTransactionInput>
+    connectOrCreate?: LedgerIdempotencyCreateOrConnectWithoutTransactionInput
+    upsert?: LedgerIdempotencyUpsertWithoutTransactionInput
+    disconnect?: LedgerIdempotencyWhereInput | boolean
+    delete?: LedgerIdempotencyWhereInput | boolean
+    connect?: LedgerIdempotencyWhereUniqueInput
+    update?: XOR<XOR<LedgerIdempotencyUpdateToOneWithWhereWithoutTransactionInput, LedgerIdempotencyUpdateWithoutTransactionInput>, LedgerIdempotencyUncheckedUpdateWithoutTransactionInput>
   }
 
   export type LedgerTransactionCreateNestedOneWithoutEntriesInput = {
@@ -18120,6 +22776,20 @@ export namespace Prisma {
     upsert?: AccountUpsertWithoutEntriesInput
     connect?: AccountWhereUniqueInput
     update?: XOR<XOR<AccountUpdateToOneWithWhereWithoutEntriesInput, AccountUpdateWithoutEntriesInput>, AccountUncheckedUpdateWithoutEntriesInput>
+  }
+
+  export type LedgerTransactionCreateNestedOneWithoutIdempotencyInput = {
+    create?: XOR<LedgerTransactionCreateWithoutIdempotencyInput, LedgerTransactionUncheckedCreateWithoutIdempotencyInput>
+    connectOrCreate?: LedgerTransactionCreateOrConnectWithoutIdempotencyInput
+    connect?: LedgerTransactionWhereUniqueInput
+  }
+
+  export type LedgerTransactionUpdateOneRequiredWithoutIdempotencyNestedInput = {
+    create?: XOR<LedgerTransactionCreateWithoutIdempotencyInput, LedgerTransactionUncheckedCreateWithoutIdempotencyInput>
+    connectOrCreate?: LedgerTransactionCreateOrConnectWithoutIdempotencyInput
+    upsert?: LedgerTransactionUpsertWithoutIdempotencyInput
+    connect?: LedgerTransactionWhereUniqueInput
+    update?: XOR<XOR<LedgerTransactionUpdateToOneWithWhereWithoutIdempotencyInput, LedgerTransactionUpdateWithoutIdempotencyInput>, LedgerTransactionUncheckedUpdateWithoutIdempotencyInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -18319,6 +22989,17 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -18344,6 +23025,22 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
   }
 
   export type NestedBigIntFilter<$PrismaModel = never> = {
@@ -18531,6 +23228,142 @@ export namespace Prisma {
     leadId?: StringFilter<"Payment"> | string
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
+  }
+
+  export type TokenHolderCreateWithoutTokenizedAssetInput = {
+    id?: string
+    leadId?: string | null
+    shares: number
+    purchasePrice: Decimal | DecimalJsLike | number | string
+    totalPaid: Decimal | DecimalJsLike | number | string
+    transactionId?: string | null
+    purchasedAt?: Date | string
+  }
+
+  export type TokenHolderUncheckedCreateWithoutTokenizedAssetInput = {
+    id?: string
+    leadId?: string | null
+    shares: number
+    purchasePrice: Decimal | DecimalJsLike | number | string
+    totalPaid: Decimal | DecimalJsLike | number | string
+    transactionId?: string | null
+    purchasedAt?: Date | string
+  }
+
+  export type TokenHolderCreateOrConnectWithoutTokenizedAssetInput = {
+    where: TokenHolderWhereUniqueInput
+    create: XOR<TokenHolderCreateWithoutTokenizedAssetInput, TokenHolderUncheckedCreateWithoutTokenizedAssetInput>
+  }
+
+  export type TokenHolderCreateManyTokenizedAssetInputEnvelope = {
+    data: TokenHolderCreateManyTokenizedAssetInput | TokenHolderCreateManyTokenizedAssetInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TokenHolderUpsertWithWhereUniqueWithoutTokenizedAssetInput = {
+    where: TokenHolderWhereUniqueInput
+    update: XOR<TokenHolderUpdateWithoutTokenizedAssetInput, TokenHolderUncheckedUpdateWithoutTokenizedAssetInput>
+    create: XOR<TokenHolderCreateWithoutTokenizedAssetInput, TokenHolderUncheckedCreateWithoutTokenizedAssetInput>
+  }
+
+  export type TokenHolderUpdateWithWhereUniqueWithoutTokenizedAssetInput = {
+    where: TokenHolderWhereUniqueInput
+    data: XOR<TokenHolderUpdateWithoutTokenizedAssetInput, TokenHolderUncheckedUpdateWithoutTokenizedAssetInput>
+  }
+
+  export type TokenHolderUpdateManyWithWhereWithoutTokenizedAssetInput = {
+    where: TokenHolderScalarWhereInput
+    data: XOR<TokenHolderUpdateManyMutationInput, TokenHolderUncheckedUpdateManyWithoutTokenizedAssetInput>
+  }
+
+  export type TokenHolderScalarWhereInput = {
+    AND?: TokenHolderScalarWhereInput | TokenHolderScalarWhereInput[]
+    OR?: TokenHolderScalarWhereInput[]
+    NOT?: TokenHolderScalarWhereInput | TokenHolderScalarWhereInput[]
+    id?: StringFilter<"TokenHolder"> | string
+    tokenizedAssetId?: StringFilter<"TokenHolder"> | string
+    leadId?: StringNullableFilter<"TokenHolder"> | string | null
+    shares?: IntFilter<"TokenHolder"> | number
+    purchasePrice?: DecimalFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFilter<"TokenHolder"> | Decimal | DecimalJsLike | number | string
+    transactionId?: StringNullableFilter<"TokenHolder"> | string | null
+    purchasedAt?: DateTimeFilter<"TokenHolder"> | Date | string
+  }
+
+  export type TokenizedAssetCreateWithoutTokenHoldersInput = {
+    id?: string
+    assetType: string
+    name: string
+    location?: string | null
+    totalShares: number
+    availableShares: number
+    pricePerShare: Decimal | DecimalJsLike | number | string
+    currency?: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TokenizedAssetUncheckedCreateWithoutTokenHoldersInput = {
+    id?: string
+    assetType: string
+    name: string
+    location?: string | null
+    totalShares: number
+    availableShares: number
+    pricePerShare: Decimal | DecimalJsLike | number | string
+    currency?: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TokenizedAssetCreateOrConnectWithoutTokenHoldersInput = {
+    where: TokenizedAssetWhereUniqueInput
+    create: XOR<TokenizedAssetCreateWithoutTokenHoldersInput, TokenizedAssetUncheckedCreateWithoutTokenHoldersInput>
+  }
+
+  export type TokenizedAssetUpsertWithoutTokenHoldersInput = {
+    update: XOR<TokenizedAssetUpdateWithoutTokenHoldersInput, TokenizedAssetUncheckedUpdateWithoutTokenHoldersInput>
+    create: XOR<TokenizedAssetCreateWithoutTokenHoldersInput, TokenizedAssetUncheckedCreateWithoutTokenHoldersInput>
+    where?: TokenizedAssetWhereInput
+  }
+
+  export type TokenizedAssetUpdateToOneWithWhereWithoutTokenHoldersInput = {
+    where?: TokenizedAssetWhereInput
+    data: XOR<TokenizedAssetUpdateWithoutTokenHoldersInput, TokenizedAssetUncheckedUpdateWithoutTokenHoldersInput>
+  }
+
+  export type TokenizedAssetUpdateWithoutTokenHoldersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assetType?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    totalShares?: IntFieldUpdateOperationsInput | number
+    availableShares?: IntFieldUpdateOperationsInput | number
+    pricePerShare?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenizedAssetUncheckedUpdateWithoutTokenHoldersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assetType?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    totalShares?: IntFieldUpdateOperationsInput | number
+    availableShares?: IntFieldUpdateOperationsInput | number
+    pricePerShare?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LeadCreateWithoutPaymentsInput = {
@@ -18847,7 +23680,10 @@ export namespace Prisma {
 
   export type EntryCreateWithoutAccountInput = {
     id?: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
     transaction: LedgerTransactionCreateNestedOneWithoutEntriesInput
   }
@@ -18855,7 +23691,10 @@ export namespace Prisma {
   export type EntryUncheckedCreateWithoutAccountInput = {
     id?: string
     transactionId: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
   }
 
@@ -18892,13 +23731,19 @@ export namespace Prisma {
     id?: StringFilter<"Entry"> | string
     transactionId?: StringFilter<"Entry"> | string
     accountId?: StringFilter<"Entry"> | string
-    amount?: BigIntFilter<"Entry"> | bigint | number
+    debit?: BigIntFilter<"Entry"> | bigint | number
+    credit?: BigIntFilter<"Entry"> | bigint | number
+    currency?: StringFilter<"Entry"> | string
+    description?: StringNullableFilter<"Entry"> | string | null
     createdAt?: DateTimeFilter<"Entry"> | Date | string
   }
 
   export type EntryCreateWithoutTransactionInput = {
     id?: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
     account: AccountCreateNestedOneWithoutEntriesInput
   }
@@ -18906,7 +23751,10 @@ export namespace Prisma {
   export type EntryUncheckedCreateWithoutTransactionInput = {
     id?: string
     accountId: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
   }
 
@@ -18918,6 +23766,23 @@ export namespace Prisma {
   export type EntryCreateManyTransactionInputEnvelope = {
     data: EntryCreateManyTransactionInput | EntryCreateManyTransactionInput[]
     skipDuplicates?: boolean
+  }
+
+  export type LedgerIdempotencyCreateWithoutTransactionInput = {
+    id?: string
+    idempotencyKey: string
+    createdAt?: Date | string
+  }
+
+  export type LedgerIdempotencyUncheckedCreateWithoutTransactionInput = {
+    id?: string
+    idempotencyKey: string
+    createdAt?: Date | string
+  }
+
+  export type LedgerIdempotencyCreateOrConnectWithoutTransactionInput = {
+    where: LedgerIdempotencyWhereUniqueInput
+    create: XOR<LedgerIdempotencyCreateWithoutTransactionInput, LedgerIdempotencyUncheckedCreateWithoutTransactionInput>
   }
 
   export type EntryUpsertWithWhereUniqueWithoutTransactionInput = {
@@ -18936,24 +23801,53 @@ export namespace Prisma {
     data: XOR<EntryUpdateManyMutationInput, EntryUncheckedUpdateManyWithoutTransactionInput>
   }
 
+  export type LedgerIdempotencyUpsertWithoutTransactionInput = {
+    update: XOR<LedgerIdempotencyUpdateWithoutTransactionInput, LedgerIdempotencyUncheckedUpdateWithoutTransactionInput>
+    create: XOR<LedgerIdempotencyCreateWithoutTransactionInput, LedgerIdempotencyUncheckedCreateWithoutTransactionInput>
+    where?: LedgerIdempotencyWhereInput
+  }
+
+  export type LedgerIdempotencyUpdateToOneWithWhereWithoutTransactionInput = {
+    where?: LedgerIdempotencyWhereInput
+    data: XOR<LedgerIdempotencyUpdateWithoutTransactionInput, LedgerIdempotencyUncheckedUpdateWithoutTransactionInput>
+  }
+
+  export type LedgerIdempotencyUpdateWithoutTransactionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerIdempotencyUncheckedUpdateWithoutTransactionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type LedgerTransactionCreateWithoutEntriesInput = {
     id?: string
     userId: string
     reference: string
-    status?: string
+    description?: string | null
+    state?: string
     idempotencyKey: string
     createdAt?: Date | string
+    updatedAt?: Date | string
     postedAt?: Date | string | null
+    idempotency?: LedgerIdempotencyCreateNestedOneWithoutTransactionInput
   }
 
   export type LedgerTransactionUncheckedCreateWithoutEntriesInput = {
     id?: string
     userId: string
     reference: string
-    status?: string
+    description?: string | null
+    state?: string
     idempotencyKey: string
     createdAt?: Date | string
+    updatedAt?: Date | string
     postedAt?: Date | string | null
+    idempotency?: LedgerIdempotencyUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type LedgerTransactionCreateOrConnectWithoutEntriesInput = {
@@ -18997,20 +23891,26 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     reference?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    idempotency?: LedgerIdempotencyUpdateOneWithoutTransactionNestedInput
   }
 
   export type LedgerTransactionUncheckedUpdateWithoutEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     reference?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
     idempotencyKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    idempotency?: LedgerIdempotencyUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type AccountUpsertWithoutEntriesInput = {
@@ -19038,6 +23938,74 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerTransactionCreateWithoutIdempotencyInput = {
+    id?: string
+    userId: string
+    reference: string
+    description?: string | null
+    state?: string
+    idempotencyKey: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postedAt?: Date | string | null
+    entries?: EntryCreateNestedManyWithoutTransactionInput
+  }
+
+  export type LedgerTransactionUncheckedCreateWithoutIdempotencyInput = {
+    id?: string
+    userId: string
+    reference: string
+    description?: string | null
+    state?: string
+    idempotencyKey: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postedAt?: Date | string | null
+    entries?: EntryUncheckedCreateNestedManyWithoutTransactionInput
+  }
+
+  export type LedgerTransactionCreateOrConnectWithoutIdempotencyInput = {
+    where: LedgerTransactionWhereUniqueInput
+    create: XOR<LedgerTransactionCreateWithoutIdempotencyInput, LedgerTransactionUncheckedCreateWithoutIdempotencyInput>
+  }
+
+  export type LedgerTransactionUpsertWithoutIdempotencyInput = {
+    update: XOR<LedgerTransactionUpdateWithoutIdempotencyInput, LedgerTransactionUncheckedUpdateWithoutIdempotencyInput>
+    create: XOR<LedgerTransactionCreateWithoutIdempotencyInput, LedgerTransactionUncheckedCreateWithoutIdempotencyInput>
+    where?: LedgerTransactionWhereInput
+  }
+
+  export type LedgerTransactionUpdateToOneWithWhereWithoutIdempotencyInput = {
+    where?: LedgerTransactionWhereInput
+    data: XOR<LedgerTransactionUpdateWithoutIdempotencyInput, LedgerTransactionUncheckedUpdateWithoutIdempotencyInput>
+  }
+
+  export type LedgerTransactionUpdateWithoutIdempotencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: EntryUpdateManyWithoutTransactionNestedInput
+  }
+
+  export type LedgerTransactionUncheckedUpdateWithoutIdempotencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: EntryUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
   export type EmailEventCreateManyLeadInput = {
@@ -19104,16 +24072,62 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TokenHolderCreateManyTokenizedAssetInput = {
+    id?: string
+    leadId?: string | null
+    shares: number
+    purchasePrice: Decimal | DecimalJsLike | number | string
+    totalPaid: Decimal | DecimalJsLike | number | string
+    transactionId?: string | null
+    purchasedAt?: Date | string
+  }
+
+  export type TokenHolderUpdateWithoutTokenizedAssetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    shares?: IntFieldUpdateOperationsInput | number
+    purchasePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchasedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenHolderUncheckedUpdateWithoutTokenizedAssetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    shares?: IntFieldUpdateOperationsInput | number
+    purchasePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchasedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TokenHolderUncheckedUpdateManyWithoutTokenizedAssetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    shares?: IntFieldUpdateOperationsInput | number
+    purchasePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPaid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchasedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type EntryCreateManyAccountInput = {
     id?: string
     transactionId: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
   }
 
   export type EntryUpdateWithoutAccountInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transaction?: LedgerTransactionUpdateOneRequiredWithoutEntriesNestedInput
   }
@@ -19121,27 +24135,39 @@ export namespace Prisma {
   export type EntryUncheckedUpdateWithoutAccountInput = {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EntryUncheckedUpdateManyWithoutAccountInput = {
     id?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EntryCreateManyTransactionInput = {
     id?: string
     accountId: string
-    amount: bigint | number
+    debit?: bigint | number
+    credit?: bigint | number
+    currency?: string
+    description?: string | null
     createdAt?: Date | string
   }
 
   export type EntryUpdateWithoutTransactionInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     account?: AccountUpdateOneRequiredWithoutEntriesNestedInput
   }
@@ -19149,14 +24175,20 @@ export namespace Prisma {
   export type EntryUncheckedUpdateWithoutTransactionInput = {
     id?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EntryUncheckedUpdateManyWithoutTransactionInput = {
     id?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
-    amount?: BigIntFieldUpdateOperationsInput | bigint | number
+    debit?: BigIntFieldUpdateOperationsInput | bigint | number
+    credit?: BigIntFieldUpdateOperationsInput | bigint | number
+    currency?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

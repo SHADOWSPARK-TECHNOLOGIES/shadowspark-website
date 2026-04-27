@@ -149,6 +149,32 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.TokenizedAssetScalarFieldEnum = {
+  id: 'id',
+  assetType: 'assetType',
+  name: 'name',
+  location: 'location',
+  totalShares: 'totalShares',
+  availableShares: 'availableShares',
+  pricePerShare: 'pricePerShare',
+  currency: 'currency',
+  metadata: 'metadata',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TokenHolderScalarFieldEnum = {
+  id: 'id',
+  tokenizedAssetId: 'tokenizedAssetId',
+  leadId: 'leadId',
+  shares: 'shares',
+  purchasePrice: 'purchasePrice',
+  totalPaid: 'totalPaid',
+  transactionId: 'transactionId',
+  purchasedAt: 'purchasedAt'
+};
+
 exports.Prisma.PaymentScalarFieldEnum = {
   id: 'id',
   amount: 'amount',
@@ -238,9 +264,11 @@ exports.Prisma.LedgerTransactionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   reference: 'reference',
-  status: 'status',
+  description: 'description',
+  state: 'state',
   idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   postedAt: 'postedAt'
 };
 
@@ -248,7 +276,17 @@ exports.Prisma.EntryScalarFieldEnum = {
   id: 'id',
   transactionId: 'transactionId',
   accountId: 'accountId',
-  amount: 'amount',
+  debit: 'debit',
+  credit: 'credit',
+  currency: 'currency',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LedgerIdempotencyScalarFieldEnum = {
+  id: 'id',
+  idempotencyKey: 'idempotencyKey',
+  transactionId: 'transactionId',
   createdAt: 'createdAt'
 };
 
@@ -282,6 +320,8 @@ exports.Prisma.NullsOrder = {
 exports.Prisma.ModelName = {
   Lead: 'Lead',
   User: 'User',
+  TokenizedAsset: 'TokenizedAsset',
+  TokenHolder: 'TokenHolder',
   Payment: 'Payment',
   Demo: 'Demo',
   SystemEvent: 'SystemEvent',
@@ -291,7 +331,8 @@ exports.Prisma.ModelName = {
   Embedding: 'Embedding',
   Account: 'Account',
   LedgerTransaction: 'LedgerTransaction',
-  Entry: 'Entry'
+  Entry: 'Entry',
+  LedgerIdempotency: 'LedgerIdempotency'
 };
 
 /**

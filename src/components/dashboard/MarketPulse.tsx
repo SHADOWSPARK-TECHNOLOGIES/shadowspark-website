@@ -4,7 +4,7 @@ import { LedgerService } from "@/lib/ledger";
 export async function MarketPulse() {
   // Fetch Cash Account Balance
   const cashAccountId = "11111111-1111-1111-1111-111111111111";
-  const balanceInKobo = await LedgerService.getBalance(cashAccountId);
+  const { balance: balanceInKobo } = await LedgerService.getAccountBalance(cashAccountId);
   
   // Convert from Kobo to Naira
   const balanceInNaira = Number(balanceInKobo) / 100;

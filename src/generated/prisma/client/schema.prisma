@@ -41,6 +41,40 @@ model User {
   createdAt DateTime @default(now())
 }
 
+model TokenizedAsset {
+  id              String   @id @default(cuid())
+  assetType       String // LAND, WATCH, CREDIT
+  name            String
+  location        String? // Epe, Ikoyi, Banana Island, null for WATCH/CREDIT
+  totalShares     Int
+  availableShares Int
+  pricePerShare   Decimal  @db.Decimal(19, 4) // in NGN (not kobo — Decimal for display)
+  currency        String   @default("NGN")
+  metadata        Json? // Additional asset metadata (GPS coordinates, appraisal value, title deeds)
+  status          String   @default("ACTIVE") // ACTIVE, FULLY_SUBSCRIBED, SETTLED, CANCELLED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Each share purchase creates a LedgerTransaction via the ledger system
+  tokenHolders TokenHolder[]
+
+  @@map("tokenized_assets")
+}
+
+model TokenHolder {
+  id               String         @id @default(cuid())
+  tokenizedAssetId String
+  tokenizedAsset   TokenizedAsset @relation(fields: [tokenizedAssetId], references: [id])
+  leadId           String? // Link to Lead who purchased
+  shares           Int
+  purchasePrice    Decimal        @db.Decimal(19, 4) // Price per share at purchase time
+  totalPaid        Decimal        @db.Decimal(19, 4) // shares * purchasePrice
+  transactionId    String? // Link to LedgerTransaction
+  purchasedAt      DateTime       @default(now())
+
+  @@map("token_holders")
+}
+
 model Payment {
   id        String   @id @default(cuid())
   amount    Int
@@ -125,34 +159,62 @@ model Embedding {
   createdAt DateTime @default(now())
 }
 
-// --- HARDENED FINANCIAL CORE ---
+// ──────────────────────────────────────────────────
+// HARDENED FINANCIAL CORE — Double-Entry Ledger
+// All account balances are derived from Entry rows.
+// Never store precomputed balances.
+// ──────────────────────────────────────────────────
 
+/// Chart of Accounts — types: WALLET (asset), CLEARING (liability),
+/// INCOME (revenue), EXPENSE (cost), EQUITY (capital).
 model Account {
   id        String   @id @default(cuid())
   userId    String
-  type      String // "WALLET" | "EXPENSE" | "INCOME" | "CLEARING"
+  type      String // WALLET | CLEARING | INCOME | EXPENSE | EQUITY
   currency  String   @default("NGN")
   entries   Entry[]
   createdAt DateTime @default(now())
 }
 
+/// A single double-entry transaction. Every transaction
+/// must have balanced entries (sum debits = sum credits).
+/// State machine: PENDING → POSTED, PENDING → REVERSED, POSTED → REVERSED.
 model LedgerTransaction {
-  id             String    @id @default(cuid())
+  id             String             @id @default(cuid())
   userId         String
-  reference      String    @unique
-  status         String    @default("PENDING") // PENDING | POSTED | REVERSED | FAILED
-  idempotencyKey String    @unique
+  reference      String             @unique
+  description    String? // Human-readable reason for the transaction
+  state          String             @default("PENDING") // PENDING | POSTED | REVERSED
+  idempotencyKey String             @unique
   entries        Entry[]
-  createdAt      DateTime  @default(now())
+  idempotency    LedgerIdempotency? // Optional soft-index for lookups
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
   postedAt       DateTime?
 }
 
+/// Individual entry leg. Each entry carries either a debit
+/// amount (positive) or a credit amount (positive). For any
+/// transaction, Σ(debits) must equal Σ(credits).
 model Entry {
   id            String            @id @default(cuid())
   transactionId String
   accountId     String
-  amount        BigInt // positive = credit, negative = debit, in Kobo
+  debit         BigInt            @default(0) // Always ≥ 0. Amount in kobo/subunits.
+  credit        BigInt            @default(0) // Always ≥ 0. Amount in kobo/subunits.
+  currency      String            @default("NGN")
+  description   String? // Optional line-item memo
   transaction   LedgerTransaction @relation(fields: [transactionId], references: [id])
   account       Account           @relation(fields: [accountId], references: [id])
   createdAt     DateTime          @default(now())
+}
+
+/// Optional dedicated table for idempotency lookups.
+/// Avoids scanning LedgerTransaction for retried operations.
+model LedgerIdempotency {
+  id             String            @id @default(cuid())
+  idempotencyKey String            @unique
+  transactionId  String            @unique
+  transaction    LedgerTransaction @relation(fields: [transactionId], references: [id])
+  createdAt      DateTime          @default(now())
 }

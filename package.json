@@ -23,7 +23,8 @@
     "engine:crawl": "tsx --env-file=.env scripts/crawl-competitors.ts",
     "engine:embed": "tsx --env-file=.env scripts/generate-embeddings.ts",
     "engine:sync": "npm run engine:crawl && npm run engine:embed",
-    "seed:hnw": "tsx --env-file=.env scripts/seed-hnw-leads.ts"
+    "seed:hnw": "tsx --env-file=.env scripts/seed-hnw-leads.ts",
+    "seed:rwa": "tsx --env-file=.env scripts/seed-rwa-assets.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "3.0.62",

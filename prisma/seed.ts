@@ -32,7 +32,7 @@ async function main() {
 
   // Accounts matching IDs used in application code:
   //   expenses.ts -> 1111... (Cash), 2222... (Operating Expense)
-  //   MarketPulse.tsx -> 1111... (Cash)
+  //   webhooks/paystack -> 1111... (Cash), 3333... (Revenue)
   //   LedgerService -> referenced by accountId in entries
   const SYSTEM_ACCOUNTS = [
     {

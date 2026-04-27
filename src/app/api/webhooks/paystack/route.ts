@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import { LedgerService } from "@/lib/ledger";
+import { LedgerService, type PrismaTransaction } from "@/lib/ledger";
 
 export const runtime = "nodejs";
 
@@ -114,6 +114,7 @@ export async function POST(req: Request) {
     }
 
     const amount = typeof event.data?.amount === "number" ? event.data.amount : 0;
+    // Paystack sends amount in kobo already
     const amountInKobo = BigInt(amount);
     const systemEventMetadata: Prisma.InputJsonObject = {
       leadId,
@@ -157,26 +158,29 @@ export async function POST(req: Request) {
       });
 
       // —— SETTLEMENT BRIDGE ——
-      // 4. Create and post a ledger transaction:
-      //    Debit  Corporate Settlement (1111...)  — negative (debit)
-      //    Credit Platform Revenue     (3333...)  — positive (credit)
-      await LedgerService.createAndPost(
+      // 4. Create and post a ledger transaction using the new debit/credit schema:
+      //    Debit  Corporate Settlement (1111...)  — cash leaves settlement
+      //    Credit Platform Revenue     (3333...)  — revenue earned
+      await LedgerService.postTransaction(
         {
           userId: leadId,
           reference: `STL-${reference}`,
           idempotencyKey: `settlement-${reference}`,
+          description: `Paystack settlement: ${reference}`,
           entries: [
             {
               accountId: "11111111-1111-1111-1111-111111111111", // Corporate Settlement (WALLET)
-              amount: -amountInKobo, // Debit: cash leaves settlement
+              debit: amountInKobo, // Debit: cash leaves settlement
+              credit: BigInt(0),
             },
             {
               accountId: "33333333-3333-3333-3333-333333333333", // Platform Revenue (INCOME)
-              amount: amountInKobo, // Credit: revenue earned
+              debit: BigInt(0),
+              credit: amountInKobo, // Credit: revenue earned
             },
           ],
         },
-        tx // Pass the transaction client for atomicity
+        tx as unknown as PrismaTransaction // Pass the transaction client for atomicity
       );
     });
 

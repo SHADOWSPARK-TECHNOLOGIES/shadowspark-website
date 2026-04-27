@@ -44,11 +44,17 @@ export type SovereignBalanceSheet = {
  * Aggregates all ledger accounts into a real-time
  * Assets / Liabilities / Equity balance sheet report.
  *
- * Accounting convention:
+ * Accounting convention (using new debit/credit schema):
  *   Assets (WALLET)        → Debit-natural  → display as positive
  *   Expenses (EXPENSE)     → Debit-natural  → subtracted from Equity
  *   Revenue (INCOME)       → Credit-natural → added to Equity
  *   Liabilities (CLEARING) → Credit-natural → displayed as positive
+ *
+ * The Entry model uses: debit (positive) = debit entry,
+ * credit (positive) = credit entry.
+ * Net balance per account = sum(debit) - sum(credit).
+ *   Positive net = debit balance (normal for assets/expenses)
+ *   Negative net = credit balance (normal for liabilities/revenue/equity)
  *
  * Formula:  Assets = Liabilities + Equity
  */
@@ -59,10 +65,10 @@ export async function getSovereignBalanceSheet(): Promise<SovereignBalanceSheet>
       entries: {
         where: {
           transaction: {
-            status: "POSTED",
+            state: "POSTED",
           },
         },
-        select: { amount: true },
+        select: { debit: true, credit: true },
       },
     },
   });
@@ -71,10 +77,16 @@ export async function getSovereignBalanceSheet(): Promise<SovereignBalanceSheet>
 
   // Compute raw balances per account
   const accountBalances: BalanceSheetAccount[] = accounts.map((acct) => {
-    const rawBalance = acct.entries.reduce(
-      (sum, e) => sum + e.amount,
+    const totalDebit = acct.entries.reduce(
+      (sum, e) => sum + e.debit,
       BigInt(0)
     );
+    const totalCredit = acct.entries.reduce(
+      (sum, e) => sum + e.credit,
+      BigInt(0)
+    );
+    // Signed balance: positive = net credit, negative = net debit
+    const rawBalance = totalCredit - totalDebit;
 
     // Display logic per account type
     let displayBalance: number;
@@ -82,7 +94,7 @@ export async function getSovereignBalanceSheet(): Promise<SovereignBalanceSheet>
 
     switch (acct.type) {
       // ── ASSETS (WALLET) ──
-      // Natural balance is DEBIT (negative in system).
+      // Natural balance is DEBIT (net debit > net credit → rawBalance negative).
       // Display as positive when in a debit position.
       case "WALLET": {
         if (rawBalance < BigInt(0)) {
@@ -98,7 +110,7 @@ export async function getSovereignBalanceSheet(): Promise<SovereignBalanceSheet>
       }
 
       // ── LIABILITIES (CLEARING) ──
-      // Natural balance is CREDIT (positive in system).
+      // Natural balance is CREDIT (net credit > net debit → rawBalance positive).
       case "CLEARING": {
         if (rawBalance > BigInt(0)) {
           displayBalance = Number(rawBalance) / 100;
@@ -124,7 +136,7 @@ export async function getSovereignBalanceSheet(): Promise<SovereignBalanceSheet>
       }
 
       // ── EXPENSES ──
-      // Natural balance is DEBIT (negative in system).
+      // Natural balance is DEBIT (net debit > net credit → rawBalance negative).
       case "EXPENSE": {
         if (rawBalance < BigInt(0)) {
           displayBalance = Number(-rawBalance) / 100;
@@ -184,6 +196,7 @@ export async function getSovereignBalanceSheet(): Promise<SovereignBalanceSheet>
   }
 
   // Totals (in Naira)
+  // For assets (WALLET): debit-natural, so rawBalance is negative. -rawBalance = positive.
   const totalAssets = assets.reduce(
     (sum, a) => sum + (a.type === "WALLET" ? Number(-a.rawBalance) / 100 : 0),
     0
@@ -195,7 +208,7 @@ export async function getSovereignBalanceSheet(): Promise<SovereignBalanceSheet>
     0
   );
 
-  // Equity total: sum of INCOME (credit positive) + EXPENSE (debit negative, i.e. already negative in a.rawBalance)
+  // Equity total: sum of INCOME (credit positive) + EXPENSE (debit negative)
   const totalEquity = equity.reduce((sum, a) => sum + Number(a.rawBalance) / 100, 0);
 
   const totalLiabilitiesPlusEquity = totalLiabilities + totalEquity;
