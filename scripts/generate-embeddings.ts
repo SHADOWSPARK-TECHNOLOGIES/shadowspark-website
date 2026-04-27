@@ -20,7 +20,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const genAI = new GoogleGenerativeAI(geminiApiKey);
-const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
+const model = genAI.getGenerativeModel({ model: 'gemini-embedding-001' });
 const MIN_CHUNK_SIZE = 400;
 const MAX_CHUNK_SIZE = 500;
 const CHUNK_OVERLAP = 100;

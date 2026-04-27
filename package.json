@@ -14,14 +14,16 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "rag:sync": "tsx src/cli/rag-sync.ts",
+    "rag:sync": "tsx --env-file=.env src/cli/rag-sync.ts",
+    "search:kb": "tsx --env-file=.env src/cli/search.ts",
     "job:crawl": "pnpm rag:sync",
     "worker:crawl": "tsx src/workers/crawl-worker.ts",
     "worker:lead": "tsx src/workers/lead-worker.ts",
     "worker:sniper": "tsx src/workers/sniper-worker.ts",
     "engine:crawl": "tsx --env-file=.env scripts/crawl-competitors.ts",
     "engine:embed": "tsx --env-file=.env scripts/generate-embeddings.ts",
-    "engine:sync": "npm run engine:crawl && npm run engine:embed"
+    "engine:sync": "npm run engine:crawl && npm run engine:embed",
+    "seed:hnw": "tsx --env-file=.env scripts/seed-hnw-leads.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "3.0.62",
