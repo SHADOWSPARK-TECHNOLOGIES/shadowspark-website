@@ -1,90 +1,159 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════
+   OBSIDIAN HUD — Design System
+   ═══════════════════════════════════════════════════════════════
+   Colors:
+     Base:       #0a0b0d (Obsidian)
+     Primary:    #10956a (Deep Emerald)
+     Compliance: #c9922a (Sovereign Gold)
+   Typography:
+     Headers/KPIs:     Cormorant Garamond (Semi-bold)
+     Financial Data:   IBM Plex Mono (Tabular-nums)
+     Body:             IBM Plex Sans
+   Motion:
+     Golden Curve:     cubic-bezier(0.16, 1, 0.3, 1)
+   Glassmorphism 2.0 (Liquid Glass):
+     Tier I (Panels):  blur(12px) saturate(160%) brightness(1.05) | 5% opacity bg
+     Tier II (Modals): blur(20px) saturate(180%) brightness(1.08) | 8% opacity bg
+   ═══════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #000000;
-  --foreground: #fafafa;
-  --card: #0d1117;
-  --card-foreground: #fafafa;
-  --popover: #0d1117;
-  --popover-foreground: #fafafa;
-  --primary: #08d9d6;
-  --primary-foreground: #000000;
-  --secondary: #0d1117;
-  --secondary-foreground: #fafafa;
-  --muted: #0d1117;
-  --muted-foreground: #8b949e;
-  --accent: #1a73e8;
-  --accent-foreground: #fafafa;
-  --destructive: #ef4444;
-  --destructive-foreground: #fafafa;
-  --border: #1f2937;
-  --input: #0d1117;
-  --ring: #08d9d6;
-  --radius: 0.5rem;
-  --obsidian: #000000;
-  --charcoal: #0d1117;
-  --logic-blue: #1a73e8;
-  --steel-grey: #8b949e;
-  --operational-green: #00ffc2;
-  --cyan-500: #08d9d6;
-  --spark-cyan: #08d9d6;
+  /* ── Core palette ── */
+  --obsidian:       #0a0b0d;
+  --obsidian-light: #121418;
+  --deep-emerald:   #10956a;
+  --emerald-glow:   #14b87a;
+  --sovereign-gold: #c9922a;
+  --gold-glow:      #dba33b;
+  --steel:          #6b7280;
+  --frost:          rgba(255, 255, 255, 0.05);
+  --frost-heavy:    rgba(255, 255, 255, 0.08);
+
+  /* ── Functional aliases ── */
+  --background: var(--obsidian);
+  --foreground: #f0f0f0;
+  --primary:    var(--deep-emerald);
+  --primary-foreground: #ffffff;
+  --compliance: var(--sovereign-gold);
+  --muted:      var(--steel);
+  --border:     rgba(255, 255, 255, 0.08);
+  --ring:       var(--deep-emerald);
+
+  /* ── Glassmorphism 2.0 ── */
+  --glass-bg:     rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-shine:  rgba(255, 255, 255, 0.03);
+
+  /* ── Motion ── */
+  --golden-curve: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Spacing / radius ── */
+  --radius: 0.75rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono);
-  
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  
+  --color-emerald: var(--deep-emerald);
+  --color-emerald-500: var(--deep-emerald);
+  --color-emerald-400: var(--emerald-glow);
+  --color-gold: var(--sovereign-gold);
+  --color-gold-500: var(--sovereign-gold);
+  --color-gold-400: var(--gold-glow);
+  --color-muted: var(--steel);
   --color-border: var(--border);
-  --color-input: var(--input);
   --color-ring: var(--ring);
   --color-obsidian: var(--obsidian);
-  --color-charcoal: var(--charcoal);
-  --color-cyan: var(--primary);
-  --color-cyan-500: var(--cyan-500);
-  --color-logic-blue: var(--logic-blue);
-  --color-steel-grey: var(--steel-grey);
-  --color-operational-green: var(--operational-green);
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-display: "Cormorant Garamond", serif;
   --radius: var(--radius);
 }
 
+/* ── Base ── */
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Helvetica, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom visual polish */
-.glow-cyan {
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+/* ── Glassmorphism 2.0 Utilities ── */
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px) saturate(160%) brightness(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(160%) brightness(1.05);
 }
 
-.depth-card {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 20px rgba(0, 0, 0, 0.5);
+.glass-modal {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
 }
 
+.glass-edge {
+  position: relative;
+}
+
+.glass-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    transparent 40%,
+    transparent 60%,
+    rgba(255, 255, 255, 0.03)
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+/* ── Golden Curve motion utilities ── */
+
+.golden-transition {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── HUD glow effects ── */
+
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 149, 106, 0.15), 0 0 60px rgba(16, 149, 106, 0.05);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(201, 146, 42, 0.15), 0 0 60px rgba(201, 146, 42, 0.05);
+}
+
+/* ── Digit stratification ── */
+.digit-kobo {
+  font-size: 0.7em;
+  opacity: 0.35;
+  vertical-align: baseline;
+}
+
+/* ── Sovereign Markdown (from legacy) ── */
 .sovereign-markdown .hljs {
-  background: #0d1117;
+  background: var(--obsidian-light);
   color: #d0d7de;
 }
 
 .sovereign-markdown .hljs-comment,
 .sovereign-markdown .hljs-quote {
-  color: #8b949e;
+  color: var(--steel);
 }
 
 .sovereign-markdown .hljs-variable,
@@ -106,7 +175,7 @@ body {
 .sovereign-markdown .hljs-literal,
 .sovereign-markdown .hljs-type,
 .sovereign-markdown .hljs-params {
-  color: #08d9d6;
+  color: var(--deep-emerald);
 }
 
 .sovereign-markdown .hljs-string,
@@ -133,60 +202,19 @@ body {
   font-weight: 700;
 }
 
-/* Sovereign Audit Reveal - Scroll-Driven Animations */
-@supports (animation-timeline: view()) {
-  .audit-reveal {
-    animation: audit-fade-up linear both;
-    animation-timeline: view();
-    animation-range: entry 10% cover 30%;
-  }
-
-  .audit-reveal li {
-    animation: audit-slide-in linear both;
-    animation-timeline: view();
-  }
-
-  /* Staggered offsets for list items */
-  .audit-reveal li:nth-child(1) { animation-range: entry 15% cover 35%; }
-  .audit-reveal li:nth-child(2) { animation-range: entry 20% cover 40%; }
-  .audit-reveal li:nth-child(3) { animation-range: entry 25% cover 45%; }
-  .audit-reveal li:nth-child(4) { animation-range: entry 30% cover 50%; }
+/* ── View Transitions ── */
+::view-transition-old(root) {
+  animation: slide-to-left 0.3s ease-out;
+}
+::view-transition-new(root) {
+  animation: slide-from-right 0.3s ease-out;
 }
 
-@keyframes audit-fade-up {
-  from { 
-    opacity: 0; 
-    transform: translateY(40px) scale(0.95); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0) scale(1); 
-  }
+@keyframes slide-to-left {
+  to { transform: translateX(-30px); opacity: 0; }
+}
+@keyframes slide-from-right {
+  from { transform: translateX(30px); opacity: 0; }
 }
 
-@keyframes audit-slide-in {
-  from { 
-    opacity: 0; 
-    transform: translateX(-30px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateX(0); 
-  }
-}
-
-/* View Transitions - Checkout to Demo */
-::view-transition-old(root) { 
-  animation: slide-to-left 0.3s ease-out; 
-}
-::view-transition-new(root) { 
-  animation: slide-from-right 0.3s ease-out; 
-}
-
-@keyframes slide-to-left { 
-  to { transform: translateX(-30px); opacity: 0; } 
-}
-@keyframes slide-from-right { 
-  from { transform: translateX(30px); opacity: 0; } 
-}
 @import "highlight.js/styles/github-dark.css";
