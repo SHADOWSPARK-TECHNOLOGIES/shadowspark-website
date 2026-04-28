@@ -50,13 +50,27 @@ function parseKobo(value: string): { whole: string; frac: string } {
 
 /**
  * Progress fraction (0–1) of wallet balance toward the DAX ceiling.
+ *
+ * Computes the ratio using BigInt arithmetic to avoid the precision loss
+ * inherent in Number(bigint) conversion. The result is a float in [0, 1].
+ *
+ * Edge cases:
+ *   - balance >= ceiling → 1 (full bar)
+ *   - balance <= 0       → 0 (empty bar)
+ *   - balance > Number.MAX_SAFE_INTEGER: still safe because we compute
+ *     balance * 1000n / ceiling as BigInt first, then divide by 1000
+ *     for 3-decimal precision at any magnitude.
  */
 function progressFraction(walletBalance: string): number {
   const balance = BigInt(walletBalance);
   const ceiling = BigInt(VASP_CAPITAL_FLOOR_DAX_NAIRA) * BigInt(100);
   if (balance >= ceiling) return 1;
   if (balance <= BigInt(0)) return 0;
-  return Number(balance) / Number(ceiling);
+
+  // Multiply by 1000 for 3-decimal precision, then divide by ceiling,
+  // all in BigInt space. Final result: n / 1000 as a float.
+  const scaled = (balance * BigInt(1000)) / ceiling;
+  return Number(scaled) / 1000;
 }
 
 // ──────────────────────────────────────────────────

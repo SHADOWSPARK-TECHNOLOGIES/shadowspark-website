@@ -74,47 +74,41 @@ async function main() {
   // 3. Seed the wallet with ₦2.5B (above the ₦2B DAX threshold)
   divider("STEP 2: SEED WALLET WITH ₦2,500,000,000 (ABOVE DAX FLOOR)");
 
+  // Dynamic import to avoid circular issues
+  const { LedgerService } = await import("../src/lib/ledger/index");
+
   // Use the system cash account as the funding source
   const cashAccountId = "11111111-1111-1111-1111-111111111111";
 
-  const seedTxRef = `SIM-SEED-${leadId.slice(0, 8)}`;
-  const seedIdemKey = `sim-seed-${leadId.slice(0, 8)}`;
-
-  // Create the seed transaction manually to keep dependencies minimal
   const seedAmount = BigInt(2_500_000_000) * BigInt(100); // ₦2.5B
 
-  const seededTx = await prisma.ledgerTransaction.create({
-    data: {
-      userId: leadId,
-      reference: seedTxRef,
-      description: `Simulation: Seed wallet for ${leadName}`,
-      idempotencyKey: seedIdemKey,
-      state: "POSTED",
-      postedAt: new Date(),
-      entries: {
-        create: [
-          {
-            accountId: cashAccountId,
-            debit: BigInt(0),
-            credit: seedAmount,
-            currency: "NGN",
-            description: `Funding source → ${walletId}`,
-          },
-          {
-            accountId: walletId,
-            debit: seedAmount,
-            credit: BigInt(0),
-            currency: "NGN",
-            description: `Initial wallet funding (simulation)`,
-          },
-        ],
+  // Use LedgerService.postTransaction() to exercise the full validation pipeline
+  const seededTx = await LedgerService.postTransaction({
+    userId: leadId,
+    reference: `SIM-SEED-${leadId.slice(0, 8)}`,
+    idempotencyKey: `sim-seed-${leadId.slice(0, 8)}`,
+    description: `Simulation: Seed wallet for ${leadName}`,
+    entries: [
+      {
+        accountId: cashAccountId,
+        debit: BigInt(0),
+        credit: seedAmount,
+        currency: "NGN",
+        description: `Funding source → ${walletId}`,
       },
-    },
-    include: { entries: true },
+      {
+        accountId: walletId,
+        debit: seedAmount,
+        credit: BigInt(0),
+        currency: "NGN",
+        description: `Initial wallet funding (simulation)`,
+      },
+    ],
   });
   console.log(`✅ Wallet seeded with ${fmtKobo(seedAmount)}`);
-  console.log(`   Transaction: ${seededTx.id}`);
-  console.log(`   Entries:     ${seededTx.entries.length} (2 = balanced double-entry)`);
+  console.log(`   Transaction: ${seededTx.transactionId}`);
+  console.log(`   State:       ${seededTx.state}`);
+  console.log(`   (Validation: validateEntry + validateBalanced + idempotency exercised)`);
 
   // Verify balance
   const preBalance = await prisma.entry.aggregate({
@@ -130,9 +124,6 @@ async function main() {
   // 4. Call checkAndProvisionCapitalReserve
   divider("STEP 3: EXECUTE checkAndProvisionCapitalReserve()");
   console.log(`   Triggering DAX-tier escrow provisioning...`);
-
-  // Dynamic import to avoid circular issues
-  const { LedgerService } = await import("../src/lib/ledger/index");
 
   const result = await LedgerService.checkAndProvisionCapitalReserve(leadId, leadName);
 

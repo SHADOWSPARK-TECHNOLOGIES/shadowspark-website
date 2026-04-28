@@ -218,13 +218,15 @@ const FALLBACK_PULSES: Pulse[] = [
 
 export async function GET() {
   try {
-    // Read the Firecrawl knowledge base
+    // Read the Firecrawl knowledge base asynchronously
     const filePath = path.join(process.cwd(), "data", "firecrawl-knowledge.json");
-    if (!fs.existsSync(filePath)) {
+    let raw: string;
+    try {
+      raw = await fs.promises.readFile(filePath, "utf-8");
+    } catch {
       return NextResponse.json(FALLBACK_PULSES);
     }
 
-    const raw = fs.readFileSync(filePath, "utf-8");
     const chunks: Array<{ text: string; source: string; type: string }> = JSON.parse(raw);
 
     // Filter to regulatory chunks only

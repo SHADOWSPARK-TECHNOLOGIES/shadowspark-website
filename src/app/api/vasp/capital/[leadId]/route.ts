@@ -24,7 +24,7 @@ function serialise(input: unknown): unknown {
 // ──────────────────────────────────────────────────
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ leadId: string }> },
 ) {
   try {
@@ -36,7 +36,7 @@ export async function GET(
       );
     }
 
-    const { searchParams } = new URL(_request.url);
+    const { searchParams } = new URL(request.url);
     const leadName = searchParams.get("leadName") ?? "Unnamed Lead";
 
     const result = await LedgerService.checkAndProvisionCapitalReserve(

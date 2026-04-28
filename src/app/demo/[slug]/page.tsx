@@ -270,7 +270,7 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
     "The default friction pattern is slow follow-up, unclear CTA pathways, and operator lag.";
 
   return (
-    <Vortex className="min-h-screen selection:bg-cyan-500/30">
+    <Vortex className="min-h-screen selection:bg-emerald-500/30">
       <main className="relative mx-auto max-w-7xl px-6 py-10 sm:py-14">
         <Spotlight
             className="-top-36 left-0 md:left-60 md:-top-20"

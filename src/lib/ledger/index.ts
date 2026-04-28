@@ -199,15 +199,19 @@ export class LedgerService {
     validateBalanced(normalized);
 
     const run = async (c: typeof client) => {
-      // Create the transaction in PENDING state with entries
+      // Create the transaction directly in POSTED state (single write).
+      // The PENDING → POSTED two-step is unnecessary because the entire
+      // operation runs inside a single Prisma transaction — no other
+      // process can observe the intermediate PENDING state.
+      // This eliminates one write + one update per transaction.
       const transaction = await c.ledgerTransaction.create({
         data: {
           userId: params.userId,
           reference: params.reference,
           description: params.description ?? null,
           idempotencyKey: params.idempotencyKey,
-          state: "PENDING",
-          postedAt: null,
+          state: "POSTED",
+          postedAt: new Date(),
           entries: {
             create: normalized.map((e) => ({
               accountId: e.accountId,
@@ -221,7 +225,7 @@ export class LedgerService {
         select: { id: true },
       });
 
-      // Also record idempotency key in the dedicated table
+      // Record idempotency key in the dedicated table
       await c.ledgerIdempotency.create({
         data: {
           idempotencyKey: params.idempotencyKey,
@@ -229,20 +233,11 @@ export class LedgerService {
         },
       });
 
-      // Post it
-      await c.ledgerTransaction.update({
-        where: { id: transaction.id },
-        data: {
-          state: "POSTED",
-          postedAt: new Date(),
-        },
-      });
-
       return { transactionId: transaction.id, state: "POSTED" as TransactionState };
     };
 
     if (tx) return run(tx);
-    return prisma.$transaction((c) => run(c as unknown as PrismaTransaction));
+    return prisma.$transaction((c) => run(c));
   }
 
   /**
@@ -330,7 +325,7 @@ export class LedgerService {
     };
 
     if (tx) return run(tx);
-    return prisma.$transaction((c) => run(c as unknown as PrismaTransaction));
+    return prisma.$transaction((c) => run(c));
   }
 
   /**

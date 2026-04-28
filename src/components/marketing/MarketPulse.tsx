@@ -26,12 +26,14 @@ type RegulatoryPulse = {
 
 // ── Semantic proximity calculator ─────────────────────────────────────────
 
+const PROXIMITY_BY_SENTIMENT: Record<RegulatoryPulse["sentiment"], number> = {
+  bullish:  92,
+  neutral:  74,
+  critical: 96,
+};
+
 function semanticProximity(sentiment: RegulatoryPulse["sentiment"]): number {
-  switch (sentiment) {
-    case "bullish":  return 85 + Math.floor(Math.random() * 14); // 85-98
-    case "neutral":  return 65 + Math.floor(Math.random() * 20); // 65-84
-    case "critical": return 90 + Math.floor(Math.random() * 10); // 90-99
-  }
+  return PROXIMITY_BY_SENTIMENT[sentiment];
 }
 
 function proximityColor(score: number): string {

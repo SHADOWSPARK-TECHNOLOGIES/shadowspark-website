@@ -48,3 +48,4 @@ codex/
 reports/firecrawl-preview/*.json
 node_modules/
 docs/research/
+sa-key.json

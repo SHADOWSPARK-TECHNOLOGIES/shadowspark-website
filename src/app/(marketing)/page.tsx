@@ -142,7 +142,7 @@ async function HeroSection({
         {/* CTA Cluster */}
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row">
           <Link
-            href="/api/checkout"
+            href="/checkout/new"
             className="group relative inline-flex items-center gap-3 overflow-hidden rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-8 py-4 text-sm font-bold uppercase tracking-widest text-emerald-400 backdrop-blur-md golden-transition duration-300 hover:bg-emerald-500/20 hover:shadow-[0_0_40px_rgba(16,149,106,0.15)]"
           >
             {/* HUD scanline */}
@@ -301,7 +301,7 @@ function FinalCTASection() {
         {/* CTA cluster */}
         <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
-            href="/api/checkout"
+            href="/checkout/new"
             className="group relative inline-flex items-center gap-3 overflow-hidden rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-10 py-5 text-sm font-bold uppercase tracking-widest text-emerald-400 backdrop-blur-md golden-transition duration-300 hover:bg-emerald-500/20 hover:shadow-[0_0_60px_rgba(16,149,106,0.2)]"
           >
             <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(16,149,106,0.1),transparent)] translate-x-[-100%] golden-transition duration-700 group-hover:translate-x-[100%]" />

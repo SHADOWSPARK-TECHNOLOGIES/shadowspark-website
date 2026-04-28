@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
@@ -143,19 +143,17 @@ const proofBand = [
 
 function SolutionsContent() {
   const searchParams = useSearchParams();
-  const [activeLayerId, setActiveLayerId] = useState(layers[0].id);
-
-  useEffect(() => {
-    const layerParam = searchParams.get("layer");
-    if (layerParam && layers.some((l) => l.id === layerParam)) {
-      setActiveLayerId(layerParam);
-    }
-  }, [searchParams]);
+  const layerParam = searchParams.get("layer");
+  const initialLayerId =
+    layerParam && layers.some((l) => l.id === layerParam)
+      ? layerParam
+      : layers[0].id;
+  const [activeLayerId, setActiveLayerId] = useState(initialLayerId);
 
   const activeLayer = layers.find((layer) => layer.id === activeLayerId) ?? layers[0];
 
   return (
-    <AuroraBackground className="min-h-screen font-sans text-zinc-400 selection:bg-cyan-500/30">
+    <AuroraBackground className="min-h-screen font-sans text-zinc-400 selection:bg-emerald-500/30">
       <section className="relative px-6 pb-12 pt-10 sm:pb-16 sm:pt-14">
         <div className="mx-auto max-w-7xl">
           <motion.div
@@ -416,7 +414,7 @@ function SolutionsContent() {
                 AI when you need speed. Humans when you need empathy.
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-zinc-300">
-                Our systems aren't designed to replace your sales team; they are designed
+                Our systems aren{"'"}t designed to replace your sales team; they are designed
                 to protect their time. The system handles the 80% of repetitive, low-value
                 interactions, seamlessly handing off the qualified 20% to your operators
                 with full context.
@@ -508,9 +506,25 @@ function SolutionsContent() {
   );
 }
 
+function SolutionsPageSkeleton() {
+  return (
+    <div className="min-h-screen bg-black">
+      <div className="mx-auto max-w-7xl px-6 pt-10">
+        <div className="h-8 w-48 animate-pulse rounded-full bg-white/[0.03]" />
+        <div className="mt-6 h-16 w-3/4 animate-pulse rounded-2xl bg-white/[0.03]" />
+        <div className="mt-4 h-6 w-1/2 animate-pulse rounded-xl bg-white/[0.03]" />
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.06fr]">
+          <div className="h-96 animate-pulse rounded-[2.4rem] bg-white/[0.03]" />
+          <div className="h-96 animate-pulse rounded-[2.4rem] bg-white/[0.03]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SolutionsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+    <Suspense fallback={<SolutionsPageSkeleton />}>
       <SolutionsContent />
     </Suspense>
   );

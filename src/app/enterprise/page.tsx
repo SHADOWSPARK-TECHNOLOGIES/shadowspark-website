@@ -18,7 +18,7 @@ const initialFormData: EnterpriseFormData = {
   name: "",
   email: "",
   company: "",
-  monthlyLeadVolume: "0-100",
+  monthlyLeadVolume: "",
   message: "",
 };
 
@@ -75,11 +75,11 @@ export default function EnterprisePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black font-sans text-zinc-400 selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-black font-sans text-zinc-400 selection:bg-emerald-500/30">
       <SovereignHero
         headline={
           <>
-            Deploy Enterprise <span className="text-cyan-500">Infrastructure</span>
+            Deploy Enterprise <span className="text-emerald-500">Infrastructure</span>
           </>
         }
         subheadline="Custom systems for high-volume operations."
@@ -161,9 +161,14 @@ export default function EnterprisePage() {
               highlighted
               className="h-full"
             >
+              {/* Success state */}
               {success ? (
-                <div className="mb-6 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-5">
-                  <p className="text-xs font-mono uppercase tracking-[0.22em] text-cyan-200">
+                <div
+                  className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <p className="text-xs font-mono uppercase tracking-[0.22em] text-emerald-400">
                     Request Received
                   </p>
                   <p className="mt-3 text-sm leading-7 text-zinc-200">
@@ -172,46 +177,74 @@ export default function EnterprisePage() {
                 </div>
               ) : null}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Error state */}
+              {error ? (
+                <div
+                  className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <p className="text-sm text-red-400">{error}</p>
+                </div>
+              ) : null}
+
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-200">Name</label>
+                  <label htmlFor="enterprise-name" className="mb-2 block text-sm font-medium text-zinc-200">
+                    Name <span className="text-emerald-400" aria-hidden="true">*</span>
+                  </label>
                   <input
+                    id="enterprise-name"
                     type="text"
                     value={formData.name}
                     onChange={(event) => setField("name", event.target.value)}
-                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                    required
+                    aria-required="true"
+                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-200">Email</label>
+                  <label htmlFor="enterprise-email" className="mb-2 block text-sm font-medium text-zinc-200">
+                    Email <span className="text-emerald-400" aria-hidden="true">*</span>
+                  </label>
                   <input
+                    id="enterprise-email"
                     type="email"
                     value={formData.email}
                     onChange={(event) => setField("email", event.target.value)}
-                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                    required
+                    aria-required="true"
+                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-200">Company</label>
+                  <label htmlFor="enterprise-company" className="mb-2 block text-sm font-medium text-zinc-200">
+                    Company <span className="text-emerald-400" aria-hidden="true">*</span>
+                  </label>
                   <input
+                    id="enterprise-company"
                     type="text"
                     value={formData.company}
                     onChange={(event) => setField("company", event.target.value)}
-                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                    required
+                    aria-required="true"
+                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-200">
+                  <label htmlFor="enterprise-volume" className="mb-2 block text-sm font-medium text-zinc-200">
                     Monthly Lead Volume
                   </label>
                   <select
+                    id="enterprise-volume"
                     value={formData.monthlyLeadVolume}
                     onChange={(event) => setField("monthlyLeadVolume", event.target.value)}
-                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
                   >
+                    <option value="" disabled>Select volume range</option>
                     <option value="0-100">0 - 100</option>
                     <option value="101-500">101 - 500</option>
                     <option value="501-2000">501 - 2,000</option>
@@ -220,22 +253,23 @@ export default function EnterprisePage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-200">Message</label>
+                  <label htmlFor="enterprise-message" className="mb-2 block text-sm font-medium text-zinc-200">
+                    Message
+                  </label>
                   <textarea
+                    id="enterprise-message"
                     value={formData.message}
                     onChange={(event) => setField("message", event.target.value)}
                     rows={6}
-                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                    className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
                     placeholder="Describe your current lead flow, team structure, channels, and where you need infrastructure support."
                   />
                 </div>
 
-                {error ? <p className="text-sm text-red-400">{error}</p> : null}
-
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-500 px-6 py-4 text-base font-bold text-black transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-4 text-base font-bold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isSubmitting ? "Submitting..." : "Request Consultation"}
                   <ArrowRight className="h-5 w-5" />
