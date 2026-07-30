@@ -5,6 +5,7 @@ import {
   IBM_Plex_Sans,
 } from "next/font/google";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
 import { organizationJsonLd } from "@/lib/seo";
 import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
@@ -94,6 +95,7 @@ export default function RootLayout({
         </main>
         <Toaster theme="dark" position="bottom-right" />
         <ChatWidget />
+        <Analytics />
       </body>
     </html>
   );
