@@ -1,0 +1,32 @@
+name: Shadowspark Context Ledger Sync
+
+on:
+  push:
+    paths:
+      - 'docs/context/**'
+      - 'CLAUDE.md'
+      - 'SHADOWSPARK_RULES.md'
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  backup-and-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Archive context ledger
+        run: |
+          ARCHIVE="context-archive-$(date +%F).tar.gz"
+          tar -czf "$ARCHIVE" docs/context/ CLAUDE.md SHADOWSPARK_RULES.md
+          echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
+
+      - name: Upload to artifact vault
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadowspark-context-ledger-${{ github.run_number }}
+          path: context-archive-*.tar.gz
+          retention-days: 90
