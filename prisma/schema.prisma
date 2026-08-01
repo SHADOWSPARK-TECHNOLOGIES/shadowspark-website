@@ -345,17 +345,17 @@ model AdminAction {
 /// severity values: LOW | MEDIUM | HIGH | CRITICAL
 /// status values: OPEN | INVESTIGATING | RESOLVED | DISMISSED
 model FraudFlag {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   targetType String
   targetId   String
-  severity   String    @default("MEDIUM")
+  severity   String   @default("MEDIUM")
   reason     String
   reportedBy String?
-  status     String    @default("OPEN")
+  status     String   @default("OPEN")
   resolution String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  listing    Listing?  @relation("listingFlags", fields: [targetId], references: [id], map: "fraud_flag_listing_fk")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  listing    Listing? @relation("listingFlags", fields: [targetId], references: [id], map: "fraud_flag_listing_fk")
 
   @@index([targetType, targetId])
   @@index([status])
@@ -365,14 +365,14 @@ model FraudFlag {
 /// Referral tracking — one record per successful referral pair.
 /// status values: PENDING | COMPLETED
 model Referral {
-  id             String    @id @default(cuid())
+  id             String   @id @default(cuid())
   referrerId     String
   referredUserId String
-  status         String    @default("PENDING")
+  status         String   @default("PENDING")
   reward         Int?
-  createdAt      DateTime  @default(now())
-  referrer       User      @relation("referralsGiven", fields: [referrerId], references: [id])
-  referred       User      @relation("referralsReceived", fields: [referredUserId], references: [id])
+  createdAt      DateTime @default(now())
+  referrer       User     @relation("referralsGiven", fields: [referrerId], references: [id])
+  referred       User     @relation("referralsReceived", fields: [referredUserId], references: [id])
 
   @@unique([referrerId, referredUserId])
   @@index([referrerId])
@@ -393,4 +393,20 @@ model OAuthAccount {
   @@unique([provider, providerAccountId])
   @@index([userId])
   @@map("oauth_accounts")
+}
+
+/// Semantic memory store for AI agents.
+/// Embeddings use pgvector (1536-dim, OpenAI-compatible).
+/// Query with cosine similarity: SELECT * ORDER BY embedding <=> $query_vec LIMIT 5
+model SystemContext {
+  id        String                       @id @default(cuid())
+  /// e.g. "Architecture" | "ThreatModel" | "Deployment" | "SalesScript"
+  category  String
+  content   String
+  embedding Unsupported("vector(1536)")?
+  createdAt DateTime                     @default(now())
+  updatedAt DateTime                     @updatedAt
+
+  @@index([category])
+  @@map("system_context")
 }
