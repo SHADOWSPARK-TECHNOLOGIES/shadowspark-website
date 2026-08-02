@@ -73,3 +73,5 @@ shadowspark-production/
 # Local Claude permissions overrides — never commit
 allow_all.yaml
 global_allow.yaml
+GitHub-Copilot-linux-x64.AppImage
+firefox-153.0.1.tar.xz
