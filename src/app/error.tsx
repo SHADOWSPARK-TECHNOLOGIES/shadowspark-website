@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { BrowserWindow } from "@/components/ui/BrowserWindow";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export default function ErrorBoundary({
   error,
   reset,
@@ -16,11 +18,11 @@ export default function ErrorBoundary({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: error.message,
+        message: isProduction ? "Unexpected application error" : error.message,
         digest: error.digest,
         metadata: {
-          stack: error.stack,
           url: typeof window !== "undefined" ? window.location.href : "unknown",
+          ...(isProduction ? {} : { stack: error.stack }),
         },
       }),
     }).catch(() => {
@@ -51,12 +53,16 @@ export default function ErrorBoundary({
               <code className="mt-2 block rounded-md bg-black/40 px-3 py-2 font-mono text-sm text-zinc-200">
                 {error.digest || "No digest ID assigned"}
               </code>
-              <p className="mt-4 font-mono text-xs uppercase tracking-widest text-rose-400/80">
-                Error Message
-              </p>
-              <code className="mt-2 block rounded-md bg-black/40 px-3 py-2 font-mono text-sm text-zinc-200 break-words whitespace-pre-wrap">
-                {error.message}
-              </code>
+              {!isProduction && (
+                <>
+                  <p className="mt-4 font-mono text-xs uppercase tracking-widest text-rose-400/80">
+                    Error Message
+                  </p>
+                  <code className="mt-2 block rounded-md bg-black/40 px-3 py-2 font-mono text-sm text-zinc-200 break-words whitespace-pre-wrap">
+                    {error.message}
+                  </code>
+                </>
+              )}
             </div>
 
             <button

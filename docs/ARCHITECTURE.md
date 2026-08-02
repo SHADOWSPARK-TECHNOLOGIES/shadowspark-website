@@ -1,6 +1,6 @@
 # High-Level Architecture (Current)
 
-This document reflects the current code in `shadowspark-production` as of PR #49.
+This document reflects the current production architecture of `shadowspark-production`.
 
 ## Layers
 
@@ -17,7 +17,7 @@ This document reflects the current code in `shadowspark-production` as of PR #49
 ## Front-End (Next.js)
 
 * App Router lives under `src/app/**`.
-* The current repo pins Next.js at `16.2.0-canary.98` (see `package.json`).
+* The current repo pins Next.js at `16.2.4` (see `package.json`).
 
 ## Domain Utilities (`src/lib/`)
 
@@ -35,14 +35,18 @@ This document reflects the current code in `shadowspark-production` as of PR #49
 
 ## Prisma Layer (Current Models)
 
-The current `prisma/schema.prisma` contains:
+The current `prisma/schema.prisma` contains the operational, trust, billing, and knowledge models, including:
 
 * `Lead`
 * `User`
 * `Payment`
 * `Demo`
+* `KnowledgeEmbedding`
+* `Embedding`
 
-There is no `pgvector` schema in this repo today; RAG is file-backed via `data/rag/index.json`.
+PostgreSQL runs on Neon with the `vector` extension enabled. Prisma migration commands use the
+unpooled `DIRECT_URL` (or `DATABASE_URL_UNPOOLED` fallback), while application traffic uses the
+pooled `DATABASE_URL` endpoint.
 
 ## Crawl + RAG Flow
 
@@ -93,3 +97,13 @@ flowchart LR
 * `REDIS_URL`: required in production for BullMQ worker/queues.
 * `CRON_SECRET`: required to call `/api/cron/*` endpoints.
 
+## Production Runtime Controls
+
+* Vercel provides the application runtime, deployment TLS, and environment-scoped secrets.
+* Neon provides pooled application connections and an unpooled migration connection. The pooled
+  connection has `connection_limit=50`.
+* Upstash Redis backs edge-compatible request rate limits for authentication and domain API paths.
+* Middleware redirects recognized automation user agents to `/api/ghost-data`, which delays before
+  returning decoy data.
+* Global response headers include CSP, HSTS, frame denial, MIME sniffing protection, referrer policy,
+  and a restrictive permissions policy.

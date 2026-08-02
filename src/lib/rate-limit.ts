@@ -15,9 +15,16 @@ import { Redis } from "@upstash/redis";
 import type { NextRequest } from "next/server";
 
 /** Shared Upstash Redis client — reused across all rate-limit instances. */
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+const redisToken =
+  process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+
 const upstashRedis =
-  process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-    ? Redis.fromEnv()
+  redisUrl && redisToken
+    ? new Redis({
+        url: redisUrl,
+        token: redisToken,
+      })
     : null;
 
 /** Per-endpoint rate-limiters (lazily initialised). */
@@ -42,14 +49,16 @@ function getLimiter(prefix: string, requests: number, window: string): Ratelimit
 }
 
 /** Extract a stable client identifier from the request (IP or fallback). */
-function getClientIp(request: NextRequest | Request): string {
+function getClientIdentifier(request: NextRequest | Request): string {
   const headers = "headers" in request ? request.headers : new Headers();
-  return (
+  const ip =
     headers.get("cf-connecting-ip")?.trim() ||
     headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     headers.get("x-real-ip")?.trim() ||
-    "unknown"
-  );
+    "unknown";
+  const country = headers.get("x-vercel-ip-country")?.trim().toUpperCase() || "XX";
+
+  return `${country}:${ip}`;
 }
 
 export interface RateLimitResult {
@@ -77,8 +86,8 @@ export async function rateLimit(
     return { success: true, headers: {} };
   }
 
-  const ip = getClientIp(request);
-  const { success, limit, remaining, reset } = await limiter.limit(ip);
+  const clientIdentifier = getClientIdentifier(request);
+  const { success, limit, remaining, reset } = await limiter.limit(clientIdentifier);
 
   return {
     success,
