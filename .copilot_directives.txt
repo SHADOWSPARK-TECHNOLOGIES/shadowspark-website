@@ -1,0 +1,6 @@
+# SHADOWSPARK HIGH-IMPACT ARCHITECTURE CARRIER
+- Tech Stack: Next.js 14+ (App Router), TypeScript (Strict Mode), Neon PostgreSQL (Pooled), Prisma ORM, n8n.
+- Edge Middleware: Bot Defense Grid -> Ghost DB Tarpit (/api/ghost-data) -> NextAuth.
+- Direct Sales: 1:1 DMs ("BUILD" CTA), high-ticket pricing ($499 / $1,499 / $3,500+). No public Stripe links.
+- Vercel Integration: Read deployment errors via `vercel logs` and auto-remediate.
+- Output Policy: Raw code and terminal commands only. Zero conversational filler.

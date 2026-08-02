@@ -1,8 +1,19 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
       "path": "/api/cron/listings/expiry",
       "schedule": "0 9 * * *"
     }
-  ]
+  ],
+  "github": {
+    "silent": false,
+    "autoJobCancelation": true
+  },
+  "build": {
+    "env": {
+      "CI": "true",
+      "VERCEL_AGENT_MODE": "read-only"
+    }
+  }
 }
