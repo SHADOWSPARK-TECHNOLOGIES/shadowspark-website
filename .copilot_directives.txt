@@ -1,0 +1,9 @@
+ShadowSpark production directives
+
+- Deploy from the linked Vercel project: morontomornica7-5177s-projects/shadowspark-production.
+- Keep secrets only in Vercel environment variables; never add secret values or NEXT_PUBLIC_ secret keys to source control.
+- Use DATABASE_URL for pooled application traffic. Use DIRECT_URL, falling back to DATABASE_URL_UNPOOLED, only for Prisma CLI migrations.
+- Apply Prisma migrations before deploying schema-dependent code and verify with `pnpm exec prisma migrate status`.
+- Keep edge protections enabled: security headers, scraper redirects to /api/ghost-data, and rate limits for /api/auth/* and /api/domains/*.
+- Upstash connection variables are supplied by the Vercel marketplace integration. Do not replace them with local credentials.
+- Do not fabricate n8n workflow exports. Commit vendor-exported workflow JSON only after retrieving it from the active n8n instance.

@@ -2,9 +2,6 @@
   "name": "shadowspark-v5",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": "20.x"
-  },
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
@@ -100,5 +97,8 @@
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
-  "type": "module"
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  }
 }
