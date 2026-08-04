@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { findBadgeById } from "@/data/rewards";
 import { rateLimit } from "@/lib/rate-limit";
+import { requireRewardApiKey } from "@/lib/rewards-auth";
 
 export const runtime = "nodejs";
 
@@ -14,25 +15,16 @@ const issueRewardSchema = z.object({
   reason: z.string().min(8, "reason must be at least 8 characters"),
   grantedBy: z.string().min(2, "grantedBy is required"),
   recipient: z.object({
-    id: z.string().optional(),
+    contributorId: z.string().optional(),
     email: z.string().email().optional(),
     name: z.string().optional(),
   }),
 });
 
-function resolveRecipientKey(recipient: {
-  id?: string;
-  email?: string;
-  name?: string;
-}): string {
-  const rawKey = recipient.id ?? recipient.email ?? recipient.name;
-  if (!rawKey) {
-    throw new Error("Missing recipient identifier");
-  }
-  return rawKey.trim().toLowerCase();
-}
-
 export async function POST(request: Request) {
+  const unauthorized = requireRewardApiKey(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const { success: allowed, headers: rateLimitHeaders } = await rateLimit(
       request,
@@ -63,60 +55,66 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unknown badgeId" }, { status: 404 });
     }
 
-    let recipientKey = "";
-    try {
-      recipientKey = resolveRecipientKey(recipient);
-    } catch {
+    let contributorId = recipient.contributorId;
+    if (!contributorId && recipient.email) {
+      const profile = await prisma.contributorProfile.findFirst({
+        where: { user: { email: recipient.email } },
+      });
+      contributorId = profile?.id;
+    }
+
+    if (!contributorId) {
       return NextResponse.json(
-        { error: "recipient requires id, email, or name" },
-        { status: 400 },
+        { error: "recipient contributor not found" },
+        { status: 404 },
       );
     }
 
-    const digest = `reward:issue:${idempotencyKey}:${badge.id}:${recipientKey}`;
-
-    const existing = await prisma.systemEvent.findFirst({
-      where: { type: "reward_badge_issued", digest },
-      select: { id: true, metadata: true },
+    const existing = await prisma.reward.findUnique({
+      where: { idempotencyKey },
     });
-
     if (existing) {
-      const existingMetadata =
-        typeof existing.metadata === "object" && existing.metadata
-          ? existing.metadata
-          : {};
       return NextResponse.json({
         ok: true,
         idempotent: true,
-        issueId: existing.id,
-        ...existingMetadata,
+        rewardId: existing.id,
       });
     }
 
-    const created = await prisma.systemEvent.create({
-      data: {
-        type: "reward_badge_issued",
-        digest,
-        message: `Badge issued: ${badge.name}`,
-        metadata: {
-          badge,
+    const reward = await prisma.$transaction(async (tx) => {
+      const created = await tx.reward.create({
+        data: {
+          badgeId: badge.id,
+          badgeName: badge.name,
+          tier: badge.tier,
+          points: badge.minScore,
           reason,
           grantedBy,
-          recipient,
-          issuedAt: new Date().toISOString(),
+          idempotencyKey,
+          recipientId: contributorId,
+          status: "issued",
         },
-      },
-      select: { id: true },
+      });
+
+      await tx.rewardAuditLog.create({
+        data: {
+          action: "ISSUE",
+          actor: grantedBy,
+          rewardId: created.id,
+          metadata: { badgeId: badge.id, reason },
+        },
+      });
+
+      return created;
     });
 
     return NextResponse.json({
       ok: true,
       idempotent: false,
-      issueId: created.id,
-      badge,
-      reason,
-      grantedBy,
-      recipient,
+      rewardId: reward.id,
+      badgeId: badge.id,
+      badgeName: badge.name,
+      recipientId: contributorId,
     });
   } catch (error) {
     console.error("[api][rewards][issue] failed:", error);

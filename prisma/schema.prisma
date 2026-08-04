@@ -49,6 +49,7 @@ model User {
   referralsGiven       Referral[]            @relation("referralsGiven")
   referralsReceived    Referral[]            @relation("referralsReceived")
   oauthAccounts        OAuthAccount[]
+  rewardsProfile       ContributorProfile?
 }
 
 model Passkey {
@@ -393,4 +394,120 @@ model OAuthAccount {
   @@unique([provider, providerAccountId])
   @@index([userId])
   @@map("oauth_accounts")
+}
+
+/// Contributor profile attached to a User for the Copilot Rewards platform.
+/// Tracks reputation, anti-abuse status, and data-residency for enterprise tenants.
+model ContributorProfile {
+  id              String         @id @default(cuid())
+  userId          String?        @unique
+  githubHandle    String?
+  gitlabHandle    String?
+  twitterHandle   String?
+  status          String         @default("active")
+  reputationScore Int            @default(0)
+  tier            String         @default("member")
+  dataResidency   String         @default("NG")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  contributions   Contribution[]
+  rewards         Reward[]
+
+  @@index([status, tier])
+  @@index([githubHandle])
+  @@map("contributor_profiles")
+}
+
+/// Immutable record of a contribution event ingested from GitHub, Vercel, or internal systems.
+/// Duplicate ingestion is prevented by the unique [source, externalEventKey] constraint.
+model Contribution {
+  id               String              @id @default(cuid())
+  externalEventKey String
+  source           String
+  type             String
+  actorEmail       String?
+  actorName        String?
+  actorProviderId  String?
+  severity         String
+  usersAffected    Int                 @default(0)
+  production       Boolean             @default(false)
+  impactScore      Int                 @default(0)
+  metadata         Json?
+  status           String              @default("pending")
+  processedAt      DateTime?
+  failureReason    String?
+  contributorId    String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  contributor      ContributorProfile? @relation(fields: [contributorId], references: [id])
+  rewards          Reward[]
+
+  @@unique([source, externalEventKey])
+  @@index([contributorId, status])
+  @@index([status, createdAt])
+  @@index([actorEmail])
+  @@index([source, type])
+  @@map("contributions")
+}
+
+/// Badge grant issued to a contributor. Idempotency key prevents double-issuance.
+model Reward {
+  id             String           @id @default(cuid())
+  badgeId        String
+  badgeName      String
+  tier           String
+  points         Int              @default(0)
+  reason         String
+  grantedBy      String
+  idempotencyKey String           @unique
+  status         String           @default("issued")
+  issuedAt       DateTime         @default(now())
+  revokedAt      DateTime?
+  revokedReason  String?
+  metadata       Json?
+  recipientId    String
+  contributionId String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  recipient      ContributorProfile @relation(fields: [recipientId], references: [id])
+  contribution   Contribution?    @relation(fields: [contributionId], references: [id])
+  auditLogs      RewardAuditLog[]
+
+  @@index([recipientId, status])
+  @@index([badgeId])
+  @@index([issuedAt])
+  @@map("rewards")
+}
+
+/// Immutable audit trail for every reward lifecycle event.
+model RewardAuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  actor     String
+  rewardId  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  reward    Reward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@index([rewardId, createdAt])
+  @@map("reward_audit_logs")
+}
+
+/// Enterprise/GDPR-style deletion request queue.
+model DataDeletionRequest {
+  id          String    @id @default(cuid())
+  targetType  String
+  targetId    String
+  reason      String?
+  status      String    @default("pending")
+  requestedBy String?
+  completedAt DateTime?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([targetType, targetId])
+  @@index([status])
+  @@map("data_deletion_requests")
 }

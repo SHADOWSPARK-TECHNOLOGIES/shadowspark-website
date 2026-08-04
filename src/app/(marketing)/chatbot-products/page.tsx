@@ -21,7 +21,7 @@ const tiers = [
     intro: "WhatsApp and internal automation bots.",
     bullets: [
       "WhatsApp Business API integration",
-      "Web form CSRF protection and abuse controls",
+      "Web form CSRF protection, CAPTCHA on risky flows, and abuse controls",
       "Custom LLM behavior and escalation design",
     ],
     cta: "Request Scope",

@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/badge-promotions",
       "schedule": "0 11 * * 1"
+    },
+    {
+      "path": "/api/queue/reward-worker",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

@@ -22,7 +22,9 @@ const features = [
 
 const matrix = [
   { label: "Data Sovereignty", value: "Verified" },
-  { label: "DMARC Enforcement", value: "Enabled" },
+  { label: "DMARC", value: "p=reject" },
+  { label: "SPF", value: "-all" },
+  { label: "Domain Monitoring", value: "Continuous" },
   { label: "Audit Trail Retention", value: "13 Months" },
 ];
 

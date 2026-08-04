@@ -16,16 +16,16 @@ export const metadata: Metadata = {
 
 const controls = [
   {
-    title: "DMARC p=reject and SPF hardening",
-    body: "Outbound communication channels are configured to reject spoofed senders and reduce impersonation risk around AI workflows.",
+    title: "DMARC p=reject and SPF -all hardening",
+    body: "Outbound communication channels are configured with DMARC p=reject and SPF -all to reject spoofed senders and reduce impersonation risk around AI workflows.",
   },
   {
     title: "Hardened admin boundaries",
     body: "Critical operator and admin endpoints are removed from robots.txt indexing and segmented behind hardened access pathways with zero-trust assumptions.",
   },
   {
-    title: "CSRF and abuse hardening",
-    body: "User-facing forms and high-risk chatbot actions are protected with CSRF validation and adaptive abuse controls.",
+    title: "CSRF, CAPTCHA and abuse hardening",
+    body: "User-facing forms and high-risk chatbot actions are protected with CSRF validation, CAPTCHA on abuse-prone flows, and adaptive abuse controls.",
   },
   {
     title: "Continuous domain monitoring",

@@ -7,6 +7,8 @@ import {
   type RewardContributionPayload,
 } from "@/data/rewards";
 import { rateLimit } from "@/lib/rate-limit";
+import { requireRewardApiKey } from "@/lib/rewards-auth";
+import { rewardJobQueue } from "@/lib/rewards-queue";
 
 export const runtime = "nodejs";
 
@@ -34,6 +36,9 @@ const contributionEventSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const unauthorized = requireRewardApiKey(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const { success: allowed, headers: rateLimitHeaders } = await rateLimit(
       request,
@@ -59,49 +64,46 @@ export async function POST(request: Request) {
     }
 
     const payload: RewardContributionPayload = parsed.data;
-    const digest = `reward:event:${payload.source}:${payload.eventKey}`;
 
-    const existing = await prisma.systemEvent.findFirst({
-      where: { type: "reward_contribution_event", digest },
-      select: { id: true, metadata: true },
-    });
-
-    if (existing) {
-      const existingMetadata =
-        typeof existing.metadata === "object" && existing.metadata
-          ? existing.metadata
-          : {};
-      return NextResponse.json({
-        ok: true,
-        idempotent: true,
-        eventId: existing.id,
-        ...existingMetadata,
-      });
-    }
-
-    const impactScore = computeImpactScore(payload);
-    const suggestedBadges = resolveBadges(impactScore);
-
-    const created = await prisma.systemEvent.create({
-      data: {
-        type: "reward_contribution_event",
-        digest,
-        message: `Contribution recorded: ${payload.type}`,
-        metadata: {
-          payload,
-          impactScore,
-          suggestedBadges,
+    const contribution = await prisma.contribution.upsert({
+      where: {
+        source_externalEventKey: {
+          source: payload.source,
+          externalEventKey: payload.eventKey,
         },
       },
-      select: { id: true },
+      update: {},
+      create: {
+        source: payload.source,
+        externalEventKey: payload.eventKey,
+        type: payload.type,
+        actorEmail: payload.actor.email,
+        actorName: payload.actor.name,
+        actorProviderId: payload.actor.id,
+        severity: payload.impact.severity,
+        usersAffected: payload.impact.usersAffected ?? 0,
+        production: payload.impact.production ?? false,
+        impactScore: computeImpactScore(payload),
+        metadata: {
+          ...payload.metadata,
+          suggestedBadges: resolveBadges(computeImpactScore(payload)).map((b) => b.id),
+        },
+        status: "pending",
+      },
+    });
+
+    await rewardJobQueue.enqueue({
+      kind: "process-contribution",
+      tenant: "default",
+      payload: { contributionId: contribution.id },
     });
 
     return NextResponse.json({
       ok: true,
       idempotent: false,
-      eventId: created.id,
-      impactScore,
-      suggestedBadges,
+      contributionId: contribution.id,
+      impactScore: contribution.impactScore,
+      suggestedBadges: resolveBadges(contribution.impactScore).map((b) => b.id),
     });
   } catch (error) {
     console.error("[api][rewards][events] failed:", error);

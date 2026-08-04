@@ -51,6 +51,24 @@ describe("ShadowSparkClient", () => {
     expect(result.impactScore).toBe(42);
   });
 
+  it("sends Authorization header when apiKey is provided", async () => {
+    const fetch = mockFetch(jsonResponse({ ok: true, badges: [] }));
+    const client = new ShadowSparkClient({
+      baseUrl: "https://example.com",
+      apiKey: "ssk_test_12345",
+      fetch,
+    });
+    await client.getCatalog();
+    expect(fetch).toHaveBeenCalledWith(
+      "https://example.com/api/rewards/catalog",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer ssk_test_12345",
+        }),
+      }),
+    );
+  });
+
   it("throws on non-ok response", async () => {
     const fetch = mockFetch(jsonResponse({ error: "rate limited" }, 429));
     const client = new ShadowSparkClient({

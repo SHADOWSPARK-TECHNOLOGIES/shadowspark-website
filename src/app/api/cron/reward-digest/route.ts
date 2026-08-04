@@ -1,17 +1,23 @@
 import { NextResponse } from "next/server";
+import { rewardJobQueue } from "@/lib/rewards-queue";
+
+export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  // Stub for a scheduled reward digest. In production this runs via Vercel Cron
-  // or a durable workflow and processes queued contribution events into badges.
-  const auth = request.headers.get("authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  const auth = request.headers.get("authorization") ?? "";
+  const expected = "Bearer " + (process.env.CRON_SECRET ?? "");
+  if (auth !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Push a scan job into the serverless queue. The worker route pops and
+  // processes it, so this cron never blocks on heavy aggregation.
+  const jobId = await rewardJobQueue.enqueue({ kind: "reward-digest", tenant: "default" });
+
   return NextResponse.json({
     ok: true,
-    processed: 0,
-    issued: [],
-    message: "Reward digest stub ran successfully. No persistent queue in MVP.",
+    queued: true,
+    jobId,
+    message: "Reward digest scan queued for worker processing.",
   });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
+import { prisma } from "@/lib/prisma";
 
 const requestSchema = z.object({
   name: z.string().min(2, "Name is too short").max(120),
@@ -39,14 +40,35 @@ export async function POST(request: Request) {
     );
   }
 
-  // MVP: log event via existing rewards infrastructure by mirroring payload.
-  // A future version persists to CRM / database.
+  const requestId = crypto.randomUUID();
+
+  try {
+    await prisma.systemEvent.create({
+      data: {
+        type: "pilot_request",
+        digest: `pilot:request:${requestId}`,
+        message: `Pilot request from ${parsed.data.name} at ${parsed.data.organization ?? "(no org)"}`,
+        metadata: {
+          ...parsed.data,
+          requestId,
+          receivedAt: new Date().toISOString(),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("[api][pilot][request] persistence failed:", error);
+    return NextResponse.json(
+      { error: "Unable to store pilot request. Please try again later." },
+      { status: 500 },
+    );
+  }
+
   return NextResponse.json(
     {
       ok: true,
       message:
         "Pilot request received. The ShadowSpark team will respond within 2 business days.",
-      requestId: crypto.randomUUID(),
+      requestId,
     },
     { status: 201 },
   );

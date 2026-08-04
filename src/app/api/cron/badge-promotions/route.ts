@@ -1,18 +1,23 @@
 import { NextResponse } from "next/server";
-import { rewardBadges } from "@/data/rewards";
+import { rewardJobQueue } from "@/lib/rewards-queue";
+
+export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  // Stub for automated badge promotion scan. Future version queries contributor
-  // scores from a datastore and issues qualifying badges via /api/rewards/issue.
-  const auth = request.headers.get("authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  const auth = request.headers.get("authorization") ?? "";
+  const expected = "Bearer " + (process.env.CRON_SECRET ?? "");
+  if (auth !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Queue a promotion scan instead of running it inline. The worker evaluates
+  // pending contributions and issues qualifying badges in bounded batches.
+  const jobId = await rewardJobQueue.enqueue({ kind: "badge-promotions", tenant: "default" });
+
   return NextResponse.json({
     ok: true,
-    checkedBadges: rewardBadges.map((b) => b.id),
-    promoted: [],
-    message: "Badge promotion scan stub ran successfully. No persistent scores in MVP.",
+    queued: true,
+    jobId,
+    message: "Badge promotion scan queued for worker processing.",
   });
 }

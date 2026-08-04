@@ -56,6 +56,9 @@ export function Footer() {
             <ul className="flex flex-col gap-2">
               {[
                 { label: "Home", href: "/" },
+                { label: "AI Chatbots", href: "/chatbot-products" },
+                { label: "Trust Infrastructure", href: "/infrastructure-trust" },
+                { label: "Public Sector", href: "/public-sector" },
                 { label: "Contributors", href: "/contributors" },
                 { label: "Contact", href: "/contact" },
                 { label: "Privacy Policy", href: "/privacy" },
