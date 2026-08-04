@@ -1,29 +1,38 @@
 import Link from "next/link";
+import { SiteNav } from "@/components/landing/SiteNav";
 
 export function Hero() {
   return (
-    <section className="bg-[#0B1B2B] py-16 sm:py-20 lg:py-24">
+    <>
+      <SiteNav active="home" />
+      <section className="bg-[#0B1B2B] pb-16 pt-32 sm:pb-20 sm:pt-36 lg:pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-        <span className="text-xs font-semibold tracking-widest uppercase text-[#1ABC9C] mb-6">
-          Nigerian AI Agency
-        </span>
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#1ABC9C]/30 bg-[#1ABC9C]/10 px-3 py-1 text-xs font-medium text-[#1ABC9C]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1ABC9C] opacity-70" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#1ABC9C]" />
+          </span>
+          Production systems, not slides
+        </div>
 
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.15] max-w-3xl">
+        <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.15] max-w-3xl">
           AI Built for Nigeria.
           <br />
-          Shipped, Not Pitched.
+          <span className="text-gradient-animate bg-gradient-to-r from-[#1ABC9C] to-[#FF6F3C] bg-clip-text text-transparent">
+            Shipped, Not Pitched.
+          </span>
         </h1>
 
         <p className="mt-6 text-base sm:text-lg leading-relaxed text-[#94A3B8] max-w-2xl">
-          We design and build AI-powered products that solve real problems for
-          Nigerian businesses — from property fraud to operations automation.
-          Our flagship product, Lodgist, is live and protecting Nigerian
-          students today.
+          We design and build secure, production-grade AI chatbots and trust
+          infrastructure. From WhatsApp operations automation to identity
+          verification, our conversational systems solve real problems for
+          Nigerian operators.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
           <Link
-            href="#flagship"
+            href="/chatbot-products"
             className="inline-flex items-center gap-2 rounded-xl bg-[#FF6F3C] px-8 py-4 text-sm font-bold text-white hover:bg-[#e85e2c] transition-colors"
           >
             See What We&apos;ve Built
@@ -32,10 +41,10 @@ export function Hero() {
             </svg>
           </Link>
           <Link
-            href="/contact"
+            href="/infrastructure-trust"
             className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-8 py-4 text-sm font-bold text-white hover:border-white/60 hover:bg-white/5 transition-colors"
           >
-            Start a Project
+            View Trust Infrastructure
           </Link>
         </div>
 
@@ -50,6 +59,7 @@ export function Hero() {
           Built to SOC 2 Principles
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 }

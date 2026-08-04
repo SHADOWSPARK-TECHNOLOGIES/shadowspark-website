@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/landing/Hero";
+import TrustBadges from "@/components/ui/TrustBadges";
 import { WhatWeDo } from "@/components/landing/WhatWeDo";
 import { Flagship } from "@/components/landing/Flagship";
 import { HowWeWork } from "@/components/landing/HowWeWork";
@@ -14,12 +15,18 @@ export const metadata: Metadata = {
   title: "ShadowSpark Technologies — Nigerian AI Agency",
   description:
     "We design and build AI-powered products for Nigerian businesses. From identity verification to automation. Our flagship product, Lodgist, is live and protecting students today.",
+  openGraph: {
+    title: "ShadowSpark Home — AI Built for Nigeria",
+    description:
+      "Production systems for Nigerian operators: chatbot deployments, trust infrastructure, and automation that ships.",
+  },
 };
 
 export default function HomePage() {
   return (
     <main>
       <Hero />
+      <TrustBadges />
       <WhatWeDo />
       <Flagship />
       <HowWeWork />

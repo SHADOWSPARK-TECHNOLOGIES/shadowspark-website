@@ -1,31 +1,36 @@
-import { ShieldCheck, Lock, Globe } from "lucide-react";
+import { ShieldCheck, Lock, Globe, UserCheck } from "lucide-react";
 
 export default function TrustBadges() {
   const badges = [
     {
-      icon: <Lock className="w-5 h-5" />,
-      text: "AES-256 Encryption at Rest",
+      icon: <ShieldCheck className="h-5 w-5 text-[#1ABC9C]" />,
+      text: "DMARC p=reject",
     },
     {
-      icon: <ShieldCheck className="w-5 h-5" />,
-      text: "TLS 1.3 in Transit",
+      icon: <Globe className="h-5 w-5 text-[#1ABC9C]" />,
+      text: "SPF -all Enforced",
     },
     {
-      icon: <Globe className="w-5 h-5" />,
-      text: "NDPR-Compliant Data Handling",
+      icon: <Lock className="h-5 w-5 text-[#1ABC9C]" />,
+      text: "CSRF & CAPTCHA Hardened",
+    },
+    {
+      icon: <UserCheck className="h-5 w-5 text-[#1ABC9C]" />,
+      text: "Quarterly Social Engineering Training",
     },
   ];
 
   return (
-    <div className="py-12 bg-transparent">
+    <div className="bg-[#0B1B2B] py-8">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           {badges.map((badge, index) => (
-            <div key={index} className="flex items-center gap-3 text-cyan-300/70">
-              <div className="flex-shrink-0">
-                {badge.icon}
-              </div>
-              <span className="text-sm font-medium tracking-wider">{badge.text}</span>
+            <div
+              key={index}
+              className="flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[#94A3B8]"
+            >
+              {badge.icon}
+              <span className="text-xs font-medium sm:text-sm">{badge.text}</span>
             </div>
           ))}
         </div>

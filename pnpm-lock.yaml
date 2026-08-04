@@ -211,6 +211,15 @@ importers:
         specifier: ^5.2.3
         version: 5.2.3(tslib@2.8.1)(webpack-cli@7.0.2)(webpack@5.106.2)
 
+  packages/shadowspark-sdk:
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(tsx@4.21.0)
+
 packages:
 
   '@ai-sdk/gateway@3.0.104':

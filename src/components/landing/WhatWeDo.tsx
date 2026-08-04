@@ -1,18 +1,18 @@
 const cards = [
   {
-    title: "AI Products & Platforms",
-    body: "We design end-to-end AI products — chatbots that handle support in pidgin, search agents that understand budgets in naira, recommendation engines that learn from real user behaviour.",
-    proof: "Built for Lodgist: a search agent that finds verified lodges from natural-language requests.",
+    title: "WhatsApp & Operations Agents",
+    body: "Automate customer support and internal ops with AI chatbots that integrate into WhatsApp and web workflows, with controls designed to resist abuse and prompt injection.",
+    proof: "Deployment model: secure intake, structured routing, and fast human hand-off.",
   },
   {
-    title: "Trust & Verification Infrastructure",
-    body: "We build identity verification flows using NIN, BVN, bank account name resolution, and AI document screening — turning \"is this person real?\" into a yes-or-no answer in seconds.",
-    proof: "Built for Lodgist: a four-step landlord verification flow that runs without a single human reviewer for clean cases.",
+    title: "Lodgist Trust Bots",
+    body: "Identity-verified conversational flows that reduce property fraud. These bots process sensitive flows with zero-trust architecture and auditable verification steps.",
+    proof: "Built for Lodgist: verified landlord journeys mapped to Nigerian trust rails.",
   },
   {
-    title: "Operations & Automation",
-    body: "WhatsApp automation, admin dashboards, payment integration, email + SMS pipelines, reporting tools — we wire the boring stuff so your team focuses on what only humans can do.",
-    proof: "Built for Lodgist: an admin queue that processes verification requests with one-click decisions and a full audit trail.",
+    title: "The Silent Muscle",
+    body: "Every chatbot we ship is wrapped in trust infrastructure: anti-spoofing controls, hardened admin boundaries, and continuous monitoring around high-risk channels.",
+    proof: "Security posture: DNS trust controls, endpoint hardening, and human firewall training.",
   },
 ];
 
@@ -22,12 +22,15 @@ export function WhatWeDo() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <span className="text-xs font-semibold tracking-widest uppercase text-[#FF6F3C]">
-            What We Build
+            Conversational AI
           </span>
           <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-[#0B1B2B] leading-[1.15]">
-            Three things we&apos;re good at.
+            Uncompromising security.
           </h2>
-          <p className="mt-3 text-base text-[#6B7280]">We don&apos;t do everything. We do these well.</p>
+          <p className="mt-3 text-base text-[#6B7280]">
+            We engineer chatbot systems for real operations, then harden them with
+            trust controls that quietly protect your users and reputation.
+          </p>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
