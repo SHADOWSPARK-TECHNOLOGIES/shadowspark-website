@@ -1228,3 +1228,35 @@ a:focus-visible {
   outline: 2px solid #1ABC9C;
   outline-offset: 2px;
 }
+
+/* Pilot status badges */
+.status-applied {
+  background-color: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+.status-screening {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+.status-approved {
+  background-color: rgba(52, 211, 153, 0.15);
+  color: #a7f3d0;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+.status-live {
+  background-color: rgba(16, 149, 106, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 149, 106, 0.35);
+}
+.status-completed {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #bfdbfe;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+.status-declined {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
