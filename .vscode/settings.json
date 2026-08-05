@@ -22,5 +22,11 @@
   "files.eol": "\n",
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
-  "typescript.tsserver.maxTsServerMemory": 4096
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "skillSync.sources": [
+    {
+      "type": "github-repo",
+      "value": "SHADOWSPARK-TECHNOLOGIES/shadowspark-production"
+    }
+  ]
 }

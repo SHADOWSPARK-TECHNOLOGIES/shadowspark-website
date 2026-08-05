@@ -5,11 +5,19 @@ export const metadata: Metadata = {
   ...canonical("/about"),
   title: "About",
   description:
-    "ShadowSpark provides AI-native compliance infrastructure for Nigerian financial institutions — rPPG liveness, automated regulatory monitoring, and real-time pulse detection.",
+    "ShadowSpark builds the AI Operating System for African fintech — automating loan origination, instant KYC, and intelligent recovery at enterprise scale.",
 };
 
 import Link from "next/link";
-import { ArrowLeft, Target, BookOpen, Zap, Shield, Globe, Cpu, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  Target,
+  BookOpen,
+  Zap,
+  Shield,
+  Cpu,
+  MapPin,
+} from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -30,29 +38,29 @@ type Leader = {
 const valueProps: ValueProp[] = [
   {
     icon: Cpu,
-    title: "AI-Native Compliance",
+    title: "AI-Native Lending Infrastructure",
     description:
-      "rPPG liveness, automated regulatory monitoring, real-time pulse detection",
+      "End-to-end automation for loan intake, KYC, disbursement, and recovery — built as a single platform layer.",
   },
   {
     icon: Shield,
-    title: "Built for Nigeria",
+    title: "Built for African Regulation",
     description:
-      "Deep integration with SEC, CBN, FIRS frameworks. Understanding of local business context.",
+      "Deep integration with NDPA, CBN, SEC, and FIRS frameworks. Compliance is the default, not an afterthought.",
   },
   {
     icon: Zap,
-    title: "End-to-End Automation",
+    title: "Deployment-Ready Speed",
     description:
-      "From lead qualification to compliance verification to payment collection, all in one platform.",
+      "Go live in weeks, not quarters. Configured tenants, pre-built workflows, and enterprise SLAs from day one.",
   },
 ];
 
 const leadership: Leader[] = [
   {
-    name: "Stephen",
-    role: "Architect",
-    bio: "Architect of the ShadowSpark platform. Deep expertise in distributed systems, AI/ML, and Nigerian regulatory technology.",
+    name: "Stephen Okoronkwo",
+    role: "Founder & Architect",
+    bio: "Architect of the ShadowSpark platform. Deep expertise in distributed systems, AI/ML, and African fintech infrastructure.",
   },
   {
     name: "Chidi Okonkwo",
@@ -95,15 +103,12 @@ export default function AboutPage() {
             ABOUT
           </div>
 
-          <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
+          <h1 className="font-display mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
             About ShadowSpark
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400">
-            Building the sovereign compliance infrastructure for Nigeria's
-            financial future
-          </p>
-          <p className="mt-4 text-sm text-zinc-600">
-            Last updated: April 2026
+            Building the AI Operating System that powers the next generation of African
+            fintech lending.
           </p>
         </div>
       </section>
@@ -119,14 +124,11 @@ export default function AboutPage() {
                   <Target className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-zinc-100">
-                    Our Mission
-                  </h2>
+                  <h2 className="text-xl font-semibold text-zinc-100">Our Mission</h2>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    To democratize regulatory compliance for African businesses
-                    through AI-powered automation, making world-class compliance
-                    infrastructure accessible to every fintech, bank, and
-                    enterprise on the continent.
+                    To provide African lenders with an AI-powered operating system that
+                    automates loan operations, enforces compliance by design, and scales
+                    from first disbursement to national deployment.
                   </p>
                 </div>
               </div>
@@ -139,16 +141,12 @@ export default function AboutPage() {
                   <BookOpen className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-zinc-100">
-                    Our Story
-                  </h2>
+                  <h2 className="text-xl font-semibold text-zinc-100">Our Story</h2>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    Founded in Owerri, Imo State, Nigeria. Born from the reality
-                    that African businesses deserve infrastructure built for
-                    African regulations — not adapted from foreign systems.
-                    ShadowSpark combines deep expertise in Nigerian regulatory
-                    frameworks (SEC, CBN, FIRS) with cutting-edge AI to automate
-                    what was previously manual, expensive, and error-prone.
+                    Founded in Nigeria, ShadowSpark began with the belief that African
+                    lenders deserve infrastructure built for African markets — not adapted
+                    from foreign systems. Today, our platform powers loan origination, KYC,
+                    and recovery for fintechs and microfinance banks across the continent.
                   </p>
                 </div>
               </div>
@@ -156,9 +154,7 @@ export default function AboutPage() {
 
             {/* ── What Sets Us Apart ───────────────────────────────── */}
             <section>
-              <h2 className="text-xl font-semibold text-zinc-100 mb-8">
-                What Sets Us Apart
-              </h2>
+              <h2 className="mb-8 text-xl font-semibold text-zinc-100">What Sets Us Apart</h2>
               <div className="grid gap-6 sm:grid-cols-3">
                 {valueProps.map((prop) => {
                   const Icon = prop.icon;
@@ -167,15 +163,13 @@ export default function AboutPage() {
                       key={prop.title}
                       className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 transition-colors hover:border-zinc-700/50"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 mb-4">
+                      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10">
                         <Icon className="h-5 w-5 text-emerald-400" />
                       </div>
-                      <h3 className="text-base font-semibold text-zinc-100 mb-2">
+                      <h3 className="mb-2 text-base font-semibold text-zinc-100">
                         {prop.title}
                       </h3>
-                      <p className="text-sm leading-6 text-zinc-400">
-                        {prop.description}
-                      </p>
+                      <p className="text-sm leading-6 text-zinc-400">{prop.description}</p>
                     </div>
                   );
                 })}
@@ -184,32 +178,26 @@ export default function AboutPage() {
 
             {/* ── Leadership ───────────────────────────────────────── */}
             <section>
-              <h2 className="text-xl font-semibold text-zinc-100 mb-8">
-                Leadership
-              </h2>
+              <h2 className="mb-8 text-xl font-semibold text-zinc-100">Leadership</h2>
               <div className="grid gap-6 sm:grid-cols-3">
                 {leadership.map((leader) => (
                   <div
                     key={leader.name}
                     className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 transition-colors hover:border-zinc-700/50"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 mb-4">
-                      <span className="text-sm font-bold text-emerald-400 font-mono">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10">
+                      <span className="font-mono text-sm font-bold text-emerald-400">
                         {leader.name
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </span>
                     </div>
-                    <h3 className="text-base font-semibold text-zinc-100">
-                      {leader.name}
-                    </h3>
-                    <p className="text-xs font-mono tracking-wider text-emerald-400/80 uppercase mt-1 mb-3">
+                    <h3 className="text-base font-semibold text-zinc-100">{leader.name}</h3>
+                    <p className="mb-3 mt-1 font-mono text-xs uppercase tracking-wider text-emerald-400/80">
                       {leader.role}
                     </p>
-                    <p className="text-sm leading-6 text-zinc-400">
-                      {leader.bio}
-                    </p>
+                    <p className="text-sm leading-6 text-zinc-400">{leader.bio}</p>
                   </div>
                 ))}
               </div>
@@ -222,12 +210,10 @@ export default function AboutPage() {
                   <MapPin className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-zinc-100">
-                    Our Presence
-                  </h2>
+                  <h2 className="text-xl font-semibold text-zinc-100">Our Presence</h2>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    Based in Owerri, serving clients across Lagos,
-                    Abuja, and emerging tech hubs nationwide.
+                    Headquartered in Nigeria, serving enterprise lenders across Lagos,
+                    Abuja, Nairobi, and emerging African fintech hubs.
                   </p>
                 </div>
               </div>
@@ -237,15 +223,14 @@ export default function AboutPage() {
           {/* ── Bottom CTA ─────────────────────────────────────────── */}
           <div className="mt-16 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 text-center">
             <p className="text-sm text-zinc-400">
-              Ready to transform your compliance infrastructure?
+              Ready to deploy ShadowSpark infrastructure?
             </p>
             <div className="mt-6">
               <Link
-                href="/"
+                href="/contact"
                 className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-6 py-3 text-sm font-bold uppercase tracking-widest text-emerald-400 backdrop-blur-md transition-colors hover:bg-emerald-500/20"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Home
+                Book a Demo
               </Link>
             </div>
           </div>

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 import Link from "next/link";
-import { ArrowLeft, Check, Shield, Zap, Building2, Infinity, Headphones, MessageSquare, Cpu, BarChart3, Users } from "lucide-react";
+import { ArrowLeft, Check, Shield, Zap, Building2 } from "lucide-react";
 
 type Tier = {
   name: string;
@@ -78,7 +78,7 @@ const tiers: Tier[] = [
 
 const faqs = [
   {
-    q: "Can I upgrade my plan at any time?",
+    q: "Can the plan be upgraded at any time?",
     a: "Yes. You can upgrade from Starter to Professional or Enterprise at any time. Upgrades take effect immediately, and we prorate charges for the remainder of your billing cycle.",
   },
   {
