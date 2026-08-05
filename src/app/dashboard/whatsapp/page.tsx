@@ -17,7 +17,7 @@ export default function WhatsAppPage() {
   const [messages, setMessages] = useState([
     {
       role: 'bot' as const,
-      text: "👋 Hello! I'm ClawBot, ShadowSpark's AI assistant. How can I help you with compliance automation today?",
+      text: "👋 Hello. This is ClawBot, ShadowSpark's AI assistant. How can I help you with compliance automation today?",
       time: '10:02 AM',
     },
     {

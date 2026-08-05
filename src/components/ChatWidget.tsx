@@ -13,7 +13,7 @@ interface Message {
 const GREETING: Message = {
   role: "assistant",
   content:
-    "Hi 👋 I'm the ShadowSpark assistant. Ask me about our services, how we build, or the Lodgist platform.",
+    "Hi 👋 This is the ShadowSpark assistant. Ask me about our infrastructure, deployment, or the Lodgist platform.",
 };
 
 export default function ChatWidget() {

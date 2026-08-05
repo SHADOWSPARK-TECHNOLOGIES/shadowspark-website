@@ -48,7 +48,7 @@ export default function CTABlock() {
             <div className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mb-8">Demo Deposit</div>
             <Button size="lg" className="w-full h-14 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-500 shadow-[0_0_30px_rgba(16,149,106,0.3)] transition-all" asChild>
               <Link href="/checkout/new" className="flex items-center justify-center gap-2">
-                <Sparkles className="w-4 h-4" /> Unlock My $1 System Demo
+                <Sparkles className="w-4 h-4" /> Unlock Your $1 System Demo
               </Link>
             </Button>
           </div>

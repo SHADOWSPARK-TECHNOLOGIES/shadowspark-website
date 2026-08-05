@@ -29,34 +29,34 @@ const cormorantGaramond = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shadowspark.tech"),
-  title: "Shadowspark — Sovereign Financial Node",
+  metadataBase: new URL("https://shadowspark-tech.org"),
+  title: "ShadowSpark — AI Operating System for African Fintech",
   description:
-    "Institutional-grade financial infrastructure for High-Net-Worth liquidity movers in the 2026 Lagos market. Real-time ledger transparency, automated regulatory compliance, and AI-powered treasury operations.",
+    "Automate loan origination, instant KYC verification, and intelligent recovery. The enterprise infrastructure layer for African lenders. NDPA & CBN compliant.",
   keywords: [
-    "sovereign wealth",
-    "financial infrastructure",
-    "Lagos market",
-    "regulatory compliance",
-    "double-entry ledger",
-    "HNW liquidity",
-    "SEC Circular 26-1",
-    "VASP compliance",
+    "African fintech",
+    "loan automation",
+    "KYC verification",
+    "WhatsApp banking",
+    "NDPA compliance",
     "Nigeria fintech",
-    "tokenized assets",
+    "AI lending",
+    "CBN compliance",
+    "microfinance",
+    "digital lending",
   ],
   openGraph: {
-    title: "Shadowspark — Sovereign Financial Node",
+    title: "ShadowSpark — AI Operating System for African Fintech",
     description:
-      "Total Visibility. Mathematical Certainty. Sovereign Wealth. Institutional infrastructure for the 2026 Lagos market.",
+      "Automate loan origination, instant KYC, and intelligent recovery for African lenders.",
     type: "website",
     locale: "en_NG",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Shadowspark — Sovereign Financial Node",
+    title: "ShadowSpark — AI Operating System for African Fintech",
     description:
-      "Total Visibility. Mathematical Certainty. Sovereign Wealth.",
+      "Automate loan origination, instant KYC, and intelligent recovery for African lenders.",
   },
 };
 
