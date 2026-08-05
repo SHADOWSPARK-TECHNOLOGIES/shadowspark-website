@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Bell,
-  Moon,
-  Sun,
-  MessageCircle,
+  Search,
+  Plus,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { NAV_ITEMS, type NavItem } from '@/lib/dashboard/navigation';
@@ -47,9 +46,8 @@ const Sidebar = React.memo(function Sidebar({
         </div>
       </div>
       <nav className="sidebar-nav">
-        {(['Core', 'Compliance', 'AI & Ops', 'System'] as const).map(section => (
+        {(['Lending'] as const).map(section => (
           <div key={section}>
-            <div className="sidebar-section-label">{section}</div>
             {NAV_ITEMS.filter(item => item.section === section).map(item => (
               <NavLink key={item.href} item={item} active={pathname === item.href} />
             ))}
@@ -58,10 +56,10 @@ const Sidebar = React.memo(function Sidebar({
       </nav>
       <div className="sidebar-footer">
         <div className="avatar-row">
-          <div className="avatar">S</div>
+          <div className="avatar">A</div>
           <div>
-            <div className="avatar-name">Stephen</div>
-            <div className="avatar-role">ARCHITECT</div>
+            <div className="avatar-name">Ahmed</div>
+            <div className="avatar-role">Officer</div>
           </div>
         </div>
       </div>
@@ -72,19 +70,22 @@ const Sidebar = React.memo(function Sidebar({
 // ── Internal Topbar component ───────────────────────────────────────────────
 function Topbar({
   pathname,
-  dark,
-  onToggleTheme,
   onMenuClick,
 }: {
   pathname: string;
-  dark: boolean;
-  onToggleTheme: () => void;
   onMenuClick: () => void;
 }) {
   const currentLabel = useMemo(() => {
     const match = NAV_ITEMS.find(item => item.href === pathname);
-    return match?.label ?? 'Command Centre';
+    return match?.label ?? 'Dashboard';
   }, [pathname]);
+
+  const [today] = useState(() => {
+    const d = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} · Lagos, NG`;
+  });
 
   return (
     <header className="dashboard-topbar">
@@ -98,7 +99,32 @@ function Topbar({
         </button>
         <div>
           <div className="page-title" id="page-title">{currentLabel}</div>
-          <div className="page-subtitle">Friday, 1 May 2026 · Owerri, NG</div>
+          <div className="page-subtitle">{today}</div>
+        </div>
+      </div>
+      <div className="topbar-center" style={{ flex: 1, maxWidth: '400px', margin: '0 auto' }}>
+        <div className="search-bar" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '8px 12px',
+          background: 'var(--color-surface-offset)',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--color-border)',
+        }}>
+          <Search size={16} style={{ color: 'var(--color-text-muted)' }} />
+          <input
+            type="text"
+            placeholder="⌘K Search..."
+            style={{
+              flex: 1,
+              background: 'none',
+              border: 'none',
+              outline: 'none',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--color-text)',
+            }}
+          />
         </div>
       </div>
       <div className="topbar-right">
@@ -106,12 +132,9 @@ function Topbar({
           <Bell size={18} />
           <span className="notif-dot" />
         </button>
-        <button className="icon-btn" aria-label="Toggle theme" onClick={onToggleTheme}>
-          {dark ? <Moon size={18} /> : <Sun size={18} />}
+        <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Plus size={16} /> New Loan
         </button>
-        <Link href="/dashboard/whatsapp" className="btn btn-primary">
-          <MessageCircle size={15} /> WhatsApp
-        </Link>
       </div>
     </header>
   );
@@ -120,12 +143,7 @@ function Topbar({
 // ── Layout ──────────────────────────────────────────────────────────────────
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [dark, setDark] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  }, [dark]);
 
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
@@ -138,10 +156,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       document.body.style.overflow = '';
     };
   }, [sidebarOpen]);
-
-  const toggleTheme = useCallback(() => {
-    setDark(prev => !prev);
-  }, []);
 
   const openSidebar = useCallback(() => {
     setSidebarOpen(true);
@@ -162,8 +176,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="dashboard-main">
         <Topbar
           pathname={pathname}
-          dark={dark}
-          onToggleTheme={toggleTheme}
           onMenuClick={openSidebar}
         />
 

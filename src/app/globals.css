@@ -1,94 +1,99 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════
-   OBSIDIAN HUD — Design System
+   SHADOWSPARK FINTECH — Design System
    ═══════════════════════════════════════════════════════════════
-   Colors:
-     Base:       #0a0b0d (Obsidian)
-     Primary:    #10956a (Deep Emerald)
-     Compliance: #c9922a (Sovereign Gold)
+   Colors (Dark mode only):
+     Background: slate-950 (#020617)
+     Surface:    slate-900 (#0f172a)
+     Card hover: slate-800 (#1e293b)
+     Border:     slate-700 (#334155)
+     Primary:    amber-500 (#f59e0b)
+     Success:    emerald-500 (#10b981)
+     Danger:     rose-500 (#f43f5e)
+     Warning:    orange-500 (#f97316)
+     Text:       slate-100 primary, slate-400 secondary
    Typography:
-     Headers/KPIs:     Cormorant Garamond (Semi-bold)
-     Financial Data:   IBM Plex Mono (Tabular-nums)
-     Body:             IBM Plex Sans
-   Motion:
-     Golden Curve:     cubic-bezier(0.16, 1, 0.3, 1)
-   Glassmorphism 2.0 (Liquid Glass):
-     Tier I (Panels):  blur(12px) saturate(160%) brightness(1.05) | 5% opacity bg
-     Tier II (Modals): blur(20px) saturate(180%) brightness(1.08) | 8% opacity bg
+     Headers:    Inter (600-700 weight)
+     Numbers:    Geist Mono (tabular-nums)
+     Body:       Inter
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Core palette ── */
-  --obsidian:       #0a0b0d;
-  --obsidian-light: #121418;
-  --deep-emerald:   #10956a;
-  --emerald-glow:   #14b87a;
-  --sovereign-gold: #c9922a;
-  --gold-glow:      #dba33b;
-  --steel:          #6b7280;
-  --frost:          rgba(255, 255, 255, 0.05);
-  --frost-heavy:    rgba(255, 255, 255, 0.08);
+  /* ── ShadowSpark Slate/Amber Palette ── */
+  --slate-950:      #020617;
+  --slate-900:      #0f172a;
+  --slate-800:      #1e293b;
+  --slate-700:      #334155;
+  --slate-600:      #475569;
+  --slate-400:      #94a3b8;
+  --slate-100:      #f1f5f9;
+  
+  --amber-500:      #f59e0b;
+  --amber-600:      #d97706;
+  --emerald-500:    #10b981;
+  --emerald-600:    #059669;
+  --rose-500:       #f43f5e;
+  --rose-600:       #e11d48;
+  --orange-500:     #f97316;
+  --orange-600:     #ea580c;
 
   /* ── Functional aliases ── */
-  --background: var(--obsidian);
-  --foreground: #f0f0f0;
-  --primary:    var(--deep-emerald);
-  --primary-foreground: #ffffff;
-  --compliance: var(--sovereign-gold);
-  --muted:      var(--steel);
-  --border:     rgba(255, 255, 255, 0.08);
-  --ring:       var(--deep-emerald);
-
-  /* ── Glassmorphism 2.0 ── */
-  --glass-bg:     rgba(255, 255, 255, 0.04);
-  --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-shine:  rgba(255, 255, 255, 0.03);
+  --background: var(--slate-950);
+  --foreground: var(--slate-100);
+  --primary:    var(--amber-500);
+  --primary-foreground: #000;
+  --success:    var(--emerald-500);
+  --danger:     var(--rose-500);
+  --warning:    var(--orange-500);
+  --muted:      var(--slate-400);
+  --border:     var(--slate-700);
+  --ring:       var(--amber-500);
 
   /* ── Motion ── */
-  --golden-curve: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
   /* ── Spacing / radius ── */
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
-  /* ── Dashboard theme vars (light) ── */
-  --color-bg: #f7f6f2;
-  --color-surface: #f9f8f5;
-  --color-surface-2: #fbfbf9;
-  --color-surface-offset: #f3f0ec;
-  --color-surface-offset-2: #edeae5;
-  --color-surface-dynamic: #e6e4df;
-  --color-divider: #dcd9d5;
-  --color-border: #d4d1ca;
-  --color-text: #28251d;
-  --color-text-muted: #5c5b55;
-  --color-text-faint: #bab9b4;
-  --color-text-inverse: #f9f8f4;
-  --color-primary: #01696f;
-  --color-primary-hover: #0c4e54;
-  --color-primary-active: #0f3638;
-  --color-primary-highlight: #cedcd8;
-  --color-success: #437a22;
-  --color-success-highlight: #d4dfcc;
-  --color-warning: #964219;
-  --color-warning-highlight: #ddcfc6;
-  --color-error: #a12c7b;
-  --color-error-highlight: #e0ced7;
-  --color-notification: #a13544;
-  --color-orange: #da7101;
-  --color-gold: #d19900;
-  --color-blue: #006494;
-  --color-purple: #7a39bb;
+  /* ── Dashboard theme vars (dark fintech) ── */
+  --color-bg: var(--slate-950);
+  --color-surface: var(--slate-900);
+  --color-surface-2: var(--slate-800);
+  --color-surface-offset: var(--slate-800);
+  --color-surface-offset-2: var(--slate-700);
+  --color-surface-dynamic: var(--slate-700);
+  --color-divider: var(--slate-700);
+  --color-border: var(--slate-700);
+  --color-text: var(--slate-100);
+  --color-text-muted: var(--slate-400);
+  --color-text-faint: var(--slate-600);
+  --color-text-inverse: var(--slate-950);
+  --color-primary: var(--amber-500);
+  --color-primary-hover: var(--amber-600);
+  --color-primary-active: var(--amber-600);
+  --color-primary-highlight: rgba(245, 158, 11, 0.1);
+  --color-success: var(--emerald-500);
+  --color-success-highlight: rgba(16, 185, 129, 0.1);
+  --color-warning: var(--orange-500);
+  --color-warning-highlight: rgba(249, 115, 22, 0.1);
+  --color-error: var(--rose-500);
+  --color-error-highlight: rgba(244, 63, 94, 0.1);
+  --color-notification: var(--rose-500);
+  --color-orange: var(--orange-500);
+  --color-gold: var(--amber-500);
+  --color-blue: #0ea5e9;
+  --color-purple: #a855f7;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
-  --shadow-sm: 0 1px 2px oklch(0.2 0.01 80/0.06);
-  --shadow-md: 0 4px 12px oklch(0.2 0.01 80/0.08);
-  --shadow-lg: 0 12px 32px oklch(0.2 0.01 80/0.12);
-  --font-body: 'Inter', 'Helvetica Neue', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.8);
+  --font-body: var(--font-ibm-plex-sans);
+  --font-mono: var(--font-ibm-plex-mono);
   --space-1: .25rem;
   --space-2: .5rem;
   --space-3: .75rem;
@@ -104,42 +109,11 @@
   --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
   --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
   --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
-  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  --sidebar-w: 240px;
+  --sidebar-w: 260px;
+  --header-h: 64px;
 }
 
-[data-theme="dark"] {
-  --color-bg: #0f0e0d;
-  --color-surface: #161513;
-  --color-surface-2: #1b1a18;
-  --color-surface-offset: #1d1c1a;
-  --color-surface-offset-2: #222120;
-  --color-surface-dynamic: #2a2927;
-  --color-divider: #252422;
-  --color-border: #333230;
-  --color-text: #d1d0ce;
-  --color-text-muted: #8f8e88;
-  --color-text-faint: #6b6a66;
-  --color-text-inverse: #1a1917;
-  --color-primary: #4a9ba6;
-  --color-primary-hover: #3a8a96;
-  --color-primary-active: #2a7080;
-  --color-primary-highlight: #1e3336;
-  --color-success: #6aab3e;
-  --color-success-highlight: #1e2e14;
-  --color-warning: #c06930;
-  --color-warning-highlight: #2e1e0e;
-  --color-error: #d060a8;
-  --color-error-highlight: #2e1020;
-  --color-notification: #dd6060;
-  --color-orange: #f0a030;
-  --color-gold: #e8b030;
-  --color-blue: #5090c8;
-  --color-purple: #a870e0;
-  --shadow-sm: 0 1px 2px oklch(0 0 0/0.3);
-  --shadow-md: 0 4px 12px oklch(0 0 0/0.4);
-  --shadow-lg: 0 12px 32px oklch(0 0 0/0.5);
-}
+/* ── Dark mode only (no light theme) ── */
 
 @theme inline {
   --color-background: var(--background);
@@ -496,7 +470,7 @@ body {
 }
 
 .dashboard-topbar {
-  height: 56px;
+  height: var(--header-h);
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   display: flex;
@@ -505,6 +479,8 @@ body {
   padding: 0 var(--space-6);
   flex-shrink: 0;
   gap: var(--space-4);
+  sticky: top;
+  z-index: 50;
 }
 
 .topbar-left {
