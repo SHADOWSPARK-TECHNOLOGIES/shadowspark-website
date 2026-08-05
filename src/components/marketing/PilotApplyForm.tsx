@@ -28,16 +28,20 @@ export function PilotApplyForm() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    const website =
+      (e.currentTarget.elements.namedItem("website") as HTMLInputElement | null)
+        ?.value ?? "";
 
     try {
       const response = await fetch("/api/pilot/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, website }),
       });
       const data = (await response.json()) as { error?: string; message?: string };
 
@@ -74,6 +78,15 @@ export function PilotApplyForm() {
       aria-label="Pilot application form"
     >
       <div className="grid gap-5 sm:grid-cols-2">
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          className="sr-only"
+          aria-hidden="true"
+          defaultValue=""
+        />
         <div className="sm:col-span-1">
           <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-300">
             Full name

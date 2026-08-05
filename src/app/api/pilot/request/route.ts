@@ -9,6 +9,7 @@ const requestSchema = z.object({
   organization: z.string().min(2).max(160).optional(),
   productInterest: z.string().max(80).optional(),
   message: z.string().max(2000).optional(),
+  website: z.string().max(120).optional(),
 });
 
 export type PilotRequestBody = z.infer<typeof requestSchema>;
@@ -37,6 +38,19 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Validation failed.", issues: parsed.error.issues },
       { status: 400 },
+    );
+  }
+
+  // Honeypot: bots often fill hidden "website" fields; humans leave it empty.
+  if (parsed.data.website && parsed.data.website.trim().length > 0) {
+    return NextResponse.json(
+      {
+        ok: true,
+        message:
+          "Pilot request received. The ShadowSpark team will respond within 2 business days.",
+        requestId: crypto.randomUUID(),
+      },
+      { status: 201 },
     );
   }
 
