@@ -43,6 +43,7 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
     "@vercel/analytics": "^2.0.1",
+    "@xyflow/react": "^12.11.2",
     "ai": "^6.0.158",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.73.5",
