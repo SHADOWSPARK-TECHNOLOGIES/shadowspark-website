@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, Bot } from "lucide-react";
+import { ArrowRight, Play, Bot } from "lucide-react";
 import { useCalendly } from "@/components/calendly-modal";
 
 const trustPills = [
@@ -68,11 +68,11 @@ export function EnterpriseHero() {
                 <ArrowRight className="h-4 w-4" />
               </button>
               <Link
-                href="/solutions"
+                href="/demo"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
               >
-                <BookOpen className="h-4 w-4" />
-                View Documentation
+                <Play className="h-4 w-4" />
+                See How It Works
               </Link>
             </div>
           </div>
