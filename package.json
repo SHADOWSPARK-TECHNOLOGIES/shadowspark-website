@@ -71,6 +71,7 @@
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",
+    "@types/facebook-pixel": "^0.0.31",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",

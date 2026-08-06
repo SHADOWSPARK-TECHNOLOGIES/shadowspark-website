@@ -56,13 +56,14 @@ export function buildMetaPayload(
   eventName: string,
   userData?: MetaUserData,
   customData?: MetaCustomData,
-  eventSourceUrl?: string
+  eventSourceUrl?: string,
+  eventTime?: number
 ): MetaEventPayload {
   return {
     data: [
       {
         event_name: eventName,
-        event_time: Math.floor(Date.now() / 1000),
+        event_time: eventTime ?? Math.floor(Date.now() / 1000),
         event_source_url: eventSourceUrl,
         action_source: "website",
         user_data: userData ?? {},
@@ -84,13 +85,14 @@ export async function sendToMetaAPI(payload: MetaEventPayload): Promise<{
     };
   }
 
-  const url = `https://graph.facebook.com/${META_API_VERSION}/${META_PIXEL_ID}/events?access_token=${META_ACCESS_TOKEN}`;
+  const url = `https://graph.facebook.com/${META_API_VERSION}/${META_PIXEL_ID}/events`;
 
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${META_ACCESS_TOKEN}`,
       },
       body: JSON.stringify(payload),
     });

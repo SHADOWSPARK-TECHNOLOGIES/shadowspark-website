@@ -28,6 +28,10 @@ export function trackMetaEvent(event: string, params?: MetaEventParams) {
     return;
   }
 
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[meta-events] Track ${event}`, params);
+  }
+
   try {
     if (event === "PageView") {
       window.fbq("track", "PageView", params);

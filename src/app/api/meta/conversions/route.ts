@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
       body.event_name,
       userData,
       body.custom_data,
-      eventSourceUrl
+      eventSourceUrl,
+      body.event_time
     );
 
     const result = await sendToMetaAPI(payload);

@@ -2,6 +2,7 @@
 
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { useCalendly } from "@/components/calendly-modal";
+import { trackMetaContact } from "@/components/meta-events";
 
 export function FinalCTA() {
   const { openCalendly } = useCalendly();
@@ -36,6 +37,12 @@ export function FinalCTA() {
             href="https://wa.me/2340000000000"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackMetaContact({
+                content_name: "WhatsApp Chat",
+                location: "final_cta",
+              })
+            }
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-transparent px-10 py-4 text-base font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
           >
             <MessageCircle className="h-5 w-5" />
