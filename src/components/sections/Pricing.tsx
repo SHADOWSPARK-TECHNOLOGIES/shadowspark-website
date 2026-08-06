@@ -2,6 +2,7 @@
 
 import { Check } from "lucide-react";
 import { useCalendly } from "@/components/calendly-modal";
+import { trackMetaInitiateCheckout } from "@/components/meta-events";
 
 type PricingTier = {
   name: string;
@@ -108,7 +109,15 @@ export function Pricing() {
 
               <button
                 type="button"
-                onClick={() => openCalendly(tier.location)}
+                onClick={() => {
+                  trackMetaInitiateCheckout({
+                    value: tier.name === "Enterprise" ? 0 : tier.name === "Growth" ? 150000 : 25000,
+                    currency: "NGN",
+                    content_name: tier.name,
+                    content_type: "pricing_tier",
+                  });
+                  openCalendly(tier.location);
+                }}
                 className={`mt-8 inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-bold transition-colors ${
                   tier.highlighted
                     ? "bg-amber-500 text-slate-950 hover:bg-amber-400"

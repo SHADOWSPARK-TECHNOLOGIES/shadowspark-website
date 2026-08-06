@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import {
   Cormorant_Garamond,
   IBM_Plex_Mono,
@@ -9,6 +10,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { organizationJsonLd } from "@/lib/seo";
 import ChatWidget from "@/components/ChatWidget";
 import { CalendlyProvider } from "@/components/calendly-modal";
+import { MetaPixel } from "@/components/meta-pixel";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -78,6 +80,11 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${cormorantGaramond.variable} h-full antialiased`}
     >
+      <head>
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
+      </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         <CalendlyProvider>
           {/* Organization JSON-LD structured data */}

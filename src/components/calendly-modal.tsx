@@ -8,9 +8,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { InlineWidget } from "react-calendly";
+import { InlineWidget, useCalendlyEventListener } from "react-calendly";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { trackMetaLead, trackMetaPurchase } from "@/components/meta-events";
 
 type CalendlyContextValue = {
   openCalendly: (location: string) => void;
@@ -28,6 +29,7 @@ export function CalendlyProvider({ children }: { children: ReactNode }) {
   const openCalendly = useCallback((newLocation: string) => {
     setLocation(newLocation);
     console.log("[analytics] calendly_open", { location: newLocation });
+    trackMetaLead({ location: newLocation });
     setIsOpen(true);
   }, []);
 
@@ -67,6 +69,17 @@ export function useCalendly() {
 }
 
 function CalendlyModal({ location, onClose }: { location: string; onClose: () => void }) {
+  useCalendlyEventListener({
+    onEventScheduled: () => {
+      trackMetaPurchase({
+        value: 0,
+        currency: "NGN",
+        content_name: "Demo Booking",
+        location,
+      });
+    },
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
