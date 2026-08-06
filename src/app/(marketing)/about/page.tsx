@@ -18,6 +18,7 @@ import {
   Cpu,
   MapPin,
 } from "lucide-react";
+import { BookDemoButton } from "@/components/book-demo-button";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -226,12 +227,12 @@ export default function AboutPage() {
               Ready to deploy ShadowSpark infrastructure?
             </p>
             <div className="mt-6">
-              <Link
-                href="/contact"
+              <BookDemoButton
+                location="about_page_cta"
                 className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-6 py-3 text-sm font-bold uppercase tracking-widest text-emerald-400 backdrop-blur-md transition-colors hover:bg-emerald-500/20"
               >
                 Book a Demo
-              </Link>
+              </BookDemoButton>
             </div>
           </div>
         </div>

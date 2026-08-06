@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { BookDemoButton } from "@/components/book-demo-button";
 import AssistantBubble from "@/components/ui/AssistantBubble";
 import { BrowserWindow } from "@/components/ui/BrowserWindow";
 import { ContextualFooter } from "@/components/ui/ContextualFooter";
@@ -348,12 +349,13 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
                 </p>
                 <p className="mt-3 text-sm leading-7 text-slate-200">{ctaSupportLine}</p>
                 <div className="mt-5 flex flex-col gap-3">
-                  <Link
-                    href={`/checkout/new?tier=${encodeURIComponent(recommendedTier)}`}
+                  <BookDemoButton
+                    location={`demo_${recommendedTier}`}
+                    variant="primary"
                     className="inline-flex items-center justify-center rounded-[1.2rem] bg-cyan-300 px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950 transition hover:bg-cyan-200"
                   >
                     Book Demo
-                  </Link>
+                  </BookDemoButton>
                   <Link
                     href="/contact"
                     className="inline-flex items-center justify-center rounded-[1.2rem] border border-white/10 bg-white/3 px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-white/5"
@@ -521,12 +523,13 @@ export default async function DemoPreviewPage({ params }: DemoPageProps) {
                 </div>
               </div>
               <div className="mt-6 flex flex-col gap-3">
-                <Link
-                  href={`/checkout/new?tier=${encodeURIComponent(recommendedTier)}`}
+                <BookDemoButton
+                  location={`demo_bottom_${recommendedTier}`}
+                  variant="primary"
                   className="inline-flex items-center justify-center rounded-[1.2rem] bg-cyan-300 px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950 transition hover:bg-cyan-200"
                 >
                   Book Demo
-                </Link>
+                </BookDemoButton>
                 <Link
                   href="/contact"
                   className="inline-flex items-center justify-center rounded-[1.2rem] border border-white/10 bg-white/3 px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-white/5"

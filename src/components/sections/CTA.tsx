@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send } from "lucide-react";
+import { BookDemoButton } from "@/components/book-demo-button";
 
 const inputClass =
   "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-gold-500 focus:ring-1 focus:ring-gold-500/50";
@@ -136,14 +137,14 @@ export function CTA() {
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={status === "sending"}
-                className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-gold-500 px-8 py-4 text-sm font-bold text-black transition-colors hover:bg-gold-400 disabled:cursor-not-allowed disabled:opacity-60"
+              <BookDemoButton
+                location="cta_section"
+                variant="primary"
+                className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-gold-500 px-8 py-4 text-sm font-bold text-black transition-colors hover:bg-gold-400"
               >
-                {status === "sending" ? "Sending…" : "Request Demo"}
-                {status !== "sending" && <Send className="h-4 w-4" />}
-              </button>
+                Book a Demo
+                <Send className="h-4 w-4" />
+              </BookDemoButton>
             </form>
           )}
         </div>

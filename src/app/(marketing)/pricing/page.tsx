@@ -10,6 +10,8 @@ export const metadata: Metadata = {
 
 import Link from "next/link";
 import { ArrowLeft, Check, Shield, Zap, Building2 } from "lucide-react";
+import { BookDemoButton } from "@/components/book-demo-button";
+import { PricingCTAButton } from "./pricing-cta-button";
 
 type Tier = {
   name: string;
@@ -185,16 +187,9 @@ export default function PricingPage() {
                     ))}
                   </ul>
 
-                  <Link
-                    href={tier.href}
-                    className={`mt-8 inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-sm font-bold uppercase tracking-widest transition-all ${
-                      tier.popular
-                        ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 backdrop-blur-md hover:bg-emerald-500/20 hover:shadow-[0_0_40px_rgba(16,149,106,0.15)]"
-                        : "border border-zinc-700 bg-zinc-800/50 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800"
-                    }`}
-                  >
+                  <PricingCTAButton tierName={tier.name} popular={!!tier.popular}>
                     {tier.cta}
-                  </Link>
+                  </PricingCTAButton>
                 </div>
               );
             })}
@@ -234,12 +229,12 @@ export default function PricingPage() {
               tailored recommendation.
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href="/contact"
+              <BookDemoButton
+                location="pricing_page_cta"
                 className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-6 py-3 text-sm font-bold uppercase tracking-widest text-emerald-400 backdrop-blur-md transition-colors hover:bg-emerald-500/20"
               >
                 Contact Sales
-              </Link>
+              </BookDemoButton>
               <Link
                 href="/"
                 className="inline-flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-emerald-400"

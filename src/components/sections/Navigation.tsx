@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X, Zap } from "lucide-react";
+import { useCalendly } from "@/components/calendly-modal";
 
 const navLinks = [
   { label: "Solutions", href: "#solutions" },
@@ -14,6 +15,7 @@ const navLinks = [
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
+  const { openCalendly } = useCalendly();
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-md">
@@ -38,12 +40,15 @@ export function Navigation() {
         </nav>
 
         <div className="hidden md:block">
-          <Link
-            href="/contact"
+          <button
+            type="button"
+            onClick={() => openCalendly("nav")}
             className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
+            data-event="calendly_open"
+            data-location="nav"
           >
             Book Demo
-          </Link>
+          </button>
         </div>
 
         <button
@@ -70,13 +75,18 @@ export function Navigation() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/contact"
-              onClick={() => setOpen(false)}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                openCalendly("nav_mobile");
+              }}
               className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950"
+              data-event="calendly_open"
+              data-location="nav_mobile"
             >
               Book Demo
-            </Link>
+            </button>
           </nav>
         </div>
       )}

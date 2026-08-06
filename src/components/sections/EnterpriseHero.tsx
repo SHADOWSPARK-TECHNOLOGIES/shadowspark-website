@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, BookOpen, Bot } from "lucide-react";
+import { useCalendly } from "@/components/calendly-modal";
 
 const trustPills = [
   "65% faster loan processing",
@@ -21,6 +24,8 @@ const pipeline = [
 ];
 
 export function EnterpriseHero() {
+  const { openCalendly } = useCalendly();
+
   return (
     <section className="relative flex min-h-[calc(100vh-4rem)] flex-col justify-center overflow-hidden bg-slate-950 py-16 sm:py-20 lg:py-24">
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -52,13 +57,16 @@ export function EnterpriseHero() {
             </p>
 
             <div className="mt-8 flex w-full flex-col gap-4 sm:flex-row">
-              <Link
-                href="/contact"
+              <button
+                type="button"
+                onClick={() => openCalendly("hero")}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-8 py-4 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
+                data-event="calendly_open"
+                data-location="hero"
               >
                 Book a Demo
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </button>
               <Link
                 href="/solutions"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"

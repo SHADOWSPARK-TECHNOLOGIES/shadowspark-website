@@ -1,7 +1,11 @@
-import Link from "next/link";
+"use client";
+
 import { ArrowRight, MessageCircle } from "lucide-react";
+import { useCalendly } from "@/components/calendly-modal";
 
 export function FinalCTA() {
+  const { openCalendly } = useCalendly();
+
   return (
     <section className="relative overflow-hidden border-t border-slate-800 bg-slate-950 py-20 sm:py-24 lg:py-32">
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -18,13 +22,16 @@ export function FinalCTA() {
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
-            href="/contact"
+          <button
+            type="button"
+            onClick={() => openCalendly("final_cta")}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-10 py-4 text-base font-bold text-slate-950 transition-colors hover:bg-amber-400"
+            data-event="calendly_open"
+            data-location="final_cta"
           >
             Book a Demo
             <ArrowRight className="h-5 w-5" />
-          </Link>
+          </button>
           <a
             href="https://wa.me/2340000000000"
             target="_blank"
