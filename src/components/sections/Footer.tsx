@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Zap } from "lucide-react";
 
 const footerColumns = [
   {
@@ -6,15 +7,18 @@ const footerColumns = [
     links: [
       { label: "Loan Intake", href: "#solutions" },
       { label: "KYC", href: "#solutions" },
-      { label: "Compliance", href: "#solutions" },
+      { label: "Recovery", href: "#solutions" },
+      { label: "Compliance", href: "#compliance" },
+      { label: "API Docs", href: "/docs" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About", href: "/about" },
-      { label: "Contact", href: "#contact" },
+      { label: "About", href: "#about" },
       { label: "Careers", href: "#" },
+      { label: "Blog", href: "#" },
+      { label: "Contact", href: "/contact" },
     ],
   },
   {
@@ -29,7 +33,7 @@ const footerColumns = [
     title: "Connect",
     links: [
       { label: "Twitter / X", href: "https://x.com/shadowspark" },
-      { label: "LinkedIn", href: "https://linkedin.com/in/shadowspark" },
+      { label: "LinkedIn", href: "https://linkedin.com/company/shadowspark" },
       { label: "GitHub", href: "https://github.com/shadowspark-technologies" },
     ],
   },
@@ -42,6 +46,9 @@ export function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 text-white">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+                <Zap className="h-5 w-5" fill="currentColor" />
+              </span>
               <span className="text-base font-bold tracking-tight">ShadowSpark</span>
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-slate-500">
