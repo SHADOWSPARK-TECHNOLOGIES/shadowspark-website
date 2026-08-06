@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen, ShieldCheck, Lock, Server, Bot } from "lucide-react";
+import { BookDemoButton } from "@/components/book-demo-button";
 
 const stats = [
   { value: "65%", label: "Faster Loan Processing", source: "Modeled case study data" },
@@ -45,13 +46,14 @@ export function Hero() {
             </p>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <Link
-                href="/contact"
+              <BookDemoButton
+                location="old_hero_section"
+                variant="primary"
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 px-8 py-4 text-sm font-bold text-black transition-colors hover:bg-gold-400"
               >
                 Book a Demo
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </BookDemoButton>
               <Link
                 href="/solutions"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-8 py-4 text-sm font-bold text-white transition-colors hover:border-white/20 hover:bg-white/10"

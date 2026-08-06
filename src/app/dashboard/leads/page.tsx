@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Calendar } from 'lucide-react';
+import { useCalendly } from '@/components/calendly-modal';
 import { LEADS, SCORE_DIMS } from '@/lib/dashboard/data';
 import type { Lead } from '@/lib/dashboard/types';
 import type { ScoreDimension } from '@/components/dashboard/ScoreBreakdown';
@@ -26,6 +27,7 @@ function scoreColor(score: number): string {
 export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [search, setSearch] = useState('');
+  const { openCalendly } = useCalendly();
 
   const filtered = LEADS.filter(
     (l) =>
@@ -190,7 +192,15 @@ export default function LeadsPage() {
             </div>
 
             <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-              <button className="btn btn-primary" onClick={() => setSelectedLead(null)}>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setSelectedLead(null);
+                  openCalendly('dashboard_leads');
+                }}
+                data-event="calendly_open"
+                data-location="dashboard_leads"
+              >
                 <Calendar size={15} /> Book Demo
               </button>
               <button className="btn btn-ghost" onClick={() => setSelectedLead(null)}>

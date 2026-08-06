@@ -1,5 +1,7 @@
-import Link from "next/link";
+"use client";
+
 import { Check } from "lucide-react";
+import { useCalendly } from "@/components/calendly-modal";
 
 type PricingTier = {
   name: string;
@@ -7,7 +9,7 @@ type PricingTier = {
   description: string;
   features: string[];
   cta: string;
-  href: string;
+  location: string;
   highlighted?: boolean;
 };
 
@@ -23,7 +25,7 @@ const tiers: PricingTier[] = [
       "Onboarding walkthrough",
     ],
     cta: "Get Started",
-    href: "/contact",
+    location: "pricing_starter",
   },
   {
     name: "Growth",
@@ -37,7 +39,7 @@ const tiers: PricingTier[] = [
       "1-business-day support",
     ],
     cta: "Get Started",
-    href: "/contact",
+    location: "pricing_growth",
     highlighted: true,
   },
   {
@@ -53,11 +55,13 @@ const tiers: PricingTier[] = [
       "NDPR compliance documentation",
     ],
     cta: "Contact Sales",
-    href: "/contact",
+    location: "pricing_enterprise",
   },
 ];
 
 export function Pricing() {
+  const { openCalendly } = useCalendly();
+
   return (
     <section id="pricing" className="border-y border-slate-800 bg-slate-950 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -102,16 +106,19 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <Link
-                href={tier.href}
+              <button
+                type="button"
+                onClick={() => openCalendly(tier.location)}
                 className={`mt-8 inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-bold transition-colors ${
                   tier.highlighted
                     ? "bg-amber-500 text-slate-950 hover:bg-amber-400"
                     : "border border-slate-700 text-slate-100 hover:border-slate-500 hover:bg-slate-800"
                 }`}
+                data-event="calendly_open"
+                data-location={tier.location}
               >
                 {tier.cta}
-              </Link>
+              </button>
             </div>
           ))}
         </div>

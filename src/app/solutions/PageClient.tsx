@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { AuroraBackground } from "@/components/ui/templates/AuroraBackground";
+import { BookDemoButton } from "@/components/book-demo-button";
 import { AppleCardsCarousel } from "@/components/ui/apple-cards-carousel";
 import { BrowserWindow } from "@/components/ui/BrowserWindow";
 import { ContextualFooter } from "@/components/ui/ContextualFooter";
@@ -182,13 +183,14 @@ function SolutionsContent() {
                 </p>
 
                 <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                  <Link
-                    href="/checkout/new"
+                  <BookDemoButton
+                    location="solutions_hero"
+                    variant="primary"
                     className="inline-flex items-center justify-center gap-2 rounded-[1.2rem] bg-cyan-300 px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950 transition hover:bg-cyan-200"
                   >
                     Book Demo
                     <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  </BookDemoButton>
                   <Link
                     href="/contact"
                     className="inline-flex items-center justify-center gap-2 rounded-[1.2rem] border border-white/12 bg-white/3 px-7 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:border-cyan-300/25 hover:bg-white/5"
@@ -481,13 +483,14 @@ function SolutionsContent() {
               where your revenue surface is leaking right now.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href="/checkout/new"
+              <BookDemoButton
+                location="solutions_bottom_cta"
+                variant="primary"
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-500 px-8 py-4 font-bold text-black transition-all hover:bg-cyan-400"
               >
                 Book Demo
                 <ArrowRight className="h-5 w-5" />
-              </Link>
+              </BookDemoButton>
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-700 px-8 py-4 font-medium text-white transition-all hover:bg-white/5"

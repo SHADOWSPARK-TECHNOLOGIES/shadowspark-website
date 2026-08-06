@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Download } from "lucide-react";
+import { BookDemoButton } from "@/components/book-demo-button";
 
 const stats = [
   {
@@ -60,13 +61,14 @@ export function ROIEngine() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
-            href="/contact"
+          <BookDemoButton
+            location="roi_engine_section"
+            variant="primary"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 px-8 py-4 text-sm font-bold text-black transition-colors hover:bg-gold-400"
           >
             Book a Demo
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </BookDemoButton>
           <Link
             href="/contact"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-8 py-4 text-sm font-bold text-white transition-colors hover:border-white/20 hover:bg-white/10"

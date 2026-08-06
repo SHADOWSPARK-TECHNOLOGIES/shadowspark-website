@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useCalendly } from "@/components/calendly-modal";
 
 type SovereignHeroProps = {
   headline: ReactNode;
@@ -20,6 +21,9 @@ const orbitPanels = [
   "Operator Visibility",
 ];
 
+const CALENDLY_HREF =
+  "https://calendly.com/wonderstevie702/30min?utm_source=shadowspark&utm_medium=website&utm_campaign=enterprise";
+
 export function SovereignHero({
   headline,
   subheadline,
@@ -28,6 +32,10 @@ export function SovereignHero({
   secondaryCtaText,
   secondaryCtaLink,
 }: SovereignHeroProps) {
+  const { openCalendly } = useCalendly();
+  const isCalendlySecondary = secondaryCtaLink.startsWith(CALENDLY_HREF);
+  const secondaryLocation = "industries_hero_contact_sales";
+
   return (
     <section className="relative min-h-screen overflow-hidden px-6">
       <motion.div
@@ -65,12 +73,27 @@ export function SovereignHero({
             >
               {ctaText}
             </Link>
-            <Link
-              href={secondaryCtaLink}
-              className="inline-flex items-center justify-center rounded-lg border border-zinc-700 px-8 py-4 font-medium text-white transition-all hover:bg-white/5"
-            >
-              {secondaryCtaText}
-            </Link>
+            {isCalendlySecondary ? (
+              <a
+                href={CALENDLY_HREF}
+                onClick={(event) => {
+                  event.preventDefault();
+                  openCalendly(secondaryLocation);
+                }}
+                className="inline-flex items-center justify-center rounded-lg border border-zinc-700 px-8 py-4 font-medium text-white transition-all hover:bg-white/5"
+                data-event="calendly_open"
+                data-location={secondaryLocation}
+              >
+                {secondaryCtaText}
+              </a>
+            ) : (
+              <Link
+                href={secondaryCtaLink}
+                className="inline-flex items-center justify-center rounded-lg border border-zinc-700 px-8 py-4 font-medium text-white transition-all hover:bg-white/5"
+              >
+                {secondaryCtaText}
+              </Link>
+            )}
           </div>
         </motion.div>
 

@@ -14,9 +14,13 @@ import {
   ShieldCheck,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
 import { SovereignHero } from "@/components/ui/templates/SovereignHero";
 import { GlassCard } from "@/components/ui/templates/GlassCard";
+import { BookDemoButton } from "@/components/book-demo-button";
+import { useCalendly } from "@/components/calendly-modal";
+
+const CALENDLY_HREF =
+  "https://calendly.com/wonderstevie702/30min?utm_source=shadowspark&utm_medium=website&utm_campaign=enterprise";
 
 const industries = [
   {
@@ -70,6 +74,8 @@ const industries = [
 ];
 
 export default function IndustriesClient() {
+  const { openCalendly } = useCalendly();
+
   return (
     <div className="bg-black text-zinc-400 font-sans selection:bg-cyan-500/30 min-h-screen">
       {/* ==================== HERO ==================== */}
@@ -84,7 +90,7 @@ export default function IndustriesClient() {
         ctaText="See Real Estate Solution"
         ctaLink="#real-estate"
         secondaryCtaText="Contact Sales"
-        secondaryCtaLink="/contact"
+        secondaryCtaLink="https://calendly.com/wonderstevie702/30min?utm_source=shadowspark&utm_medium=website&utm_campaign=enterprise"
       />
 
       {/* ==================== INDUSTRY GRID ==================== */}
@@ -130,13 +136,19 @@ export default function IndustriesClient() {
                 </div>
               </div>
 
-              <Link
-                href="/checkout/new"
+              <a
+                href={CALENDLY_HREF}
+                onClick={(event) => {
+                  event.preventDefault();
+                  openCalendly(`industries_${industry.id}`);
+                }}
                 className="mt-8 w-full py-3 flex items-center justify-center gap-2 text-sm font-bold text-white border border-zinc-700 rounded-lg group-hover:bg-cyan-500 group-hover:text-black group-hover:border-cyan-500 transition-all"
+                data-event="calendly_open"
+                data-location={`industries_${industry.id}`}
               >
                 Deploy for {industry.title}
                 <ArrowRight className="w-4 h-4" />
-              </Link>
+              </a>
             </div>
           ))}
         </div>
@@ -219,19 +231,21 @@ export default function IndustriesClient() {
             Select your industry to see a live demo of how ShadowSpark can transform your conversion rate.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/checkout/new"
+            <BookDemoButton
+              location="industries_bottom_cta"
+              variant="primary"
               className="px-8 py-4 bg-cyan-500 text-black font-bold rounded-lg flex items-center gap-2 hover:bg-cyan-400 transition-all"
             >
               Get Started
               <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/contact"
+            </BookDemoButton>
+            <BookDemoButton
+              location="industries_strategic_call"
+              variant="secondary"
               className="px-8 py-4 border border-zinc-700 text-white rounded-lg hover:bg-white/5 transition-all"
             >
               Book Strategic Call
-            </Link>
+            </BookDemoButton>
           </div>
         </div>
       </section>
