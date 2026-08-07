@@ -12,6 +12,7 @@
     "postinstall": "prisma generate",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "rag:sync": "tsx --env-file=.env src/cli/rag-sync.ts",
