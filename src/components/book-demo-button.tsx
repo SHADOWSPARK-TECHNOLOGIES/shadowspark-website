@@ -9,6 +9,7 @@ type BookDemoButtonProps = {
   className?: string;
   variant?: "primary" | "secondary" | "ghost";
   href?: string;
+  onClick?: () => void;
 };
 
 const CALENDLY_HREF =
@@ -20,6 +21,7 @@ export function BookDemoButton({
   className,
   variant = "primary",
   href = CALENDLY_HREF,
+  onClick,
 }: BookDemoButtonProps) {
   const { openCalendly } = useCalendly();
 
@@ -40,6 +42,7 @@ export function BookDemoButton({
       href={href}
       onClick={(event) => {
         event.preventDefault();
+        onClick?.();
         openCalendly(location);
       }}
       className={cn(baseStyles, variantStyles[variant], className)}

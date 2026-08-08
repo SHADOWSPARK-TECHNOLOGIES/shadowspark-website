@@ -1,13 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { ArrowLeft, ArrowRight, MessageCircle, Clock, Wallet, TrendingDown, CheckCircle2, Banknote } from "lucide-react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import {
+  ArrowLeft,
+  ArrowRight,
+  MessageCircle,
+  Clock,
+  Wallet,
+  TrendingDown,
+  CheckCircle2,
+  Banknote,
+  Play,
+  RotateCcw,
+  ChevronRight,
+  Calculator,
+  ShieldCheck,
+  Smartphone,
+  Zap,
+} from "lucide-react";
 import { BookDemoButton } from "@/components/book-demo-button";
 import { Footer } from "@/components/sections/Footer";
 import { Navigation } from "@/components/sections/Navigation";
+import { trackMetaEvent, trackMetaLead } from "@/components/meta-events";
 
 type Status = "SUBMITTED" | "KYC_PENDING" | "KYC_VERIFIED" | "APPROVED" | "DISBURSED";
 
@@ -35,12 +51,7 @@ function useStatusAnimation() {
   useEffect(() => {
     if (!isInView) return;
 
-    const sequence: Status[] = [
-      "KYC_PENDING",
-      "KYC_VERIFIED",
-      "APPROVED",
-      "DISBURSED",
-    ];
+    const sequence: Status[] = ["KYC_PENDING", "KYC_VERIFIED", "APPROVED", "DISBURSED"];
     let index = 0;
 
     const interval = setInterval(() => {
@@ -58,48 +69,251 @@ function useStatusAnimation() {
   return { status, ref };
 }
 
+function formatCurrency(amount: number) {
+  return `₦${amount.toLocaleString("en-NG")}`;
+}
+
+function calculateRepayment(amount: number, months: number, rate = 0.06) {
+  // Simple flat monthly repayment for demo purposes
+  const totalInterest = amount * rate * (months / 12);
+  const total = amount + totalInterest;
+  const monthly = total / months;
+  return { monthly, total, totalInterest };
+}
+
 function PhoneMockup({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative mx-auto w-full max-w-[320px]">
+    <div className="relative mx-auto w-full max-w-[360px]">
       <div className="relative overflow-hidden rounded-[2.5rem] border-[6px] border-slate-700 bg-slate-900 shadow-2xl">
         <div className="absolute left-1/2 top-0 z-10 h-6 w-32 -translate-x-1/2 rounded-b-2xl bg-slate-700" />
         <div className="flex h-10 items-end justify-center bg-slate-800 pb-2">
           <span className="text-xs font-medium text-slate-400">9:41</span>
         </div>
-        <div className="min-h-[420px] bg-slate-950 p-4">{children}</div>
+        <div className="min-h-[480px] bg-slate-950 p-4">{children}</div>
         <div className="h-12 bg-slate-800" />
       </div>
     </div>
   );
 }
 
+type ChatStep =
+  | { type: "intro" }
+  | { type: "amount"; amount: number }
+  | { type: "tenor"; months: number }
+  | { type: "calculate"; amount: number; months: number }
+  | { type: "submit"; amount: number; months: number; monthly: number }
+  | { type: "complete"; amount: number; months: number; monthly: number };
+
 function WhatsAppChat() {
-  const messages = [
-    { sender: "bot", text: "Welcome to [Your Bank] Loans. What's your full name?" },
-    { sender: "user", text: "Chukwuemeka Okafor" },
-    { sender: "bot", text: "How much do you need?" },
-    { sender: "user", text: "₦500,000" },
-    { sender: "bot", text: "✓ Application submitted! Ref: LN-2026-001" },
-  ];
+  const [started, setStarted] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [amount, setAmount] = useState(500000);
+  const [months, setMonths] = useState(3);
+  const [messages, setMessages] = useState<
+    Array<{ sender: "bot" | "user"; text: React.ReactNode; id: string }>
+  >([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const { monthly, total, totalInterest } = useMemo(
+    () => calculateRepayment(amount, months),
+    [amount, months]
+  );
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const addMessage = (sender: "bot" | "user", text: React.ReactNode) => {
+    setMessages((prev) => [...prev, { sender, text, id: `${Date.now()}-${Math.random()}` }]);
+  };
+
+  const startDemo = () => {
+    setStarted(true);
+    trackMetaEvent("DemoStarted", { location: "demo_page_whatsapp" });
+    addMessage(
+      "bot",
+      <>
+        Welcome to <strong>ShadowSpark Loans</strong>. I can get you a decision in under 3 minutes. How much do you need?
+      </>
+    );
+  };
+
+  const confirmAmount = () => {
+    trackMetaEvent("DemoLoanAmountSelected", { amount, currency: "NGN" });
+    addMessage("user", formatCurrency(amount));
+    addMessage("bot", "Great. Choose a repayment period:");
+    setStepIndex(1);
+  };
+
+  const confirmTenor = (selectedMonths: number) => {
+    setMonths(selectedMonths);
+    trackMetaEvent("DemoLoanTenorSelected", { months: selectedMonths });
+    addMessage("user", `${selectedMonths} months`);
+    addMessage(
+      "bot",
+      <>
+        Here is your estimate:
+        <br />
+        <span className="font-semibold text-emerald-400">{formatCurrency(monthly)}/month</span>
+        <br />
+        <span className="text-xs text-slate-400">
+          Total: {formatCurrency(total)} (interest: {formatCurrency(totalInterest)})
+        </span>
+      </>
+    );
+    addMessage("bot", "Does this look good? Tap Submit to send to our loan officer.");
+    setStepIndex(2);
+  };
+
+  const submitApplication = () => {
+    trackMetaEvent("DemoLoanCalculated", {
+      amount,
+      months,
+      monthly,
+      total,
+      currency: "NGN",
+    });
+    addMessage("user", "Yes, submit my application");
+    addMessage(
+      "bot",
+      <>
+        ✓ Application submitted!
+        <br />
+        Ref: <span className="font-mono">LN-2026-001</span>
+        <br />
+        <span className="text-xs text-slate-400">You will receive an SMS update shortly.</span>
+      </>
+    );
+    setStepIndex(3);
+  };
+
+  const reset = () => {
+    trackMetaEvent("DemoReset", { location: "demo_page_whatsapp" });
+    setStarted(false);
+    setStepIndex(0);
+    setAmount(500000);
+    setMonths(3);
+    setMessages([]);
+  };
 
   return (
-    <div className="flex flex-col gap-3">
-      {messages.map((message, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.4, delay: index * 0.25 }}
-          className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-            message.sender === "user"
-              ? "self-end rounded-br-md bg-emerald-600 text-white"
-              : "self-start rounded-bl-md bg-slate-800 text-slate-200"
-          }`}
-        >
-          {message.text}
-        </motion.div>
-      ))}
+    <div className="flex h-full flex-col">
+      <div className="mb-3 flex items-center gap-2 border-b border-slate-800 pb-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-500">
+          <MessageCircle className="h-4 w-4" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-white">ShadowSpark Loans</p>
+          <p className="text-xs text-emerald-400">Online now</p>
+        </div>
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+        <AnimatePresence initial={false}>
+          {messages.map((message) => (
+            <motion.div
+              key={message.id}
+              initial={{ opacity: 0, y: 12, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className={`max-w-[90%] rounded-2xl px-4 py-2.5 text-sm ${
+                message.sender === "user"
+                  ? "self-end rounded-br-md bg-emerald-600 text-white"
+                  : "self-start rounded-bl-md bg-slate-800 text-slate-200"
+              }`}
+            >
+              {message.text}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        <div ref={bottomRef} />
+      </div>
+
+      <div className="mt-4 min-h-[120px]">
+        {!started ? (
+          <button
+            type="button"
+            onClick={startDemo}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-500"
+          >
+            <Play className="h-4 w-4" />
+            Start Loan Application Demo
+          </button>
+        ) : stepIndex === 0 ? (
+          <div className="space-y-3">
+            <div className="rounded-xl bg-slate-800/50 p-3">
+              <div className="flex items-center justify-between text-xs text-slate-400">
+                <span>Amount</span>
+                <span className="font-mono text-white">{formatCurrency(amount)}</span>
+              </div>
+              <input
+                type="range"
+                min={50000}
+                max={2000000}
+                step={50000}
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                className="mt-2 w-full accent-emerald-500"
+                aria-label="Loan amount"
+              />
+              <div className="mt-1 flex justify-between text-[10px] text-slate-500">
+                <span>₦50k</span>
+                <span>₦2M</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={confirmAmount}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
+            >
+              Confirm Amount
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        ) : stepIndex === 1 ? (
+          <div className="grid grid-cols-3 gap-2">
+            {[1, 3, 6, 9, 12, 18].map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => confirmTenor(m)}
+                className={`rounded-xl border px-2 py-3 text-xs font-bold transition-colors ${
+                  m === months
+                    ? "border-emerald-500 bg-emerald-500/20 text-emerald-400"
+                    : "border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500"
+                }`}
+              >
+                {m}m
+              </button>
+            ))}
+          </div>
+        ) : stepIndex === 2 ? (
+          <div className="space-y-3">
+            <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-center">
+              <p className="text-xs text-slate-400">Estimated monthly repayment</p>
+              <p className="text-xl font-black text-white">{formatCurrency(monthly)}</p>
+              <p className="text-xs text-slate-500">for {months} months</p>
+            </div>
+            <button
+              type="button"
+              onClick={submitApplication}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-500"
+            >
+              Submit Application
+              <CheckCircle2 className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={reset}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm font-bold text-slate-200 transition-colors hover:border-slate-500 hover:bg-slate-800"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Try Another Scenario
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -117,7 +331,7 @@ function DashboardCard({ status }: { status: Status }) {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
           Loan Officer Dashboard
         </h3>
-        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+        <span className="flex h-2 w-2 rounded-full animate-pulse bg-emerald-500" />
       </div>
 
       <div className="space-y-4">
@@ -261,18 +475,24 @@ function RepaymentSchedule() {
 
 const stats = [
   { label: "Application time", value: "2 min 47 sec", icon: Clock },
-  { label: "Officer processing time", value: "4 min 12 sec", icon: TrendingDown },
-  { label: "Total time saved", value: "11 days", icon: CheckCircle2 },
+  { label: "Approval automation", value: "94%", subtext: " Straight-through processing", icon: Zap },
+  { label: "Time saved vs manual", value: "11 days", icon: TrendingDown },
   {
     label: "Cost per application",
     value: "₦0",
     subtext: "vs ₦2,500 manual",
     icon: Banknote,
   },
+  { label: "KYC verification", value: "52 sec", subtext: "Average completion", icon: ShieldCheck },
+  { label: "Disbursement channel", value: "WhatsApp", subtext: "+ SMS + bank transfer", icon: Smartphone },
 ];
 
 export default function DemoPage() {
   const { status, ref: statusRef } = useStatusAnimation();
+
+  useEffect(() => {
+    trackMetaEvent("DemoPageView", { location: "demo_page" });
+  }, []);
 
   return (
     <main className="min-h-screen bg-slate-950">
@@ -305,13 +525,33 @@ export default function DemoPage() {
             See ShadowSpark in Action
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-400">
-            Experience how your applicants apply for loans in under 3 minutes.
+            Run a live loan simulation. Apply, get approved, and see the repayment schedule — all
+            in under 3 minutes.
           </p>
+
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <BookDemoButton
+              location="demo_page_hero"
+              variant="primary"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-8 py-4 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
+              onClick={() => trackMetaLead({ location: "demo_page_hero", source: "demo_simulator" })}
+            >
+              Book a Live Demo
+              <ArrowRight className="h-5 w-5" />
+            </BookDemoButton>
+            <a
+              href="#simulator"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
+            >
+              <Calculator className="h-4 w-4" />
+              Try the Simulator
+            </a>
+          </div>
         </div>
       </section>
 
       {/* Step 1 */}
-      <section className="px-6 py-20 sm:py-28">
+      <section id="simulator" className="px-6 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -327,7 +567,8 @@ export default function DemoPage() {
               The Applicant&apos;s Phone
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base text-slate-400">
-              No app download. The entire loan journey happens inside WhatsApp.
+              No app download. Pick an amount, choose a tenor, and submit — entirely inside
+              WhatsApp.
             </p>
           </motion.div>
 
@@ -403,14 +644,14 @@ export default function DemoPage() {
       {/* Stats Bar */}
       <section className="border-y border-slate-800 bg-slate-900/30 px-6 py-16">
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
                 className="rounded-xl border border-slate-700 bg-slate-900 p-6 text-center"
               >
                 <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
@@ -443,7 +684,11 @@ export default function DemoPage() {
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <BookDemoButton location="demo_page_cta" variant="primary">
+              <BookDemoButton
+                location="demo_page_cta"
+                variant="primary"
+                onClick={() => trackMetaLead({ location: "demo_page_cta", source: "demo_simulator" })}
+              >
                 Book a Live Demo
                 <ArrowRight className="h-5 w-5" />
               </BookDemoButton>
@@ -452,6 +697,7 @@ export default function DemoPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
+                onClick={() => trackMetaEvent("DemoWhatsAppClick", { location: "demo_page_cta" })}
               >
                 <MessageCircle className="h-5 w-5" />
                 Talk to Our Team

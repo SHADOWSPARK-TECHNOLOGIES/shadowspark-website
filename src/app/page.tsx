@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Navigation } from "@/components/sections/Navigation";
 import { EnterpriseHero } from "@/components/sections/EnterpriseHero";
+import { WhyShadowSpark } from "@/components/sections/WhyShadowSpark";
+import { SovereignDashboardPreview } from "@/components/sections/SovereignDashboardPreview";
+import { SovereignPipeline } from "@/components/sections/SovereignPipeline";
+import { RegulatoryPulse } from "@/components/sections/RegulatoryPulse";
 import { Problem } from "@/components/sections/Problem";
 import { FintechSolutions } from "@/components/sections/FintechSolutions";
 import { RoiMetrics } from "@/components/sections/RoiMetrics";
@@ -51,6 +55,10 @@ export default function HomePage() {
     <main className="min-h-screen bg-slate-950">
       <Navigation />
       <EnterpriseHero />
+      <WhyShadowSpark />
+      <SovereignDashboardPreview />
+      <SovereignPipeline />
+      <RegulatoryPulse />
       <Problem />
       <FintechSolutions />
       <RoiMetrics />
