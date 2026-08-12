@@ -89,7 +89,7 @@ export default function RegisterPage() {
           </form>
         )}
 
-        <p className="text-center text-sm text-slate-400">Already have an account? <a href="/login" className="font-medium text-cyan-400 hover:text-cyan-300">Sign in</a></p>
+        <p className="text-center text-sm text-slate-400">Already have an account? <a href='https://shadowspark-dashboard.vercel.app/login' data-analytics='register-sign-in' className="font-medium text-cyan-400 hover:text-cyan-300">Sign in</a></p>
       </div>
     </div>
   )

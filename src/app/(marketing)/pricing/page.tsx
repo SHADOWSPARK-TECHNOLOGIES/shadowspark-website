@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { canonical } from "@/lib/seo";
+import { marketingMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  ...canonical("/pricing"),
-  title: "Pricing",
-  description:
-    "Transparent pricing for ShadowSpark sovereign compliance infrastructure — from Starter for emerging fintechs to Enterprise for high-volume operations.",
-};
+export const metadata: Metadata = marketingMetadata(
+  '/pricing',
+  'Pricing',
+  'Review illustrative ShadowSpark pilot configurations and request pricing for a scoped deployment.',
+);
 
 import Link from "next/link";
 import { ArrowLeft, Check, Shield, Zap, Building2 } from "lucide-react";
@@ -19,81 +18,75 @@ type Tier = {
   period: string;
   description: string;
   icon: typeof Shield;
-  popular?: boolean;
+  highlighted?: boolean;
   features: string[];
   cta: string;
-  href: string;
 };
 
 const tiers: Tier[] = [
   {
     name: "Starter",
-    price: "₦150,000",
-    period: "/month",
-    description: "For emerging fintechs building their compliance foundation",
+    price: "Pilot quote",
+    period: "",
+    description: "Example starting scope for a focused workflow pilot",
     icon: Zap,
     features: [
-      "BVN Lock compliance",
-      "Basic regulatory monitoring",
-      "Email support",
-      "Up to 1,000 verifications/month",
+      "One scoped workflow",
+      "Example regulatory-control mapping",
+      "Pilot onboarding session",
+      "Operator review checkpoints",
     ],
-    cta: "Get Started",
-    href: "/checkout/new",
+    cta: "Discuss Pilot",
   },
   {
     name: "Professional",
-    price: "₦450,000",
-    period: "/month",
-    description: "For growing enterprises scaling their compliance operations",
+    price: "Pilot quote",
+    period: "",
+    description: "Example multi-workflow evaluation for a growing team",
     icon: Building2,
-    popular: true,
+    highlighted: true,
     features: [
-      "Everything in Starter",
-      "rPPG liveness detection",
-      "RWA securitization tools",
-      "WhatsApp AI agent",
-      "Priority support",
-      "Up to 10,000 verifications/month",
+      "Multiple scoped workflows",
+      "Example identity-check integration",
+      "WhatsApp workflow prototype",
+      "Review dashboard",
+      "Pilot support plan",
     ],
-    cta: "Start Free Trial",
-    href: "/checkout/new",
+    cta: "Discuss Pilot",
   },
   {
     name: "Enterprise",
     price: "Custom",
     period: "",
-    description: "For institutions requiring dedicated infrastructure and SLAs",
+    description: "Example discovery scope for institution-specific requirements",
     icon: Shield,
     features: [
-      "Everything in Professional",
-      "Dedicated infrastructure",
-      "Custom integrations",
-      "SLA guarantees",
-      "Dedicated support team",
-      "Unlimited verifications",
+      "Architecture discovery",
+      "Integration assessment",
+      "Security-control mapping",
+      "Service-level planning",
+      "Deployment recommendation",
     ],
-    cta: "Contact Sales",
-    href: "/contact",
+    cta: "Request Discovery",
   },
 ];
 
 const faqs = [
   {
     q: "Can the plan be upgraded at any time?",
-    a: "Yes. You can upgrade from Starter to Professional or Enterprise at any time. Upgrades take effect immediately, and we prorate charges for the remainder of your billing cycle.",
+    a: "Pilot scope can be revised during discovery. Any pricing or delivery impact is agreed before work begins.",
   },
   {
     q: "What payment methods do you accept?",
-    a: "We accept all major Nigerian bank transfers, Paystack payments, and international wire transfers. Enterprise clients can request invoicing with net-30 terms.",
+    a: "Payment arrangements are confirmed in the written pilot proposal.",
   },
   {
     q: "Is there a setup fee?",
-    a: "No. All plans include standard onboarding at no additional cost. Enterprise clients with complex integration requirements may require a one-time implementation fee, which is quoted during the sales process.",
+    a: "Any onboarding or integration cost is included explicitly in the pilot quote.",
   },
   {
     q: "Do you offer a free trial?",
-    a: "Professional plan includes a 14-day free trial with full access to all features. No credit card required. Enterprise clients can request a personalized demo and proof of concept.",
+    a: "Demo and proof-of-concept availability depends on the requested workflow and integration readiness.",
   },
 ];
 
@@ -128,7 +121,7 @@ export default function PricingPage() {
             Pricing
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400">
-            Transparent pricing for sovereign compliance infrastructure
+            Example pilot configurations; final scope and pricing require a written quote
           </p>
         </div>
       </section>
@@ -143,19 +136,19 @@ export default function PricingPage() {
                 <div
                   key={tier.name}
                   className={`relative rounded-2xl border bg-zinc-900/50 p-8 transition-all duration-300 hover:border-zinc-700/50 ${
-                    tier.popular
+                    tier.highlighted
                       ? "border-emerald-500/40 shadow-[0_0_40px_rgba(16,149,106,0.1)]"
                       : "border-zinc-800"
                   }`}
                 >
-                  {tier.popular && (
+                  {tier.highlighted && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-emerald-400 backdrop-blur-md">
                         <span className="relative flex h-1.5 w-1.5">
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         </span>
-                        MOST POPULAR
+                        EXAMPLE CONFIGURATION
                       </span>
                     </div>
                   )}
@@ -187,7 +180,7 @@ export default function PricingPage() {
                     ))}
                   </ul>
 
-                  <PricingCTAButton tierName={tier.name} popular={!!tier.popular}>
+                  <PricingCTAButton tierName={tier.name} highlighted={!!tier.highlighted}>
                     {tier.cta}
                   </PricingCTAButton>
                 </div>
@@ -222,18 +215,17 @@ export default function PricingPage() {
         <div className="mx-auto max-w-4xl text-center">
           <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8">
             <h2 className="text-xl font-semibold text-zinc-100">
-              Not sure which plan is right for you?
+              Not sure which pilot scope fits?
             </h2>
             <p className="mt-3 text-sm text-zinc-400">
-              Book a consultation with our team to discuss your compliance needs and get a
-              tailored recommendation.
+              Discuss your workflow goals and the discovery needed for a scoped proposal.
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <BookDemoButton
                 location="pricing_page_cta"
                 className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-6 py-3 text-sm font-bold uppercase tracking-widest text-emerald-400 backdrop-blur-md transition-colors hover:bg-emerald-500/20"
               >
-                Contact Sales
+                Request Pilot
               </BookDemoButton>
               <Link
                 href="/"

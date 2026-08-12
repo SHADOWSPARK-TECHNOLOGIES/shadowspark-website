@@ -1,8 +1,7 @@
 "use client";
 
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { useCalendly } from "@/components/calendly-modal";
-import { trackMetaContact } from "@/components/meta-events";
 
 export function FinalCTA() {
   const { openCalendly } = useCalendly();
@@ -18,8 +17,8 @@ export function FinalCTA() {
           Ready to Transform Your Loan Operations?
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-base text-slate-400 sm:text-lg">
-          Join Nigerian lenders already using ShadowSpark to automate intake, verify
-          identities, and recover payments with AI.
+          Explore a pilot program for intake, identity-check, compliance-review, and
+          recovery workflows.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -29,29 +28,23 @@ export function FinalCTA() {
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-10 py-4 text-base font-bold text-slate-950 transition-colors hover:bg-amber-400"
             data-event="calendly_open"
             data-location="final_cta"
+            data-analytics="final-book-demo"
           >
             Book a Demo
             <ArrowRight className="h-5 w-5" />
           </button>
           <a
-            href="https://wa.me/2340000000000"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackMetaContact({
-                content_name: "WhatsApp Chat",
-                location: "final_cta",
-              })
-            }
+            href="/contact"
+            data-analytics="final-contact-request"
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-transparent px-10 py-4 text-base font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
           >
-            <MessageCircle className="h-5 w-5" />
-            Chat on WhatsApp
+            <Mail className="h-5 w-5" />
+            Send a Request
           </a>
         </div>
 
         <p className="mt-8 text-sm text-slate-500">
-          No long-term contracts. Transparent pricing. Security-first deployment.
+          Example workflows only. Pilot scope, pricing, and controls require written agreement.
         </p>
       </div>
     </section>

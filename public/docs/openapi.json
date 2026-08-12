@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://shadowspark-tech.org/api",
+      "url": "https://www.shadowspark-tech.org/api",
       "description": "Production Server"
     }
   ],
@@ -23,26 +23,70 @@
     },
     "/contact": {
       "post": {
-        "summary": "Submit enterprise contact request",
+        "summary": "Submit a pilot-program contact request",
+        "description": "Validates a public contact request and forwards it to BACKEND_API_URL/v1/leads. If that backend route returns 404, the request is accepted into a local JSON Lines fallback sink and the response lists the missing route.",
+        "tags": ["Contact"],
+        "security": [],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name", "email", "company"],
+                "required": ["name", "email", "message"],
+                "additionalProperties": false,
                 "properties": {
-                  "name": { "type": "string" },
-                  "email": { "type": "string" },
-                  "company": { "type": "string" },
-                  "monthlyLeadVolume": { "type": "string" },
-                  "message": { "type": "string" }
+                  "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+                  "email": { "type": "string", "format": "email", "maxLength": 254 },
+                  "company": { "type": "string", "maxLength": 200 },
+                  "message": { "type": "string", "minLength": 10, "maxLength": 5000 }
                 }
+              },
+              "example": {
+                "name": "Ada Lovelace",
+                "email": "ada@example.com",
+                "company": "Analytical Engines",
+                "message": "We want to evaluate a lending workflow pilot."
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Request received" }
+          "200": {
+            "description": "Request validated and forwarded to the backend",
+            "content": {
+              "application/json": {
+                "example": { "success": true }
+              }
+            }
+          },
+          "202": {
+            "description": "Backend lead route was missing and the request was stored in the local fallback sink",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "fallback": "local-json",
+                  "MISSING": ["/v1/leads"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed JSON or invalid contact fields",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Validation failed",
+                  "fields": { "email": ["Invalid email address"] }
+                }
+              }
+            }
+          },
+          "429": { "description": "Too many requests from this client" },
+          "500": { "description": "Local fallback sink could not store a backend-404 request" },
+          "502": { "description": "Backend request failed or returned an unsuccessful status" },
+          "503": { "description": "BACKEND_API_URL is missing or invalid" }
         }
       }
     },

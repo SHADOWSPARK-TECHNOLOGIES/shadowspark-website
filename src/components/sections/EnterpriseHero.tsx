@@ -5,10 +5,10 @@ import { ArrowRight, Play, Bot } from "lucide-react";
 import { useCalendly } from "@/components/calendly-modal";
 
 const trustPills = [
-  "65% faster loan processing",
-  "41.2% instant query deflection",
-  "$3.50 ROI per $1 invested",
-  "NDPA & CBN Compliant",
+  "Pilot program",
+  "Example workflow metrics",
+  "Operator-reviewed automation",
+  "Configurable compliance controls",
 ];
 
 const kpis = [
@@ -41,19 +41,17 @@ export function EnterpriseHero() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
               </span>
-              Enterprise AI Infrastructure
+              Enterprise AI Workflow Pilot
             </div>
 
             <h1 className="text-4xl font-extrabold leading-[1.1] text-white sm:text-5xl lg:text-6xl">
-              ShadowSpark is the{" "}
-              <span className="text-amber-500">AI Operating System</span> for
+              Explore a <span className="text-amber-500">Pilot Workflow System</span> for
               African Fintech
             </h1>
 
             <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
-              Automate loan origination, instant KYC verification, and intelligent
-              payment recovery. Built for microfinance banks and digital lenders
-              processing the $32.2 billion MSME credit gap.
+              Evaluate loan origination, identity checks, and payment-recovery workflows
+              through a scoped pilot for microfinance banks and digital lenders.
             </p>
 
             <div className="mt-8 flex w-full flex-col gap-4 sm:flex-row">
@@ -63,12 +61,14 @@ export function EnterpriseHero() {
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-8 py-4 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
                 data-event="calendly_open"
                 data-location="hero"
+                data-analytics="home-hero-book-demo"
               >
                 Book a Demo
                 <ArrowRight className="h-4 w-4" />
               </button>
               <Link
                 href="/demo"
+                data-analytics="home-hero-view-demo"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
               >
                 <Play className="h-4 w-4" />
@@ -79,12 +79,15 @@ export function EnterpriseHero() {
 
           <div className="relative hidden lg:block">
             <div className="relative rounded-2xl border border-slate-700 bg-slate-900/60 p-6 shadow-2xl backdrop-blur-sm">
-              <div className="mb-6 flex items-center gap-2">
+              <div className="mb-4 flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-red-500/80" />
                 <div className="h-3 w-3 rounded-full bg-amber-500/80" />
                 <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
                 <div className="ml-4 h-2 flex-1 rounded-full bg-slate-700" />
               </div>
+              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-amber-400">
+                Example dashboard · illustrative data
+              </p>
 
               <div className="mb-6 grid grid-cols-3 gap-4">
                 {kpis.map((kpi) => (
@@ -123,7 +126,7 @@ export function EnterpriseHero() {
                   <div>
                     <p className="text-xs font-semibold text-amber-400">AI Recovery Agent</p>
                     <p className="mt-1 text-xs text-slate-500">
-                      47 accounts flagged for polite WhatsApp nudge. Expected recovery: ₦2.4M.
+                      Example: accounts can be queued for an operator-reviewed WhatsApp nudge.
                     </p>
                   </div>
                 </div>

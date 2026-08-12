@@ -29,9 +29,9 @@ const pipeline = [
 ];
 
 const alerts = [
-  { level: "high", text: "SEC Circular 26-1 capital deadline: 47 days", icon: AlertCircle },
-  { level: "medium", text: "CBN open banking guideline refresh detected", icon: Activity },
-  { level: "low", text: "12 accounts queued for polite recovery nudge", icon: Users },
+  { level: "high", text: "Example: regulatory deadline requires operator review", icon: AlertCircle },
+  { level: "medium", text: "Example: open-banking guidance change detected", icon: Activity },
+  { level: "low", text: "Example: recovery cases queued for review", icon: Users },
 ];
 
 export function SovereignDashboardPreview() {
@@ -59,9 +59,8 @@ export function SovereignDashboardPreview() {
             One Dashboard for Every Naira
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-            See loan flow, compliance posture, and recovery signals in a single pane. Built from
-            the shadcn-fintech dashboard pattern, adapted for ShadowSpark&apos;s sovereign
-            financial node.
+            This example interface shows how loan flow, compliance posture, and recovery
+            signals could appear in a single pilot dashboard.
           </p>
         </div>
 
@@ -76,14 +75,14 @@ export function SovereignDashboardPreview() {
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-lg font-semibold text-white">Sovereign Operating Dashboard</h3>
-              <p className="text-sm text-slate-500">Live view · Lagos Mainnet</p>
+              <p className="text-sm text-slate-500">Example data · not customer results</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              <span className="text-xs font-medium text-emerald-400">System Operational</span>
+              <span className="text-xs font-medium text-emerald-400">Example status</span>
             </div>
           </div>
 

@@ -1,8 +1,8 @@
 const problemStats = [
-  { value: "$32.2B", label: "MSME finance gap in Nigeria", source: "Ken Research 2026" },
-  { value: "14 days", label: "Average manual loan processing time" },
-  { value: "40%", label: "Application abandonment rate from slow response" },
-  { value: "₦10M+", label: "Maximum NDPA non-compliance penalty", source: "ICLG 2026" },
+  { value: "Manual", label: "Spreadsheet handoffs" },
+  { value: "Repeated", label: "Document follow-up" },
+  { value: "Disconnected", label: "Customer conversations" },
+  { value: "Review-heavy", label: "Compliance evidence" },
 ];
 
 export function Problem() {
@@ -14,13 +14,11 @@ export function Problem() {
             Why Now?
           </span>
           <h2 className="mt-4 text-3xl font-bold text-white sm:text-4xl">
-            The $32.2 Billion Problem
+            Common Workflow Bottlenecks
           </h2>
           <p className="mt-6 text-base leading-relaxed text-slate-400 sm:text-lg">
-            Nigerian microfinance banks still process loans on spreadsheets and WhatsApp
-            chats. Loan officers manually verify identities, chase documents, and send
-            payment reminders one by one. The result: 14-day approval cycles, 40%
-            application drop-off, and compliance nightmares.
+            The pilot program focuses on workflows where spreadsheets, chat threads,
+            document checks, and payment follow-up create repeated manual handoffs.
           </p>
         </div>
 
@@ -36,9 +34,6 @@ export function Problem() {
               <div className="mt-3 text-sm font-semibold text-slate-100">
                 {stat.label}
               </div>
-              {stat.source && (
-                <div className="mt-1 text-xs text-slate-500">{stat.source}</div>
-              )}
             </div>
           ))}
         </div>

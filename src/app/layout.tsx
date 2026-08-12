@@ -7,7 +7,7 @@ import {
 } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
-import { organizationJsonLd } from "@/lib/seo";
+import { marketingMetadata, organizationJsonLd } from '@/lib/seo';
 import ChatWidget from "@/components/ChatWidget";
 import { CalendlyProvider } from "@/components/calendly-modal";
 import { MetaPixel } from "@/components/meta-pixel";
@@ -32,10 +32,11 @@ const cormorantGaramond = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shadowspark-tech.org"),
-  title: "ShadowSpark — AI Operating System for African Fintech",
-  description:
-    "Automate loan origination, instant KYC verification, and intelligent recovery. The enterprise infrastructure layer for African lenders. NDPA & CBN compliant.",
+  ...marketingMetadata(
+    '/',
+    'ShadowSpark — Pilot Infrastructure for African Fintech',
+    'Explore ShadowSpark pilot workflows for African fintech operations.',
+  ),
   keywords: [
     "African fintech",
     "loan automation",
@@ -48,19 +49,6 @@ export const metadata: Metadata = {
     "microfinance",
     "digital lending",
   ],
-  openGraph: {
-    title: "ShadowSpark — AI Operating System for African Fintech",
-    description:
-      "Automate loan origination, instant KYC, and intelligent recovery for African lenders.",
-    type: "website",
-    locale: "en_NG",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "ShadowSpark — AI Operating System for African Fintech",
-    description:
-      "Automate loan origination, instant KYC, and intelligent recovery for African lenders.",
-  },
 };
 
 export const viewport: Viewport = {

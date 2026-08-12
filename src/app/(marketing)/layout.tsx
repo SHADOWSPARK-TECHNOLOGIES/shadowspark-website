@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | ShadowSpark",
   },
   description:
-    "Automate loan origination, instant KYC verification, and intelligent recovery. The enterprise infrastructure layer for African lenders.",
+    "Explore ShadowSpark pilot workflows for African fintech operations.",
 };
 
 export default function MarketingLayout({

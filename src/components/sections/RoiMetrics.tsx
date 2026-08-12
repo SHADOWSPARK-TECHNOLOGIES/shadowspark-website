@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useCalendly } from "@/components/calendly-modal";
 
 type Metric = {
@@ -13,27 +13,27 @@ type Metric = {
 const metrics: Metric[] = [
   {
     value: "65%",
-    label: "Faster Loan Processing",
-    body: "From 14 days to 4 minutes with automated intake and KYC.",
-    source: "Modeled from production workflows",
+    label: "Example Processing Scenario",
+    body: "Illustrative change used to discuss a pilot measurement plan.",
+    source: "Modeled input — not a customer result",
   },
   {
     value: "41.2%",
-    label: "Instant Query Deflection",
-    body: "Enterprise median for AI-handled customer service.",
-    source: "Zendesk CX Trends 2026",
+    label: "Example Query Scenario",
+    body: "Illustrative automation input for discovery conversations.",
+    source: "Modeled input — not a customer result",
   },
   {
     value: "$3.50",
-    label: "ROI Per Dollar Invested",
-    body: "Average return on customer service automation.",
-    source: "Freshworks Research 2026",
+    label: "Example ROI Scenario",
+    body: "Illustrative value used to structure a business-case review.",
+    source: "Modeled input — not a customer result",
   },
   {
     value: "₦10M+",
-    label: "Non-Compliance Risk",
-    body: "Maximum NDPA penalty for fintech data breaches.",
-    source: "ICLG Nigeria 2026",
+    label: "Example Risk Input",
+    body: "Illustrative value only; applicable obligations require legal review.",
+    source: "Modeled input — not legal advice",
   },
 ];
 
@@ -45,10 +45,10 @@ export function RoiMetrics() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <span className="text-xs font-semibold uppercase tracking-widest text-amber-500">
-            The Enterprise Math
+            Example Enterprise Math
           </span>
           <h2 className="mt-4 text-3xl font-bold text-white sm:text-4xl">
-            Why Lenders Choose ShadowSpark
+            Model a Pilot Before Making Claims
           </h2>
         </div>
 
@@ -77,16 +77,10 @@ export function RoiMetrics() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-8 py-4 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
             data-event="calendly_open"
             data-location="roi"
+            data-analytics="roi-book-demo"
           >
             Book a Demo
             <ArrowRight className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
-          >
-            <Download className="h-4 w-4" />
-            Download ROI Calculator
           </button>
         </div>
       </div>

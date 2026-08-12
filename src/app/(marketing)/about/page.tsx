@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { canonical } from "@/lib/seo";
+import { marketingMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  ...canonical("/about"),
-  title: "About",
-  description:
-    "ShadowSpark builds the AI Operating System for African fintech — automating loan origination, instant KYC, and intelligent recovery at enterprise scale.",
-};
+export const metadata: Metadata = marketingMetadata(
+  '/about',
+  'About',
+  'Learn why ShadowSpark is developing pilot workflow infrastructure for African fintech teams.',
+  '/hero/about-visual.png',
+);
 
 import Link from "next/link";
 import {
@@ -28,50 +28,26 @@ type ValueProp = {
   description: string;
 };
 
-type Leader = {
-  name: string;
-  role: string;
-  bio: string;
-};
-
 // ── Data ──────────────────────────────────────────────────────────────────
 
 const valueProps: ValueProp[] = [
   {
     icon: Cpu,
-    title: "AI-Native Lending Infrastructure",
+    title: "Pilot Workflow Scope",
     description:
-      "End-to-end automation for loan intake, KYC, disbursement, and recovery — built as a single platform layer.",
+      "Example workflows cover loan intake, identity checks, disbursement review, and recovery coordination.",
   },
   {
     icon: Shield,
-    title: "Built for African Regulation",
+    title: "Regulation-Aware Design",
     description:
-      "Deep integration with NDPA, CBN, SEC, and FIRS frameworks. Compliance is the default, not an afterthought.",
+      "Pilot controls can be mapped to applicable NDPA, CBN, SEC, and FIRS requirements during discovery.",
   },
   {
     icon: Zap,
-    title: "Deployment-Ready Speed",
+    title: "Staged Deployment",
     description:
-      "Go live in weeks, not quarters. Configured tenants, pre-built workflows, and enterprise SLAs from day one.",
-  },
-];
-
-const leadership: Leader[] = [
-  {
-    name: "Stephen Okoronkwo",
-    role: "Founder & Architect",
-    bio: "Architect of the ShadowSpark platform. Deep expertise in distributed systems, AI/ML, and African fintech infrastructure.",
-  },
-  {
-    name: "Chidi Okonkwo",
-    role: "Chief Compliance Officer",
-    bio: "Former SEC Nigeria senior examiner with 15+ years in financial regulation. Leads our regulatory framework integration across SEC, CBN, and FIRS mandates.",
-  },
-  {
-    name: "Amara Eze",
-    role: "Head of Engineering",
-    bio: "Distributed systems engineer who built payment infrastructure processing over ₦50 billion in transaction volume across African fintech platforms.",
+      "Each pilot defines its integrations, review gates, delivery timing, and service expectations before launch.",
   },
 ];
 
@@ -108,8 +84,7 @@ export default function AboutPage() {
             About ShadowSpark
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400">
-            Building the AI Operating System that powers the next generation of African
-            fintech lending.
+            Developing a pilot-stage workflow platform for African fintech operations.
           </p>
         </div>
       </section>
@@ -127,9 +102,8 @@ export default function AboutPage() {
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-zinc-100">Our Mission</h2>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    To provide African lenders with an AI-powered operating system that
-                    automates loan operations, enforces compliance by design, and scales
-                    from first disbursement to national deployment.
+                    To help African lending teams evaluate automation with explicit human
+                    review, compliance mapping, and measurable pilot criteria.
                   </p>
                 </div>
               </div>
@@ -144,10 +118,9 @@ export default function AboutPage() {
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-zinc-100">Our Story</h2>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    Founded in Nigeria, ShadowSpark began with the belief that African
-                    lenders deserve infrastructure built for African markets — not adapted
-                    from foreign systems. Today, our platform powers loan origination, KYC,
-                    and recovery for fintechs and microfinance banks across the continent.
+                    ShadowSpark is developing example loan-origination, identity-check,
+                    and recovery workflows for an African fintech pilot program. The
+                    program is currently exploratory rather than a claim of production use.
                   </p>
                 </div>
               </div>
@@ -177,33 +150,6 @@ export default function AboutPage() {
               </div>
             </section>
 
-            {/* ── Leadership ───────────────────────────────────────── */}
-            <section>
-              <h2 className="mb-8 text-xl font-semibold text-zinc-100">Leadership</h2>
-              <div className="grid gap-6 sm:grid-cols-3">
-                {leadership.map((leader) => (
-                  <div
-                    key={leader.name}
-                    className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 transition-colors hover:border-zinc-700/50"
-                  >
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10">
-                      <span className="font-mono text-sm font-bold text-emerald-400">
-                        {leader.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-semibold text-zinc-100">{leader.name}</h3>
-                    <p className="mb-3 mt-1 font-mono text-xs uppercase tracking-wider text-emerald-400/80">
-                      {leader.role}
-                    </p>
-                    <p className="text-sm leading-6 text-zinc-400">{leader.bio}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             {/* ── Our Presence ─────────────────────────────────────── */}
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 transition-colors hover:border-zinc-700/50">
               <div className="flex items-start gap-4">
@@ -213,8 +159,8 @@ export default function AboutPage() {
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-zinc-100">Our Presence</h2>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    Headquartered in Nigeria, serving enterprise lenders across Lagos,
-                    Abuja, Nairobi, and emerging African fintech hubs.
+                    The current example materials focus on Nigerian lending workflows.
+                    Requirements for other African markets would be evaluated during discovery.
                   </p>
                 </div>
               </div>
@@ -224,7 +170,7 @@ export default function AboutPage() {
           {/* ── Bottom CTA ─────────────────────────────────────────── */}
           <div className="mt-16 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 text-center">
             <p className="text-sm text-zinc-400">
-              Ready to deploy ShadowSpark infrastructure?
+              Ready to explore a ShadowSpark pilot?
             </p>
             <div className="mt-6">
               <BookDemoButton

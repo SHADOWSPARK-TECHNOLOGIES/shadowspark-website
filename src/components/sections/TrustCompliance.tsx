@@ -11,58 +11,49 @@ import {
   Activity,
   ShieldCheck,
   Landmark,
-  ExternalLink,
 } from "lucide-react";
 import { trackMetaEvent } from "@/components/meta-events";
 
 const badges = [
   {
     icon: Landmark,
-    label: "SEC ARIP Incubation",
-    detail: "License path active",
-    href: "#",
+    label: "Regulatory Review Mapping",
+    detail: "Pilot control",
   },
   {
     icon: ShieldCheck,
-    label: "SOC 2 Type II Aligned",
-    detail: "Controls mapped",
-    href: "/docs/HARDENING_VERIFICATION_REPORT.md",
+    label: "Security Control Inventory",
+    detail: "Example evidence set",
   },
   {
     icon: FileCheck,
-    label: "NDPA Aligned",
-    detail: "Consent + DPA ready",
-    href: "#",
+    label: "Consent Evidence Workflow",
+    detail: "Pilot configuration",
   },
   {
     icon: Database,
-    label: "AES-256 at Rest",
-    detail: "Ledger encrypted",
-    href: "#",
+    label: "Encryption Review",
+    detail: "Deployment requirement",
   },
   {
     icon: ClipboardList,
-    label: "Double-Entry Ledger",
-    detail: "∑D − ∑C = ₦0",
-    href: "#",
+    label: "Ledger Control Example",
+    detail: "Pilot workflow",
   },
   {
     icon: Server,
-    label: "Isolated Environments",
-    detail: "Tenant-scoped infra",
-    href: "#",
+    label: "Environment Isolation",
+    detail: "Architecture review",
   },
   {
     icon: Lock,
-    label: "TLS 1.3 Encrypted",
-    detail: "In-transit protection",
-    href: "#",
+    label: "Transport Security",
+    detail: "Deployment requirement",
   },
   {
     icon: Activity,
-    label: "99.9% Uptime Target",
-    detail: "Vercel Edge SLA",
-    href: "#",
+    label: "Availability Planning",
+    detail: "No published SLA",
   },
 ];
 
@@ -76,10 +67,6 @@ export function TrustCompliance() {
     }
   }, [isInView]);
 
-  const handleBadgeClick = (label: string) => {
-    trackMetaEvent("ComplianceBadgeClick", { label, location: "home_page" });
-  };
-
   return (
     <section ref={ref} id="compliance" className="bg-slate-950 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -88,20 +75,18 @@ export function TrustCompliance() {
             Security & Compliance
           </span>
           <h2 className="mt-4 text-3xl font-bold text-white sm:text-4xl">
-            Bank-Grade Security. African Compliance.
+            Pilot Security and Compliance Review
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-            Verifiable controls designed for Nigerian fintech regulation and institutional due
-            diligence.
+            Example controls are mapped during discovery and must be verified for each
+            deployment before any compliance claim is made.
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {badges.map((badge, index) => (
-            <motion.a
+            <motion.div
               key={badge.label}
-              href={badge.href}
-              onClick={() => handleBadgeClick(badge.label)}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -112,20 +97,17 @@ export function TrustCompliance() {
                 <badge.icon className="h-5 w-5 text-emerald-500" />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-semibold text-slate-200">{badge.label}</span>
-                  <ExternalLink className="h-3 w-3 text-slate-600 opacity-0 transition-opacity group-hover:opacity-100" />
-                </div>
+                <span className="text-sm font-semibold text-slate-200">{badge.label}</span>
                 <span className="text-xs text-slate-500">{badge.detail}</span>
               </div>
-            </motion.a>
+            </motion.div>
           ))}
         </div>
 
         <p className="mx-auto mt-10 max-w-3xl text-center text-sm leading-relaxed text-slate-400">
-          ShadowSpark is designed in alignment with Nigeria&apos;s National Data Protection
-          Regulation (NDPA). We do not sell, share, or use your customer data for any purpose
-          outside your service agreement. Data Processing Addendums available on request.
+          Pilot materials are not legal advice, certification, or proof of regulatory
+          compliance. Applicable controls and data-processing terms require documented review
+          before deployment.
         </p>
       </div>
     </section>
