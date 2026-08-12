@@ -17,45 +17,44 @@ type PricingTier = {
 const tiers: PricingTier[] = [
   {
     name: "Starter",
-    price: "₦25,000/month",
-    description: "For lenders testing WhatsApp-first loan operations.",
+    price: "Pilot quote",
+    description: "Example scope for one focused workflow.",
     features: [
-      "1 WhatsApp bot",
-      "1,000 messages/month",
-      "Basic analytics",
-      "Onboarding walkthrough",
+      "One scoped channel",
+      "Example workflow configuration",
+      "Operator review checkpoints",
+      "Pilot onboarding session",
     ],
-    cta: "Get Started",
+    cta: "Discuss Pilot",
     location: "pricing_starter",
   },
   {
     name: "Growth",
-    price: "₦150,000/month",
-    description: "For teams ready to automate across channels.",
+    price: "Pilot quote",
+    description: "Example multi-workflow scope for a growing team.",
     features: [
-      "3 channels (WhatsApp, Web, SMS)",
-      "10,000 messages/month",
-      "Full BI dashboard",
-      "Lead capture + CRM integration",
-      "1-business-day support",
+      "Selected channel prototypes",
+      "Example dashboard",
+      "Lead-capture integration",
+      "CRM boundary assessment",
+      "Pilot support plan",
     ],
-    cta: "Get Started",
+    cta: "Discuss Pilot",
     location: "pricing_growth",
     highlighted: true,
   },
   {
     name: "Enterprise",
     price: "Custom",
-    description: "For banks and large lenders with SLA requirements.",
+    description: "Example discovery scope for institution-specific needs.",
     features: [
-      "Unlimited channels",
-      "RPA workflow automation",
-      "Dedicated account manager",
-      "Custom AI model training",
-      "SLA & uptime guarantee",
-      "NDPR compliance documentation",
+      "Architecture discovery",
+      "Integration assessment",
+      "Security-control mapping",
+      "Service-level planning",
+      "Deployment recommendation",
     ],
-    cta: "Contact Sales",
+    cta: "Request Discovery",
     location: "pricing_enterprise",
   },
 ];
@@ -71,11 +70,11 @@ export function Pricing() {
             Pricing
           </span>
           <h2 className="mt-4 text-3xl font-bold text-white sm:text-4xl">
-            Transparent Pricing in Naira
+            Pilot Configurations
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-            No setup fees. No per-message surprises. The price you see is the price you
-            pay.
+            These are example scopes, not published price or service commitments. Final
+            terms require a written pilot quote.
           </p>
         </div>
 
@@ -91,7 +90,7 @@ export function Pricing() {
             >
               {tier.highlighted && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-slate-950">
-                  Most Popular
+                  Example Configuration
                 </span>
               )}
               <h3 className="text-xl font-semibold text-white">{tier.name}</h3>
@@ -111,7 +110,7 @@ export function Pricing() {
                 type="button"
                 onClick={() => {
                   trackMetaInitiateCheckout({
-                    value: tier.name === "Enterprise" ? 0 : tier.name === "Growth" ? 150000 : 25000,
+                    value: 0,
                     currency: "NGN",
                     content_name: tier.name,
                     content_type: "pricing_tier",
@@ -125,6 +124,7 @@ export function Pricing() {
                 }`}
                 data-event="calendly_open"
                 data-location={tier.location}
+                data-analytics={`home-${tier.location}-cta`}
               >
                 {tier.cta}
               </button>

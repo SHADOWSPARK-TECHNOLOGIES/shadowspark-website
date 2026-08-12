@@ -5,19 +5,18 @@ const footerColumns = [
   {
     title: "Product",
     links: [
-      { label: "Loan Intake", href: "#solutions" },
-      { label: "KYC", href: "#solutions" },
-      { label: "Recovery", href: "#solutions" },
-      { label: "Compliance", href: "#compliance" },
-      { label: "API Docs", href: "/docs" },
+      { label: "Loan Intake", href: "/#solutions" },
+      { label: "KYC", href: "/#solutions" },
+      { label: "Recovery", href: "/#solutions" },
+      { label: "Compliance", href: "/#compliance" },
+      { label: "Workflow Demo", href: "/demo" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About", href: "#about" },
-      { label: "Careers", href: "#" },
-      { label: "Blog", href: "#" },
+      { label: "About", href: "/#about" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Contact", href: "/contact" },
     ],
   },
@@ -52,7 +51,7 @@ export function Footer() {
               <span className="text-base font-bold tracking-tight">ShadowSpark</span>
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-slate-500">
-              The AI Operating System for African fintech lenders.
+              Pilot workflow infrastructure for African fintech teams.
             </p>
           </div>
 

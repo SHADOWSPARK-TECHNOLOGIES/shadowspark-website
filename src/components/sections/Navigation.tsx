@@ -10,7 +10,7 @@ const navLinks = [
   { label: "Case Studies", href: "#case-study" },
   { label: "Pricing", href: "#pricing" },
   { label: "Compliance", href: "#compliance" },
-  { label: "Docs", href: "/docs" },
+  { label: "About", href: "/about" },
 ];
 
 export function Navigation() {
@@ -46,6 +46,7 @@ export function Navigation() {
             className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
             data-event="calendly_open"
             data-location="nav"
+            data-analytics="nav-book-demo"
           >
             Book Demo
           </button>
@@ -84,6 +85,7 @@ export function Navigation() {
               className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950"
               data-event="calendly_open"
               data-location="nav_mobile"
+              data-analytics="nav-mobile-book-demo"
             >
               Book Demo
             </button>

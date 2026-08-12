@@ -13,39 +13,39 @@ type Solution = {
 const solutions: Solution[] = [
   {
     icon: MessageSquare,
-    eyebrow: "Automated Loan Intake",
-    title: "WhatsApp-Native Applications",
+    eyebrow: "Loan Intake Example",
+    title: "WhatsApp Workflow Prototype",
     description:
-      "Applicants complete full loan forms via WhatsApp — document upload, e-signature, consent capture. No app download. 97% of African internet users are already on WhatsApp.",
+      "Pilot scope can model application intake, document upload, e-signature, and consent capture through a WhatsApp workflow.",
     cta: "See How It Works",
-    href: "#",
+    href: "/demo",
   },
   {
     icon: ShieldCheck,
-    eyebrow: "Instant KYC Verification",
-    title: "AI-Powered Identity Verification",
+    eyebrow: "Identity Check Example",
+    title: "Operator-Reviewed Verification",
     description:
-      "BVN validation, NIN verification, document OCR in under 60 seconds. Automated fraud detection with immutable audit trails for CBN compliance.",
+      "Example integrations can coordinate BVN or NIN checks, document OCR, review outcomes, and auditable operator decisions.",
     cta: "Explore KYC Pipeline",
-    href: "#",
+    href: "/demo",
   },
   {
     icon: ScrollText,
-    eyebrow: "The Compliance Engine",
-    title: "Regulatory-First Architecture",
+    eyebrow: "Compliance Review Example",
+    title: "Regulation-Aware Architecture",
     description:
-      "Pre-built NDPA workflows, automated consent management, WORM audit logging. Non-compliance penalties reach ₦10M or 2% of revenue. We make compliance automatic.",
+      "Pilot controls can demonstrate consent management, audit logging, and evidence collection for review against applicable requirements.",
     cta: "View Compliance Docs",
-    href: "#",
+    href: "/demo",
   },
   {
     icon: Bot,
-    eyebrow: "Intelligent Recovery",
-    title: "AI Recovery Agents",
+    eyebrow: "Recovery Workflow Example",
+    title: "Operator-Reviewed Recovery",
     description:
-      "Polite, persistent payment reminders via WhatsApp and SMS with behavioral escalation. Reduce default rates with AI that knows when to nudge and when to escalate.",
+      "Example recovery workflows can draft WhatsApp or SMS reminders and route escalation decisions to an operator.",
     cta: "See Recovery Flow",
-    href: "#",
+    href: "/demo",
   },
 ];
 
@@ -58,11 +58,11 @@ export function FintechSolutions() {
             The Fintech OS
           </span>
           <h2 className="mt-4 text-3xl font-bold text-white sm:text-4xl">
-            Four Modules. One Platform. Zero Manual Work.
+            Four Example Modules. One Pilot Scope.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-            Everything you need to originate, verify, disburse, and recover loans — on a
-            single AI-native platform.
+            Explore how intake, identity checks, compliance review, and recovery could be
+            coordinated within a scoped pilot.
           </p>
         </div>
 
@@ -84,6 +84,7 @@ export function FintechSolutions() {
               </p>
               <Link
                 href={solution.href}
+                data-analytics={`solution-${solution.eyebrow.toLowerCase().replaceAll(" ", "-")}`}
                 className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-400 transition-colors hover:text-amber-300"
               >
                 {solution.cta}

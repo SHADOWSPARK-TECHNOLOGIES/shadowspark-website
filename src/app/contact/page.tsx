@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { CTA } from "@/components/sections/CTA";
 import { Footer } from "@/components/sections/Footer";
+import { marketingMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description:
-    "Book a demo of ShadowSpark. We build the AI Operating System for African fintech lenders.",
-};
+export const metadata: Metadata = marketingMetadata(
+  '/contact',
+  'Contact',
+  'Request a ShadowSpark pilot-program conversation for your lending workflow.',
+);
 
 export default function ContactPage() {
   return (

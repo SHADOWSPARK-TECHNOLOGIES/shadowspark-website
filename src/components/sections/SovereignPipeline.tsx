@@ -10,19 +10,19 @@ const steps = [
     icon: Plug,
     title: "Connect",
     description:
-      "Plug ShadowSpark into WhatsApp, your core banking system, and KYC providers in under 48 hours.",
+      "Map the pilot to selected channels, core systems, and identity providers during discovery.",
   },
   {
     icon: ShieldCheck,
     title: "Verify",
     description:
-      "Automate BVN/NIN checks, document OCR, and regulatory consent capture with immutable audit logs.",
+      "Configure example identity checks, document review, consent capture, and audit events.",
   },
   {
     icon: Rocket,
     title: "Deploy",
     description:
-      "Launch AI loan intake, recovery agents, and compliance monitoring across every channel your customers use.",
+      "Run the agreed pilot workflow with operator checkpoints and documented success criteria.",
   },
 ];
 
@@ -44,11 +44,11 @@ export function SovereignPipeline() {
             Deployment Flow
           </span>
           <h2 className="mt-4 text-3xl font-bold text-white sm:text-4xl">
-            From Zero to Live in Three Steps
+            Example Pilot Flow in Three Steps
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-            No six-month implementation. No rip-and-replace. ShadowSpark layers on top of your
-            existing stack and starts automating on day one.
+            Deployment timing and integration scope are defined during discovery; the pilot
+            does not assume a production launch date.
           </p>
         </div>
 

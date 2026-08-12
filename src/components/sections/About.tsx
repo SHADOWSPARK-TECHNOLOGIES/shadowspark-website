@@ -4,20 +4,20 @@ const missionPoints = [
   {
     icon: Target,
     title: "The Problem",
-    stat: "$32.2 billion",
-    body: "Unmet MSME credit demand across Nigeria alone. Lenders still rely on spreadsheets, manual follow-ups, and disconnected WhatsApp chats.",
+    stat: "Pilot program",
+    body: "The pilot program focuses on spreadsheet handoffs, manual follow-up, and disconnected customer conversations.",
   },
   {
     icon: Lightbulb,
     title: "The Solution",
-    stat: "End-to-end AI automation",
-    body: "From WhatsApp-native intake and instant KYC to regulatory compliance and intelligent recovery — one platform layer for the entire loan lifecycle.",
+    stat: "Example workflow",
+    body: "A pilot can model intake, identity checks, compliance review, and recovery coordination with operator checkpoints.",
   },
   {
     icon: TrendingUp,
     title: "The Traction",
-    stat: "65% faster turnaround",
-    body: "Modeled production workflows show loan processing compressed from days to minutes, with immutable audit trails for every decision.",
+    stat: "Measured pilot",
+    body: "Each pilot defines baseline measures and acceptance criteria before any outcome is reported.",
   },
 ];
 
@@ -34,14 +34,13 @@ export function About() {
               Built for African Fintech Scale
             </h2>
             <p className="mt-6 text-base leading-relaxed text-slate-400 sm:text-lg">
-              ShadowSpark was founded to solve a critical infrastructure gap: African
-              lenders still process loans on spreadsheets and WhatsApp chats. We built
-              the AI Operating System that automates intake, verifies identities in
-              seconds, and ensures every disbursement meets CBN and NDPA standards.
+              ShadowSpark&apos;s pilot program explores repeated handoffs across
+              spreadsheets, messaging, document review, and payment follow-up. It tests
+              where software and operator review could reduce that friction.
             </p>
             <p className="mt-4 text-base leading-relaxed text-slate-400 sm:text-lg">
-              From microfinance banks in Lagos to digital lenders in Nairobi, ShadowSpark
-              is the infrastructure layer powering the next generation of African credit.
+              ShadowSpark is currently presenting example workflows and defining measurable
+              pilot scopes rather than claiming unverified production outcomes.
             </p>
           </div>
 

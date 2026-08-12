@@ -48,6 +48,7 @@ export function BookDemoButton({
       className={cn(baseStyles, variantStyles[variant], className)}
       data-event="calendly_open"
       data-location={location}
+      data-analytics={`book-demo-${location}`}
     >
       {children}
     </a>

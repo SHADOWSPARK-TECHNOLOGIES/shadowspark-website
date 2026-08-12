@@ -1,84 +1,111 @@
-/**
- * Reusable SEO helpers for ShadowSpark marketing pages.
- *
- * Provides:
- *  - `canonical(path)` — returns metadataBase + alternates.canonical for a path
- *  - `organizationJsonLd()` — returns Organization structured data as a JSON string
- *  - `faqJsonLd(items)` — returns FAQPage structured data as a JSON string
- */
+import type { Metadata } from 'next';
 
-const BASE_URL = "https://shadowspark.tech";
+/** Verified public deployment origin used by canonical and social metadata. */
+export const SITE_URL = 'https://www.shadowspark-tech.org';
 
-/** Organization name used across all structured data. */
-const ORG_NAME = "ShadowSpark Technologies";
+const ORGANIZATION_NAME = 'ShadowSpark Technologies';
+const DEFAULT_SOCIAL_IMAGE = '/hero/hero-bg.png';
 
 /**
- * Build canonical metadata for a given pathname.
+ * Builds canonical, Open Graph, and X/Twitter metadata for a marketing page.
  *
- * Usage in page metadata:
- * ```ts
- * export const metadata: Metadata = {
- *   ...canonical("/about"),
- *   title: "...",
- * };
- * ```
+ * @param pathname - Absolute pathname for the public page.
+ * @param title - Page title without the organization suffix.
+ * @param description - Truthful page summary for search and social previews.
+ * @param image - Public image pathname used for social previews.
+ * @returns Complete metadata rooted at the deployed public URL.
  */
-export function canonical(path: string): {
-  metadataBase: URL;
-  alternates: { canonical: string };
-} {
-  const url = new URL(path, BASE_URL);
+export function marketingMetadata(
+  pathname: string,
+  title: string,
+  description: string,
+  image = DEFAULT_SOCIAL_IMAGE,
+): Metadata {
+  const pageUrl = new URL(pathname, SITE_URL);
+  const socialTitle = pathname === '/' ? title : `${title} | ShadowSpark`;
+
   return {
-    metadataBase: new URL(BASE_URL),
-    alternates: { canonical: url.href },
+    metadataBase: new URL(SITE_URL),
+    title: { absolute: socialTitle },
+    description,
+    alternates: { canonical: pageUrl.href },
+    openGraph: {
+      title: socialTitle,
+      description,
+      type: 'website',
+      url: pageUrl.href,
+      siteName: 'ShadowSpark',
+      locale: 'en_NG',
+      images: [
+        {
+          url: image,
+          width: 1672,
+          height: 941,
+          alt: `${title} — ShadowSpark`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: socialTitle,
+      description,
+      images: [image],
+    },
   };
 }
 
 /**
- * Returns a JSON string for Organization structured data.
- * Render in the root layout or marketing layout via:
- * ```tsx
- * <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: organizationJsonLd() }} />
- * ```
+ * Builds canonical metadata for routes that have not adopted full social data.
+ *
+ * @param pathname - Absolute pathname for the public page.
+ * @returns Metadata base and canonical URL.
  */
+export function canonical(pathname: string): {
+  metadataBase: URL;
+  alternates: { canonical: string };
+} {
+  const url = new URL(pathname, SITE_URL);
+  return {
+    metadataBase: new URL(SITE_URL),
+    alternates: { canonical: url.href },
+  };
+}
+
+/** Returns truthful Organization structured data for the root layout. */
 export function organizationJsonLd(): string {
   return JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: ORG_NAME,
-    url: BASE_URL,
-    logo: `${BASE_URL}/logo.svg`,
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: ORGANIZATION_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.svg`,
     description:
-      "Institutional-grade financial infrastructure for High-Net-Worth liquidity movers in the 2026 Lagos market. Real-time ledger transparency, automated regulatory compliance, and AI-powered treasury operations.",
+      'ShadowSpark is developing workflow infrastructure for African fintech pilot programs.',
     address: {
-      "@type": "PostalAddress",
-      addressCountry: "NG",
+      '@type': 'PostalAddress',
+      addressCountry: 'NG',
     },
     sameAs: [],
   });
 }
 
 /**
- * Returns a JSON string for FAQPage structured data.
+ * Returns FAQPage structured data for supplied question-and-answer content.
  *
- * @param items — Array of { question, answer } pairs.
- *
- * Usage:
- * ```tsx
- * <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqJsonLd(items) }} />
- * ```
+ * @param items - Questions and answers already rendered on the page.
+ * @returns Serialized Schema.org FAQPage data.
  */
 export function faqJsonLd(
   items: { question: string; answer: string }[],
 ): string {
   return JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
     mainEntity: items.map((item) => ({
-      "@type": "Question",
+      '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
-        "@type": "Answer",
+        '@type': 'Answer',
         text: item.answer,
       },
     })),

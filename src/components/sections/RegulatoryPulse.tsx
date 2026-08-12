@@ -5,39 +5,38 @@ import { motion, useInView } from "framer-motion";
 import { Radio, FileText, AlertTriangle, TrendingUp, Clock } from "lucide-react";
 import { trackMetaEvent } from "@/components/meta-events";
 
-// Static demo signals mirroring the Firecrawl RAG targets.
-// Replace this array with a fetch to /api/regulatory/pulses to go live.
+// Illustrative signals show the intended review workflow without claiming live data.
 const signals = [
   {
     regulator: "SEC Nigeria",
     title: "Circular 26-1 VASP capital deadline",
-    detail: "₦2B capital base required by June 2027. ShadowSpark monitors wallet balances vs threshold.",
+    detail: "Example: a capital-base deadline can be mapped to an operator review task.",
     type: "deadline",
-    date: "2 hours ago",
+    date: "Example",
     confidence: 0.94,
   },
   {
     regulator: "CBN",
     title: "Open Banking guideline refresh",
-    detail: "Updated API consent frameworks affect lender data retrieval workflows.",
+    detail: "Example: a guidance update can trigger review of consent workflows.",
     type: "guideline",
-    date: "6 hours ago",
+    date: "Example",
     confidence: 0.87,
   },
   {
     regulator: "NITDA / NDPC",
     title: "Data Protection Act 2023 enforcement",
-    detail: "Breach notification timelines shortened. Consent logs must be WORM-auditable.",
+    detail: "Example: a policy change can trigger a consent-log control review.",
     type: "compliance",
-    date: "1 day ago",
+    date: "Example",
     confidence: 0.91,
   },
   {
     regulator: "NIBSS",
     title: "NIP real-time settlement uplift",
-    detail: "Higher throughput expected for disbursement and recovery rails.",
+    detail: "Example: an infrastructure notice can be routed to operations reviewers.",
     type: "infrastructure",
-    date: "2 days ago",
+    date: "Example",
     confidence: 0.82,
   },
 ];
@@ -77,8 +76,8 @@ export function RegulatoryPulse() {
             Regulatory Pulse
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-            ShadowSpark&apos;s Firecrawl RAG bridge reads CBN, SEC, NITDA/NDPC, and NIBSS signals
-            nightly. Your compliance posture stays current without a research team.
+            This illustrative feed shows how configured public-source updates can be summarized
+            for human review. It is not a live regulatory advisory service.
           </p>
         </div>
 
@@ -116,7 +115,7 @@ export function RegulatoryPulse() {
                       />
                     </div>
                     <span className="text-xs text-slate-500">
-                      Confidence {Math.round(signal.confidence * 100)}%
+                      Example confidence {Math.round(signal.confidence * 100)}%
                     </span>
                   </div>
                 </div>
@@ -134,7 +133,7 @@ export function RegulatoryPulse() {
         >
           <p className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-xs text-slate-400">
             <Radio className="h-3.5 w-3.5 text-emerald-500 animate-pulse" />
-            Refreshed nightly from 5 regulatory sources via Firecrawl
+            Example feed · source refresh requires deployment configuration
           </p>
         </motion.div>
       </div>
