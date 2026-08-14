@@ -110,3 +110,10 @@ Before any push, pull request, or deployment:
 9. Keep repository-wide lint debt in its separate hygiene/remediation issue.
 
 Until every applicable condition is met, external publication remains blocked.
+
+## Issue linkage
+
+- Baseline ESLint remediation: https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/issues/8
+- iPhone real-device verification: https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/issues/9
+- AI-unavailable fallback and ownership remediation: https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/issues/10
+- Named-environment topology evidence: https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/issues/11
