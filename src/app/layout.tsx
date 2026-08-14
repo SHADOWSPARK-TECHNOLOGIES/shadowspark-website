@@ -7,7 +7,12 @@ import {
 } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
-import { marketingMetadata, organizationJsonLd } from '@/lib/seo';
+import { RootPageFrame } from '@/components/RootPageFrame';
+import {
+  marketingMetadata,
+  ORGANIZATION_DESCRIPTION,
+  organizationJsonLd,
+} from '@/lib/seo';
 import ChatWidget from "@/components/ChatWidget";
 import { CalendlyProvider } from "@/components/calendly-modal";
 import { MetaPixel } from "@/components/meta-pixel";
@@ -34,20 +39,17 @@ const cormorantGaramond = Cormorant_Garamond({
 export const metadata: Metadata = {
   ...marketingMetadata(
     '/',
-    'ShadowSpark — Pilot Infrastructure for African Fintech',
-    'Explore ShadowSpark pilot workflows for African fintech operations.',
+    'ShadowSpark Technologies — Products, Systems & Applied AI',
+    ORGANIZATION_DESCRIPTION,
   ),
   keywords: [
-    "African fintech",
-    "loan automation",
-    "KYC verification",
-    "WhatsApp banking",
-    "NDPA compliance",
-    "Nigeria fintech",
-    "AI lending",
-    "CBN compliance",
-    "microfinance",
-    "digital lending",
+    "ShadowSpark Technologies",
+    "technology products",
+    "product development",
+    "applied AI systems",
+    "venture building",
+    "software engineering",
+    "African technology",
   ],
 };
 
@@ -83,13 +85,11 @@ export default function RootLayout({
           {/* Skip-to-content link for keyboard and screen-reader users */}
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-lg focus:bg-emerald-600 focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-none"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-lg focus:bg-emerald-700 focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-none"
           >
             Skip to main content
           </a>
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
+          <RootPageFrame>{children}</RootPageFrame>
           <Toaster theme="dark" position="bottom-right" />
           <ChatWidget />
           <Analytics />

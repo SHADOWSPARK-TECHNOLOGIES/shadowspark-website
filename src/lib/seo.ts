@@ -6,6 +6,25 @@ export const SITE_URL = 'https://www.shadowspark-tech.org';
 const ORGANIZATION_NAME = 'ShadowSpark Technologies';
 const DEFAULT_SOCIAL_IMAGE = '/hero/hero-bg.png';
 
+/** Corporate description shared by root metadata and structured data. */
+export const ORGANIZATION_DESCRIPTION =
+  'ShadowSpark Technologies is an independent product and technology company developing digital products, applied-AI systems, and experimental technology.';
+
+/** Schema.org Organization object emitted by the root layout. */
+export interface OrganizationStructuredData {
+  '@context': 'https://schema.org';
+  '@type': 'Organization';
+  name: string;
+  url: string;
+  logo: string;
+  description: string;
+  address: {
+    '@type': 'PostalAddress';
+    addressCountry: 'NG';
+  };
+  sameAs: readonly string[];
+}
+
 /**
  * Builds canonical, Open Graph, and X/Twitter metadata for a marketing page.
  *
@@ -71,22 +90,26 @@ export function canonical(pathname: string): {
   };
 }
 
-/** Returns truthful Organization structured data for the root layout. */
-export function organizationJsonLd(): string {
-  return JSON.stringify({
+/** Returns the typed corporate entity used by metadata verification and JSON-LD. */
+export function organizationStructuredData(): OrganizationStructuredData {
+  return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: ORGANIZATION_NAME,
     url: SITE_URL,
     logo: `${SITE_URL}/logo.svg`,
-    description:
-      'ShadowSpark is developing workflow infrastructure for African fintech pilot programs.',
+    description: ORGANIZATION_DESCRIPTION,
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'NG',
     },
     sameAs: [],
-  });
+  };
+}
+
+/** Returns truthful Organization structured data for the root layout. */
+export function organizationJsonLd(): string {
+  return JSON.stringify(organizationStructuredData());
 }
 
 /**

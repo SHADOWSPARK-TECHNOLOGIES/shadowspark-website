@@ -1,94 +1,115 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X, Zap } from "lucide-react";
-import { useCalendly } from "@/components/calendly-modal";
 
-const navLinks = [
-  { label: "Solutions", href: "#solutions" },
-  { label: "Case Studies", href: "#case-study" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Compliance", href: "#compliance" },
-  { label: "About", href: "/about" },
-];
+import {
+  handleNavigationEscape,
+  navigationLinks,
+  nextNavigationMenuState,
+} from "@/lib/navigation";
 
+/** Renders the corporate navigation and its keyboard-operable disclosure. */
 export function Navigation() {
   const [open, setOpen] = useState(false);
-  const { openCalendly } = useCalendly();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeOnEscape(event: KeyboardEvent) {
+      handleNavigationEscape(
+        event.key,
+        () => setOpen(false),
+        menuButtonRef.current,
+      );
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 text-white">
+        <Link
+          href="/"
+          className="flex items-center gap-2 rounded-lg text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+        >
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
-            <Zap className="h-5 w-5" fill="currentColor" />
+            <Zap aria-hidden="true" className="h-5 w-5" fill="currentColor" />
           </span>
           <span className="text-lg font-bold tracking-tight">ShadowSpark</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
+        <nav aria-label="Primary navigation" className="hidden items-center gap-6 lg:flex xl:gap-8">
+          {navigationLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="text-sm font-medium text-slate-400 transition-colors hover:text-white"
+              className="rounded text-sm font-medium text-slate-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <button
-            type="button"
-            onClick={() => openCalendly("nav")}
-            className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
-            data-event="calendly_open"
-            data-location="nav"
-            data-analytics="nav-book-demo"
+        <div className="hidden lg:block">
+          <Link
+            href="/#solutions"
+            className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none"
           >
-            Book Demo
-          </button>
+            Explore systems
+          </Link>
         </div>
 
         <button
+          ref={menuButtonRef}
           type="button"
-          onClick={() => setOpen((prev) => !prev)}
-          className="inline-flex items-center justify-center rounded-lg p-2 text-slate-400 hover:bg-slate-900 md:hidden"
-          aria-label="Toggle navigation"
+          onClick={() =>
+            setOpen((current) => nextNavigationMenuState(current, "toggle"))
+          }
+          className="inline-flex items-center justify-center rounded-lg p-2 text-slate-400 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 lg:hidden"
+          aria-label={open ? "Close navigation" : "Open navigation"}
           aria-expanded={open}
+          aria-controls="primary-mobile-navigation"
         >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {open ? (
+            <X aria-hidden="true" className="h-6 w-6" />
+          ) : (
+            <Menu aria-hidden="true" className="h-6 w-6" />
+          )}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-slate-800 bg-slate-950 px-4 py-4 md:hidden">
-          <nav className="flex flex-col gap-4">
-            {navLinks.map((link) => (
+        <div
+          id="primary-mobile-navigation"
+          className="border-t border-slate-800 bg-slate-950 px-4 py-4 lg:hidden"
+        >
+          <nav aria-label="Mobile navigation" className="flex flex-col gap-4">
+            {navigationLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                onClick={() => setOpen(false)}
-                className="text-base font-medium text-slate-400 transition-colors hover:text-white"
+                onClick={() =>
+                  setOpen((current) => nextNavigationMenuState(current, "close"))
+                }
+                className="rounded text-base font-medium text-slate-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none"
               >
                 {link.label}
               </Link>
             ))}
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                openCalendly("nav_mobile");
-              }}
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950"
-              data-event="calendly_open"
-              data-location="nav_mobile"
-              data-analytics="nav-mobile-book-demo"
+            <Link
+              href="/#solutions"
+              onClick={() =>
+                setOpen((current) => nextNavigationMenuState(current, "close"))
+              }
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
-              Book Demo
-            </button>
+              Explore systems
+            </Link>
           </nav>
         </div>
       )}
