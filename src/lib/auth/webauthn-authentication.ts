@@ -85,7 +85,12 @@ export async function verifyAuthenticationCeremony(
 
   try {
     return await prisma.$transaction(async (tx) => {
-      await consumeChallenge(tx as unknown as Parameters<typeof consumeChallenge>[0], { id: challenge.id, userId: challenge.userId, type: "authentication", now });
+      await consumeChallenge(tx, {
+        id: challenge.id,
+        userId: challenge.userId,
+        type: "authentication",
+        now,
+      });
       const updated = await tx.passkey.updateMany({
         where: { id: passkey.id, userId: user.id, verifiedAt: { not: null }, counter: passkey.counter },
         data: { counter: newCounter, lastUsedAt: now },
