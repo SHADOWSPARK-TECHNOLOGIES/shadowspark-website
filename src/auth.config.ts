@@ -26,6 +26,7 @@ export const authConfig: NextAuthConfig = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        handoff: { label: "Passkey handoff", type: "text" },
       },
     }),
   ],

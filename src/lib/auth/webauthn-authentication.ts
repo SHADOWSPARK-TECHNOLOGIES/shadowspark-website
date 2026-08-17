@@ -10,6 +10,7 @@ import {
   InvalidAuthenticationProof,
 } from "@/lib/auth/challenge-store";
 import { getWebAuthnConfig } from "@/lib/auth/webauthn-config";
+import { createSessionHandoff } from "@/lib/auth/session-handoff";
 
 export interface VerifyAuthenticationInput {
   challenge: string;
@@ -18,7 +19,7 @@ export interface VerifyAuthenticationInput {
 }
 
 export type VerifyAuthenticationResult =
-  | { ok: true; userId: string; email: string; newCounter: bigint }
+  | { ok: true; userId: string; email: string; newCounter: bigint; handoff: string }
   | { ok: false };
 
 const transports: readonly AuthenticatorTransport[] = ["ble", "hybrid", "internal", "nfc", "usb"];
@@ -96,7 +97,8 @@ export async function verifyAuthenticationCeremony(
         data: { counter: newCounter, lastUsedAt: now },
       });
       if (updated.count !== 1) throw new InvalidAuthenticationProof();
-      return { ok: true as const, userId: user.id, email: user.email, newCounter };
+      const handoff = await createSessionHandoff(tx, user.id, now);
+      return { ok: true as const, userId: user.id, email: user.email, newCounter, handoff };
     });
   } catch (error) {
     if (

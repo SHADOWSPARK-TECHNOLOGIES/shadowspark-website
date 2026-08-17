@@ -86,6 +86,7 @@ describe("WebAuthn authentication verification", () => {
       userId: "user-1",
       email: "user@example.com",
       newCounter: BigInt(5),
+      handoff: expect.any(String),
     });
     expect(verifyAuthenticationResponse).toHaveBeenCalledWith(expect.objectContaining({
       expectedChallenge: "challenge-1",

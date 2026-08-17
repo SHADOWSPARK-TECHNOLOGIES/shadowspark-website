@@ -3,9 +3,9 @@ import { authConfig } from "./auth.config";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { assignReferralCode } from "@/lib/referral";
+import { authorizeCredentials } from "@/lib/auth/credentials";
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
@@ -23,39 +23,9 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        handoff: { label: "Passkey handoff", type: "text" },
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-          include: { passkeys: true },
-        });
-
-        if (!user) return null;
-
-        // Passkey authentication bypass — the verify-login route
-        // uses this special marker when WebAuthn verification succeeded.
-        // SECURITY: Only allowed if the user has at least one verified passkey,
-        // preventing arbitrary session creation via this bypass.
-        if (credentials.password === "passkey-auth-bypass") {
-          if (!user.passkeys || user.passkeys.length === 0) return null;
-          return { id: user.id, email: user.email, role: user.role };
-        }
-
-        if (!user.password) return null;
-
-        const passwordsMatch = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
-
-        if (passwordsMatch) {
-          return { id: user.id, email: user.email, role: user.role };
-        }
-
-        return null;
-      },
+      authorize: authorizeCredentials,
     }),
   ],
   callbacks: {
