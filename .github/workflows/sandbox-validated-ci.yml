@@ -17,18 +17,18 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      node-version: '20'
+      node-version: '24'
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+      node-version: '24'
           cache: 'pnpm'
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: '8'
+          version: '11.20.0'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Cache pnpm store
@@ -42,6 +42,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.20.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Run linters
         run: pnpm -w -s lint
 
@@ -53,6 +61,14 @@ jobs:
       SANDBOX: 'true'
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.20.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Run workspace tests
         run: pnpm -w -s test
 
@@ -64,6 +80,14 @@ jobs:
       DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.20.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Run sandbox smoke tests
         run: |
           # Prefer a project-provided script for sandbox checks. Fallback to a conservative command.
@@ -88,6 +112,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.20.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Build (sandbox)
         env:
           SANDBOX: 'true'
