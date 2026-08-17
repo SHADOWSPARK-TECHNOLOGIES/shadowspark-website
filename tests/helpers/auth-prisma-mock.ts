@@ -1,6 +1,15 @@
 import { vi } from "vitest";
 
-export const mockPrisma = {
+type MockFunction = ReturnType<typeof vi.fn>;
+
+type AuthPrismaMock = {
+  user: Record<string, MockFunction>;
+  passkey: Record<string, MockFunction>;
+  webAuthnChallenge: Record<string, MockFunction>;
+  $transaction: MockFunction;
+};
+
+export const mockPrisma: AuthPrismaMock = {
   user: {
     findUnique: vi.fn(),
     create: vi.fn(),
@@ -20,29 +29,28 @@ export const mockPrisma = {
     delete: vi.fn(),
     deleteMany: vi.fn(),
   },
-  sessionHandoff: {
-    create: vi.fn(),
-    updateMany: vi.fn(),
-    findUnique: vi.fn(),
-  },
-  $transaction: vi.fn(async <T>(callback: (tx: typeof mockPrisma) => Promise<T>) =>
-    callback(mockPrisma),
-  ),
+  $transaction: vi.fn(),
 };
 
-export function resetAuthPrismaMock(): void {
-  for (const model of Object.values(mockPrisma)) {
-    if (typeof model === "function") {
-      model.mockReset();
-      continue;
-    }
+type TransactionCallback = (tx: AuthPrismaMock) => Promise<unknown>;
 
+mockPrisma.$transaction.mockImplementation((callback: TransactionCallback) =>
+  callback(mockPrisma),
+);
+
+export function resetAuthPrismaMock(): void {
+  for (const model of [
+    mockPrisma.user,
+    mockPrisma.passkey,
+    mockPrisma.webAuthnChallenge,
+  ]) {
     for (const method of Object.values(model)) {
       method.mockReset();
     }
   }
 
+  mockPrisma.$transaction.mockReset();
   mockPrisma.$transaction.mockImplementation(
-    async <T>(callback: (tx: typeof mockPrisma) => Promise<T>) => callback(mockPrisma),
+    (callback: TransactionCallback) => callback(mockPrisma),
   );
 }

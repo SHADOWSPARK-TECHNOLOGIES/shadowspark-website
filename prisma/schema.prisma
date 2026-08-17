@@ -62,6 +62,7 @@ model Passkey {
   backedUp     Boolean   @default(false)
   createdAt    DateTime  @default(now())
   lastUsedAt   DateTime?
+  verifiedAt   DateTime?
   user         User      @relation(fields: [userId], references: [id])
 
   @@map("passkeys")
