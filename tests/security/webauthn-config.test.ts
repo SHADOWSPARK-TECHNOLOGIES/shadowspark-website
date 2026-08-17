@@ -1,18 +1,16 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getWebAuthnConfig } from "@/lib/auth/webauthn-config";
 
-const originalEnv = { ...process.env };
-
 afterEach(() => {
-  process.env = { ...originalEnv };
+  vi.unstubAllEnvs();
 });
 
 describe("WebAuthn configuration", () => {
   it("uses exact local defaults outside production", () => {
-    process.env.NODE_ENV = "test";
-    delete process.env.WEBAUTHN_RP_ID;
-    delete process.env.WEBAUTHN_ORIGIN;
+    vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("WEBAUTHN_RP_ID", "");
+    vi.stubEnv("WEBAUTHN_ORIGIN", "");
 
     expect(getWebAuthnConfig()).toEqual({
       rpID: "localhost",
@@ -25,10 +23,10 @@ describe("WebAuthn configuration", () => {
   it.each(["WEBAUTHN_RP_ID", "WEBAUTHN_ORIGIN"]) (
     "rejects missing %s in production",
     (key) => {
-      process.env.NODE_ENV = "production";
-      process.env.WEBAUTHN_RP_ID = "example.com";
-      process.env.WEBAUTHN_ORIGIN = "https://example.com";
-      delete process.env[key];
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("WEBAUTHN_RP_ID", "example.com");
+      vi.stubEnv("WEBAUTHN_ORIGIN", "https://example.com");
+      vi.stubEnv(key, "");
 
       expect(() => getWebAuthnConfig()).toThrow(/required/iu);
     },
@@ -37,18 +35,18 @@ describe("WebAuthn configuration", () => {
   it.each(["https://example.com/", "https://example.com/path"]) (
     "rejects an origin with a path or trailing slash: %s",
     (origin) => {
-      process.env.NODE_ENV = "production";
-      process.env.WEBAUTHN_RP_ID = "example.com";
-      process.env.WEBAUTHN_ORIGIN = origin;
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("WEBAUTHN_RP_ID", "example.com");
+      vi.stubEnv("WEBAUTHN_ORIGIN", origin);
 
       expect(() => getWebAuthnConfig()).toThrow(/path|trailing/iu);
     },
   );
 
   it("rejects insecure non-local origins", () => {
-    process.env.NODE_ENV = "production";
-    process.env.WEBAUTHN_RP_ID = "example.com";
-    process.env.WEBAUTHN_ORIGIN = "http://example.com";
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("WEBAUTHN_RP_ID", "example.com");
+    vi.stubEnv("WEBAUTHN_ORIGIN", "http://example.com");
 
     expect(() => getWebAuthnConfig()).toThrow(/HTTPS/iu);
   });
@@ -56,9 +54,9 @@ describe("WebAuthn configuration", () => {
   it.each(["https://example.com", "example.com:443"]) (
     "rejects an RP ID containing scheme or port: %s",
     (rpID) => {
-      process.env.NODE_ENV = "production";
-      process.env.WEBAUTHN_RP_ID = rpID;
-      process.env.WEBAUTHN_ORIGIN = "https://example.com";
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("WEBAUTHN_RP_ID", rpID);
+      vi.stubEnv("WEBAUTHN_ORIGIN", "https://example.com");
 
       expect(() => getWebAuthnConfig()).toThrow(/hostname/iu);
     },

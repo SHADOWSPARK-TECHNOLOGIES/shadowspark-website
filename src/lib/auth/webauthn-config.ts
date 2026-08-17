@@ -11,15 +11,15 @@ const LOCAL_ORIGIN = "http://localhost:3000";
 /** Returns the configured WebAuthn relying-party values, failing closed. */
 export function getWebAuthnConfig(): WebAuthnConfig {
   const isProduction = process.env.NODE_ENV === "production";
-  const configuredRpID = process.env.WEBAUTHN_RP_ID?.trim();
-  const configuredOrigin = process.env.WEBAUTHN_ORIGIN?.trim();
+  const configuredRpID = process.env.WEBAUTHN_RP_ID?.trim() || undefined;
+  const configuredOrigin = process.env.WEBAUTHN_ORIGIN?.trim() || undefined;
 
   if (isProduction && (!configuredRpID || !configuredOrigin)) {
     throw new Error("WebAuthn configuration is required in production");
   }
 
-  const rpID = configuredRpID ?? LOCAL_RP_ID;
-  const originInput = configuredOrigin ?? LOCAL_ORIGIN;
+  const rpID = configuredRpID || LOCAL_RP_ID;
+  const originInput = configuredOrigin || LOCAL_ORIGIN;
 
   if (/[/:]/u.test(rpID) || !rpID || rpID.includes(" ")) {
     throw new Error("WEBAUTHN_RP_ID must be a hostname without scheme or port");
