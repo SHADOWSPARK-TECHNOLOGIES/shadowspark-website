@@ -21,7 +21,7 @@ describe("credentials authorization", () => {
 
   it("rejects the removed fixed passkey marker", async () => {
     mockPrisma.user.findUnique.mockResolvedValue({ id: "u1", email: "user@example.com", role: "user", password: "" });
-    await expect(authorizeCredentials({ email: "user@example.com", password: "passkey-auth-bypass" })).resolves.toBeNull();
+    await expect(authorizeCredentials({ email: "user@example.com", password: "legacy-fixed-marker" })).resolves.toBeNull();
     expect(vi.mocked(consumeSessionHandoff)).not.toHaveBeenCalled();
   });
 
