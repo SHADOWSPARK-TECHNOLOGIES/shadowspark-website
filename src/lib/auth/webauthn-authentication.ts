@@ -86,7 +86,7 @@ export async function verifyAuthenticationCeremony(
 
   try {
     return await prisma.$transaction(async (tx) => {
-      await consumeChallenge(tx, {
+      await consumeChallenge(tx as unknown as Parameters<typeof consumeChallenge>[0], {
         id: challenge.id,
         userId: challenge.userId,
         type: "authentication",
@@ -97,7 +97,11 @@ export async function verifyAuthenticationCeremony(
         data: { counter: newCounter, lastUsedAt: now },
       });
       if (updated.count !== 1) throw new InvalidAuthenticationProof();
-      const handoff = await createSessionHandoff(tx, user.id, now);
+      const handoff = await createSessionHandoff(
+        tx as unknown as Parameters<typeof createSessionHandoff>[0],
+        user.id,
+        now,
+      );
       return { ok: true as const, userId: user.id, email: user.email, newCounter, handoff };
     });
   } catch (error) {

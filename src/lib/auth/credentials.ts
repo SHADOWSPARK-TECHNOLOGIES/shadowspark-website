@@ -38,6 +38,8 @@ export async function authorizeCredentials(
       : null;
   }
 
-  if (!user.password || !(await bcrypt.compare(password, user.password))) return null;
+  if (password === null) return null;
+  const passwordHash = user.password;
+  if (typeof passwordHash !== "string" || !(await bcrypt.compare(password, passwordHash))) return null;
   return { id: user.id, email: user.email, role: user.role };
 }
