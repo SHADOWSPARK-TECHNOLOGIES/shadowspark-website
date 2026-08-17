@@ -54,13 +54,14 @@ export async function middleware(req: NextRequest) {
   }
 
   // Hand off to NextAuth for protected dashboard routes
-  return auth(req as unknown as Parameters<typeof auth>[0]);
+  return auth(req as Parameters<typeof auth>[0]);
 }
 
 export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
+    "/operator/:path*",
     "/finance/:path*",
     "/support/:path*",
     "/api/listings/:path*",

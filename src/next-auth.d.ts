@@ -1,6 +1,6 @@
 
-import { Role } from "@/generated/prisma/client/index.js";
 import { type DefaultSession } from "next-auth";
+import type { AppRole } from "@/lib/auth/authorization";
 
 declare module "next-auth" {
   /**
@@ -9,7 +9,8 @@ declare module "next-auth" {
   interface Session {
     user: {
       /** The user's role. */
-      role: Role;
+      id: string;
+      role: AppRole;
       /**
        * By default, TypeScript merges new interface properties.
        * Ref: https://www.typescriptlang.org/docs/handbook/declaration-merging.html
@@ -22,6 +23,14 @@ declare module "next-auth" {
    * or the second parameter of the `session` callback, when using a database.
    */
   interface User {
-    role: Role;
+    id: string;
+    role?: AppRole;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    sub?: string;
+    role?: AppRole;
   }
 }

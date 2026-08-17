@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma/client/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 export const dynamic = 'force-dynamic';
 
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
   }
 
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

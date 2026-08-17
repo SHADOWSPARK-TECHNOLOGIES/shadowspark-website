@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { hasAdminIdentity, hasConcreteIdentity } from "@/lib/auth/authorization";
 
 const LISTING_EXPIRY_DAYS = 90;
 
@@ -9,7 +10,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!hasConcreteIdentity(session?.user)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,7 +21,7 @@ export async function POST(
   }
 
   // Only the owner or an admin may renew
-  if (listing.ownerId !== session.user.id && session.user.role !== "admin") {
+  if (listing.ownerId !== session.user.id && !hasAdminIdentity(session.user)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

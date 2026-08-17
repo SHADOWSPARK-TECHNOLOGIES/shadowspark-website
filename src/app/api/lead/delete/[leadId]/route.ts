@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 export const runtime = "nodejs";
 
@@ -11,7 +12,7 @@ export async function DELETE(
 ) {
   try {
     const session = await auth();
-    if (session?.user?.role !== "admin") {
+    if (!hasAdminIdentity(session?.user)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

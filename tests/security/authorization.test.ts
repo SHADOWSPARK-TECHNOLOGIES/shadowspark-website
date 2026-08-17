@@ -13,10 +13,10 @@ describe("concrete identity and typed authorization", () => {
   it.each([null, {}, { role: "admin" }, { id: "", role: "admin" }])(
     "rejects protected identity %j",
     async (user) => {
-      const module = await loadAuthorization();
-      if (!module) return;
+      const authz = await loadAuthorization();
+      if (!authz) return;
 
-      const hasConcreteIdentity = module.hasConcreteIdentity;
+      const hasConcreteIdentity = authz.hasConcreteIdentity;
       expect(hasConcreteIdentity, "hasConcreteIdentity service is required").toBeTypeOf(
         "function",
       );
@@ -27,10 +27,10 @@ describe("concrete identity and typed authorization", () => {
   );
 
   it("rejects a concrete non-admin from operator routes", async () => {
-    const module = await loadAuthorization();
-    if (!module) return;
+    const authz = await loadAuthorization();
+    if (!authz) return;
 
-    const canAccessPrivilegedRoute = module.canAccessPrivilegedRoute;
+    const canAccessPrivilegedRoute = authz.canAccessPrivilegedRoute;
     expect(
       canAccessPrivilegedRoute,
       "canAccessPrivilegedRoute service is required",

@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { evaluateFlags } from "@/lib/trust/fraudDetection";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 export async function GET(request: Request) {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

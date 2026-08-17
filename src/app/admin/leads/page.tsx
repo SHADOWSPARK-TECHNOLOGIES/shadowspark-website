@@ -2,12 +2,12 @@ import { getLeads } from '@/lib/lead-service';
 import LeadTable from '@/components/admin/LeadTable';
 import { auth } from "@/auth";
 import { redirect } from 'next/navigation';
+import { hasAdminIdentity } from '@/lib/auth/authorization';
 
 export default async function AdminLeadsPage() {
   const session = await auth();
   
-  const userRole = (session?.user as any)?.role?.toLowerCase();
-  if (!session || userRole !== 'admin') {
+  if (!hasAdminIdentity(session?.user)) {
     redirect('/login');
   }
 

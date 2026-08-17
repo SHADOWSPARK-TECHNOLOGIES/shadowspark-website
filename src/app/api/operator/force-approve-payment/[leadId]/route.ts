@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { approvePayment } from "@/lib/payment-approval";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 /**
  * POST /api/operator/force-approve-payment/[leadId]
@@ -21,7 +22,7 @@ export async function POST(
   { params }: { params: Promise<{ leadId: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

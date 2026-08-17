@@ -6,6 +6,7 @@ import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import { assignReferralCode } from "@/lib/referral";
 import { authorizeCredentials } from "@/lib/auth/credentials";
+import { isAppRole } from "@/lib/auth/authorization";
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
@@ -69,7 +70,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
 
       // Mutate the user object so the jwt callback gets the correct DB id
       user.id = dbUser.id;
-      (user as unknown as Record<string, unknown>).role = dbUser.role;
+      user.role = isAppRole(dbUser.role) ? dbUser.role : "user";
 
       return true;
     },

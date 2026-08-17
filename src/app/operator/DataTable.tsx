@@ -75,7 +75,8 @@ export function DataTable<TData, TValue>({
           <TableBody className="divide-y divide-zinc-900">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                const isApex = (row.original as any).leadScore >= 85;
+                const leadScore = (row.original as { leadScore?: number | null }).leadScore;
+                const isApex = typeof leadScore === "number" && leadScore >= 85;
                 return (
                   <TableRow
                     key={row.id}

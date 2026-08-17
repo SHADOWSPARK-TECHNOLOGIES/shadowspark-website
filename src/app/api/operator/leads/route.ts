@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@/generated/prisma/client/client";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 export const dynamic = 'force-dynamic';
 
-function normalizeStatus(lead: any) {
+type LeadWithDemoAndPayments = Prisma.LeadGetPayload<{
+  include: { demo: true; payments: true };
+}>;
+
+function normalizeStatus(lead: LeadWithDemoAndPayments) {
   if (lead.status === "REJECTED") return "Rejected";
   if (lead.demo?.approved || lead.demoApproved) return "Approved";
   if (lead.demo) return "Demo Generated";
@@ -28,9 +34,9 @@ export async function GET(request: Request) {
       take: 50
     });
 
-    const formattedLeads = leadsData.map((lead: any) => ({
+    const formattedLeads = leadsData.map((lead: LeadWithDemoAndPayments) => ({
       id: lead.id,
-      domain: lead.domain || lead.companyName || "Unknown",
+      domain: lead.phoneNumber || "Unknown",
       status: normalizeStatus(lead),
       auditScore: lead.leadScore || 0,
       createdAt: lead.createdAt.toISOString()
@@ -43,7 +49,7 @@ export async function GET(request: Request) {
   }
 
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
