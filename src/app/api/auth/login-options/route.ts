@@ -1,118 +1,111 @@
-/**
- * POST /api/auth/login-options
- *
- * Generates WebAuthn authentication options for passkey login.
- * Stores the challenge server-side with ceremony binding to prevent
- * replay attacks across different ceremonies.
- *
- * Body: { email: string }
- * Response: { options: PublicKeyCredentialRequestOptions; challenge: string; credentialIds: string[]; userId: string }
- */
+/** POST /api/auth/login-options — generate a server-bound passkey assertion challenge. */
 
+import {
+  generateAuthenticationOptions,
+  type AuthenticatorTransport,
+} from "@simplewebauthn/server";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+
+import { getWebAuthnConfig } from "@/lib/auth/webauthn-config";
+import { logSecurityEvent } from "@/lib/auth/security-log";
+import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
-/** Hardcoded RP ID — DO NOT derive from Host header (spoofable) */
-const RP_ID = process.env.WEBAUTHN_RP_ID || "shadowspark-tech.org";
-const ORIGIN = process.env.WEBAUTHN_ORIGIN || "https://shadowspark-tech.org";
-
 const loginOptionsSchema = z.object({
-  email: z.string().email("Invalid email format"),
-});
+  email: z.string().trim().toLowerCase().email(),
+}).strict();
+
+const transportValues: readonly AuthenticatorTransport[] = [
+  "ble",
+  "hybrid",
+  "internal",
+  "nfc",
+  "usb",
+];
+
+function parseTransports(serialized: string | null): AuthenticatorTransport[] | undefined {
+  if (!serialized) return undefined;
+
+  try {
+    const parsed: unknown = JSON.parse(serialized);
+    if (!Array.isArray(parsed)) return undefined;
+
+    const transports = parsed.filter(
+      (value): value is AuthenticatorTransport =>
+        typeof value === "string" && transportValues.includes(value as AuthenticatorTransport),
+    );
+    return transports.length > 0 ? transports : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function requestId(request: Request): string {
+  return request.headers.get("x-request-id") ?? crypto.randomUUID();
+}
 
 export async function POST(request: Request) {
+  const id = requestId(request);
+
   try {
-    const { success: allowed, headers: rateLimitHeaders } = await rateLimit(
+    const { success: allowed, headers } = await rateLimit(
       request,
       "auth:login-options",
       5,
       "10 s",
     );
     if (!allowed) {
-      return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429, headers: rateLimitHeaders },
-      );
+      return NextResponse.json({ error: "Authentication not allowed" }, { status: 429, headers });
     }
 
-    const body = await request.json();
-    const parsed = loginOptionsSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues[0].message },
-        { status: 400 },
-      );
-    }
-
-    const { email } = parsed.data;
-
-    // Validate origin
+    const config = getWebAuthnConfig();
     const origin = request.headers.get("origin");
-    if (origin && origin !== ORIGIN && origin !== "http://localhost:3000") {
-      return NextResponse.json(
-        { error: `Origin not allowed: ${origin}` },
-        { status: 400 },
-      );
+    if (origin && origin !== config.origin) {
+      return NextResponse.json({ error: "Authentication not allowed" }, { status: 403 });
     }
 
-    // Find the user
+    const parsed = loginOptionsSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid authentication request" }, { status: 400 });
+    }
+
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: parsed.data.email },
       include: { passkeys: true },
     });
-
-    if (!user || user.passkeys.length === 0) {
+    const verifiedPasskeys = user?.passkeys.filter((passkey) => passkey.verifiedAt !== null) ?? [];
+    if (!user || verifiedPasskeys.length === 0) {
       return NextResponse.json(
-        { error: "No passkeys registered for this account" },
+        { error: "Unable to create authentication options" },
         { status: 404 },
       );
     }
 
-    // Generate a random challenge
-    const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
-    const challenge = Buffer.from(challengeBytes).toString("base64url");
+    const options = await generateAuthenticationOptions({
+      rpID: config.rpID,
+      timeout: config.ceremonyTimeoutMs,
+      userVerification: "required",
+      allowCredentials: verifiedPasskeys.map((passkey) => ({
+        id: passkey.credentialId,
+        transports: parseTransports(passkey.transports),
+      })),
+    });
 
-    // Store challenge server-side with ceremony binding and expiry
-    // This prevents replay: the same challenge cannot be used for registration
-    // or for a different user's authentication
     await prisma.webAuthnChallenge.create({
       data: {
         userId: user.id,
-        challenge,
+        challenge: options.challenge,
         type: "authentication",
-        expiresAt: new Date(Date.now() + 60000), // 60-second expiry
+        expiresAt: new Date(Date.now() + config.ceremonyTimeoutMs),
       },
     });
 
-    // Get credential IDs for allowCredentials
-    const credentialIds = user.passkeys.map((pk) => pk.credentialId);
-
-    // Build WebAuthn request options
-    const options: Record<string, unknown> = {
-      challenge,
-      rpId: RP_ID,
-      timeout: 60000,
-      userVerification: "required",
-      allowCredentials: credentialIds.map((id) => ({
-        id,
-        type: "public-key",
-        transports: ["internal", "hybrid", "usb", "ble", "nfc"],
-      })),
-    };
-
-    return NextResponse.json({
-      options,
-      challenge,
-      credentialIds,
-      userId: user.id,
-    });
+    return NextResponse.json(options);
   } catch (error) {
-    console.error("Login options error:", error);
+    logSecurityEvent("webauthn_authentication_options", id, error);
     return NextResponse.json(
-      { error: "Failed to generate login options" },
+      { error: "Unable to create authentication options" },
       { status: 500 },
     );
   }
