@@ -1,132 +1,94 @@
-/**
- * POST /api/auth/register-options
- *
- * Generates WebAuthn credential creation options for passkey registration.
- * Stores the challenge server-side with ceremony binding to prevent
- * replay attacks across different ceremonies.
- *
- * Body: { email: string; name?: string }
- * Response: { options: PublicKeyCredentialCreationOptions; challenge: string; userId: string }
- */
-
+import { generateRegistrationOptions } from "@simplewebauthn/server";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { rateLimit } from "@/lib/rate-limit";
 
-/** Hardcoded RP ID — DO NOT derive from Host header (spoofable) */
-const RP_ID = process.env.WEBAUTHN_RP_ID || "shadowspark-tech.org";
-const RP_NAME = "ShadowSpark Technologies";
-const ORIGIN = process.env.WEBAUTHN_ORIGIN || "https://shadowspark-tech.org";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
+import { logSecurityEvent } from "@/lib/auth/security-log";
+import { getWebAuthnConfig } from "@/lib/auth/webauthn-config";
 
 const registerOptionsSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  name: z.string().min(1).max(256).optional(),
-});
+  email: z.string().trim().toLowerCase().email(),
+  name: z.string().trim().min(1).max(256).optional(),
+}).strict();
+
+function requestId(request: Request): string {
+  return request.headers.get("x-request-id") ?? crypto.randomUUID();
+}
 
 export async function POST(request: Request) {
+  const id = requestId(request);
   try {
-    const { success: allowed, headers: rateLimitHeaders } = await rateLimit(
+    const { success: allowed, headers } = await rateLimit(
       request,
       "auth:register-options",
       5,
       "10 s",
     );
-    if (!allowed) {
-      return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429, headers: rateLimitHeaders },
-      );
+    if (!allowed) return NextResponse.json({ error: "Registration not allowed" }, { status: 429, headers });
+
+    const config = getWebAuthnConfig();
+    const origin = request.headers.get("origin");
+    if (origin && origin !== config.origin) {
+      return NextResponse.json({ error: "Registration not allowed" }, { status: 403 });
     }
 
-    const body = await request.json();
-    const parsed = registerOptionsSchema.safeParse(body);
-
+    const parsed = registerOptionsSchema.safeParse(await request.json());
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues[0].message },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid registration request" }, { status: 400 });
     }
 
     const { email, name } = parsed.data;
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      include: { passkeys: true },
+    });
+    const session = await auth();
+    let user = existingUser;
 
-    // Validate origin
-    const origin = request.headers.get("origin");
-    if (origin && origin !== ORIGIN && origin !== "http://localhost:3000") {
-      return NextResponse.json(
-        { error: `Origin not allowed: ${origin}` },
-        { status: 400 },
-      );
+    if (existingUser && session?.user?.id !== existingUser.id) {
+      return NextResponse.json({ error: "Registration not allowed" }, { status: 403 });
     }
 
-    // Check if user exists
-    let user = await prisma.user.findUnique({ where: { email } });
-
-    // If this is a first-time user, create the account record
     if (!user) {
       user = await prisma.user.create({
         data: {
           email,
-          name: name || email.split("@")[0],
-          password: "", // Passkey users don't need a password
+          name: name ?? email.split("@")[0],
+          password: "",
           role: "user",
         },
+        include: { passkeys: true },
       });
     }
 
-    // Generate a random challenge
-    const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
-    const challenge = Buffer.from(challengeBytes).toString("base64url");
+    const options = await generateRegistrationOptions({
+      rpName: config.rpName,
+      rpID: config.rpID,
+      userName: user.email,
+      userDisplayName: user.name ?? user.email,
+      userID: new TextEncoder().encode(user.id),
+      timeout: config.ceremonyTimeoutMs,
+      attestationType: "none",
+      authenticatorSelection: { residentKey: "required", userVerification: "required" },
+      excludeCredentials: user.passkeys
+        .filter((passkey) => passkey.verifiedAt !== null)
+        .map((passkey) => ({ id: passkey.credentialId })),
+    });
 
-    // Generate a user ID
-    const userIdBytes = new TextEncoder().encode(user.id);
-    const userId = Buffer.from(userIdBytes).toString("base64url");
-
-    // Store challenge server-side with ceremony binding and expiry
-    // This prevents replay: the same challenge cannot be used for authentication
-    // or for a different user's registration
     await prisma.webAuthnChallenge.create({
       data: {
         userId: user.id,
-        challenge,
+        challenge: options.challenge,
         type: "registration",
-        expiresAt: new Date(Date.now() + 60000), // 60-second expiry
+        expiresAt: new Date(Date.now() + config.ceremonyTimeoutMs),
       },
     });
 
-    // Build WebAuthn creation options
-    const options = {
-      challenge,
-      rp: {
-        name: RP_NAME,
-        id: RP_ID,
-      },
-      user: {
-        id: userId,
-        name: email,
-        displayName: name || email.split("@")[0],
-      },
-      pubKeyCredParams: [
-        { type: "public-key", alg: -7 },   // ES256
-        { type: "public-key", alg: -257 },  // RS256
-      ],
-      timeout: 60000,
-      attestation: "none" as PublicKeyCredentialCreationOptions["attestation"],
-      authenticatorSelection: {
-        authenticatorAttachment: "platform" as AuthenticatorSelectionCriteria["authenticatorAttachment"],
-        residentKey: "required" as ResidentKeyRequirement,
-        userVerification: "required" as UserVerificationRequirement,
-      },
-      excludeCredentials: [],
-    };
-
-    return NextResponse.json({ options, challenge, userId: user.id });
+    return NextResponse.json(options);
   } catch (error) {
-    console.error("Register options error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate registration options" },
-      { status: 500 },
-    );
+    logSecurityEvent("webauthn_registration_options", id, error);
+    return NextResponse.json({ error: "Unable to create registration options" }, { status: 500 });
   }
 }

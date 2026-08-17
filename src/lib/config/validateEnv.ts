@@ -23,6 +23,12 @@ export function validateEnv() {
 
   const missing: string[] = [];
 
+  if (process.env.NODE_ENV === "production") {
+    for (const key of ["WEBAUTHN_RP_ID", "WEBAUTHN_ORIGIN"]) {
+      if (!process.env[key]?.trim()) missing.push(key);
+    }
+  }
+
   for (const key of required) {
     if (!process.env[key]?.trim()) missing.push(key);
   }
