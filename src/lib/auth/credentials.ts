@@ -2,11 +2,12 @@ import bcrypt from "bcryptjs";
 
 import { consumeSessionHandoff } from "@/lib/auth/session-handoff";
 import { prisma } from "@/lib/prisma";
+import type { AppRole } from "@/lib/auth/authorization";
 
 export interface AuthenticatedUser {
   id: string;
   email: string;
-  role: string | null;
+  role: AppRole;
 }
 
 type CredentialInput = Partial<Record<"email" | "password" | "handoff", unknown>>;
@@ -34,12 +35,16 @@ export async function authorizeCredentials(
 
   if (handoff !== null) {
     return (await consumeSessionHandoff(user.id, handoff))
-      ? { id: user.id, email: user.email, role: user.role }
+      ? { id: user.id, email: user.email, role: normalizeRole(user.role) }
       : null;
   }
 
   if (password === null) return null;
   const passwordHash = user.password;
   if (typeof passwordHash !== "string" || !(await bcrypt.compare(password, passwordHash))) return null;
-  return { id: user.id, email: user.email, role: user.role };
+  return { id: user.id, email: user.email, role: normalizeRole(user.role) };
+}
+
+function normalizeRole(value: string | null): AppRole {
+  return value === "admin" ? "admin" : "user";
 }

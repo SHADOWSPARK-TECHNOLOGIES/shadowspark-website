@@ -45,7 +45,6 @@ const authenticationResponse: AuthenticationResponseJSON = {
     clientDataJSON: "client-data",
     authenticatorData: "authenticator-data",
     signature: "signature",
-    userHandle: null,
   },
   clientExtensionResults: {},
 };
