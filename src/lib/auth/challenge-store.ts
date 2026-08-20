@@ -14,7 +14,11 @@ export interface ConsumeChallengeInput {
 }
 
 export interface ChallengeTransaction {
-  webAuthnChallenge: Pick<Prisma.TransactionClient["webAuthnChallenge"], "updateMany">;
+  webAuthnChallenge: {
+    updateMany(
+      args: Prisma.WebAuthnChallengeUpdateManyArgs,
+    ): Promise<{ count: number }>;
+  };
 }
 
 /**

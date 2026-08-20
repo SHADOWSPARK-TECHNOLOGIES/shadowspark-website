@@ -1,16 +1,20 @@
 import { createHash, randomBytes } from "node:crypto";
 
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma, WebAuthnChallenge } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
 const HANDOFF_TYPE = "session-handoff";
 const HANDOFF_TTL_MS = 30_000;
 
 export interface SessionHandoffTransaction {
-  webAuthnChallenge: Pick<
-    Prisma.TransactionClient["webAuthnChallenge"],
-    "create" | "updateMany"
-  >;
+  webAuthnChallenge: {
+    create(
+      args: Prisma.WebAuthnChallengeCreateArgs,
+    ): Promise<WebAuthnChallenge>;
+    updateMany(
+      args: Prisma.WebAuthnChallengeUpdateManyArgs,
+    ): Promise<{ count: number }>;
+  };
 }
 
 function handoffDigest(token: string): string {
