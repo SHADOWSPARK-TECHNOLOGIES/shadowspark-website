@@ -59,7 +59,7 @@ export async function verifyRegistration(
 
     const credential = verification.registrationInfo.credential;
     return await prisma.$transaction(async (tx) => {
-      await consumeChallenge(tx as unknown as Parameters<typeof consumeChallenge>[0], {
+      await consumeChallenge(tx, {
         id: storedChallenge.id,
         userId: storedChallenge.userId,
         type: "registration",

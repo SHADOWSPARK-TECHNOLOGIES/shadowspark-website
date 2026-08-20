@@ -13,6 +13,22 @@ function requestId(request: Request): string {
   return request.headers.get("x-request-id") ?? crypto.randomUUID();
 }
 
+function sessionWasIssued(result: unknown): boolean {
+  if (result instanceof URL) {
+    return !result.searchParams.has("error");
+  }
+
+  if (typeof result !== "string" || result.length === 0) {
+    return false;
+  }
+
+  try {
+    return !new URL(result).searchParams.has("error");
+  } catch {
+    return false;
+  }
+}
+
 const verifyLoginSchema = z.object({
   challenge: z.string().min(1),
   response: authenticationResponseSchema,
@@ -35,12 +51,19 @@ export async function POST(request: Request) {
     if (!verified.ok) return NextResponse.json({ verified: false, error: "Authentication failed" }, { status: 401 });
 
     try {
-      await signIn("credentials", {
+      const signInResult = await signIn("credentials", {
         email: verified.email,
         handoff: verified.handoff,
         redirect: false,
         redirectTo: "/dashboard",
       });
+
+      if (!sessionWasIssued(signInResult)) {
+        return NextResponse.json(
+          { verified: false, error: "Authentication failed" },
+          { status: 401 },
+        );
+      }
     } catch (error) {
       logSecurityEvent("webauthn_authentication_verification", id, error);
       return NextResponse.json({ verified: false, error: "Authentication failed" }, { status: 401 });
