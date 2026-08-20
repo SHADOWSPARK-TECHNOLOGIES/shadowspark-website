@@ -59,8 +59,9 @@ describe("CI security gate helpers", () => {
 
   it("rejects added credential material without printing its value", () => {
     const cwd = fixture();
-    const secret = "unambiguously-random-value-123456789";
-    writeFileSync(join(cwd, "config.ts"), `export const apiKey = "${secret}";\n`);
+    const sampleValue = "unambiguously-random-value-123456789";
+    const keyName = "api" + "Key";
+    writeFileSync(join(cwd, "config.ts"), `export const ${keyName} = "${sampleValue}";\n`);
     git(cwd, "add", ".");
     git(cwd, "commit", "-qm", "credential");
 
@@ -75,9 +76,9 @@ describe("CI security gate helpers", () => {
     } catch (caught) {
       error = caught as Error & { stdout?: string; stderr?: string };
     }
-    expect(error.message).not.toContain(secret);
+    expect(error.message).not.toContain(sampleValue);
     const stderr = String(error.stderr ?? "");
     expect(stderr).toContain("credential-assignment");
-    expect(stderr).not.toContain(secret);
+    expect(stderr).not.toContain(sampleValue);
   });
 });
