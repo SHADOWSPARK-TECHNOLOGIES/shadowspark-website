@@ -15,6 +15,7 @@ RUN corepack enable && corepack prepare pnpm@11.20.0 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY . .
+RUN pnpm exec prisma generate
 RUN pnpm build
 
 FROM base AS runner
