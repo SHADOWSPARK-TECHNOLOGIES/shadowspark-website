@@ -2,8 +2,15 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { enqueueCrawl } from "@/lib/crawl/queue";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 export const runtime = "nodejs";
+
+type CrawlRequestBody = {
+  rootUrl?: string;
+  slug?: string;
+  limit?: number | string;
+};
 
 export async function GET(req: Request) {
   return handleRequest(req);
@@ -17,7 +24,7 @@ async function handleRequest(req: Request) {
   const authHeader = (req.headers.get("authorization") || "").trim();
   const secret = (process.env.CRON_SECRET || "").trim();
   const session = await auth();
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = hasAdminIdentity(session?.user);
   const hasCronSecret = Boolean(secret) && authHeader === `Bearer ${secret}`;
 
   if (!hasCronSecret && !isAdmin) {
@@ -27,11 +34,22 @@ async function handleRequest(req: Request) {
   const url = new URL(req.url);
   const searchParams = url.searchParams;
   
-  let body: any = {};
+  let body: CrawlRequestBody = {};
   if (req.method === "POST") {
     try {
-      body = await req.json();
-    } catch (e) {
+      const parsed: unknown = await req.json();
+      if (typeof parsed === "object" && parsed !== null) {
+        const candidate = parsed as Record<string, unknown>;
+        body = {
+          rootUrl: typeof candidate.rootUrl === "string" ? candidate.rootUrl : undefined,
+          slug: typeof candidate.slug === "string" ? candidate.slug : undefined,
+          limit:
+            typeof candidate.limit === "string" || typeof candidate.limit === "number"
+              ? candidate.limit
+              : undefined,
+        };
+      }
+    } catch {
       // Ignore invalid JSON
     }
   }

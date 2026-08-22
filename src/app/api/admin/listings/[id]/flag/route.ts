@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 const VALID_SEVERITIES = ["LOW", "MEDIUM", "HIGH", "CRITICAL"] as const;
 type Severity = (typeof VALID_SEVERITIES)[number];
@@ -10,7 +11,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

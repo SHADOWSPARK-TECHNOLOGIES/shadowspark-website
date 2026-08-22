@@ -6,6 +6,7 @@ import path from "node:path";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 type HealthApiResponse = {
   status: string;
@@ -106,8 +107,7 @@ function StatusPill({ label, tone }: { label: string; tone: "green" | "amber" | 
 
 export default async function AdminHealthPage() {
   const session = await auth();
-  const userRole = (session?.user as any)?.role?.toLowerCase();
-  if (!session || userRole !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     redirect("/login");
   }
 

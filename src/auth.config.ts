@@ -13,6 +13,7 @@
 
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { canAccessPath, isAppRole } from "@/lib/auth/authorization";
 
 export const authConfig: NextAuthConfig = {
   session: { strategy: "jwt" },
@@ -26,43 +27,25 @@ export const authConfig: NextAuthConfig = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        handoff: { label: "Passkey handoff", type: "text" },
       },
     }),
   ],
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = Boolean(auth?.user);
-      const isOnDashboard =
-        nextUrl.pathname.startsWith("/dashboard") ||
-        nextUrl.pathname.startsWith("/admin") ||
-        nextUrl.pathname.startsWith("/finance") ||
-        nextUrl.pathname.startsWith("/support");
-
-      if (isOnDashboard) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
-      }
-
-      return true;
+      return canAccessPath(nextUrl.pathname, auth?.user);
     },
     async jwt({ token, user }) {
-      if (user && user.id) {
+      if (user && typeof user.id === "string" && user.id.length > 0) {
         token.sub = user.id;
-        if ("role" in user && user.role) {
-          token.role = user.role as string;
-        }
+        token.role = isAppRole(user.role) ? user.role : "user";
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
-        // Role is stored as a string in the JWT. The full auth.ts overrides
-        // this callback with the Prisma Role enum cast. For the Edge-only
-        // middleware path we cast through unknown to avoid importing the
-        // Prisma Role enum (which pulls in Node.js modules).
-        (session.user as unknown as Record<string, unknown>).role =
-          token.role;
+        session.user.role = isAppRole(token.role) ? token.role : "user";
       }
       return session;
     },

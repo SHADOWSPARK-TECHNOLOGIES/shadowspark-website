@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 import { crawlQueue } from "@/lib/crawl/queue";
 import { leadSyncQueue } from "@/lib/leads/queue";
+import { auth } from "@/auth";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 type QueueSnapshot = {
   waiting: number;
@@ -30,6 +32,10 @@ async function getQueueSnapshot(queue: {
 }
 
 export async function GET() {
+  const session = await auth();
+  if (!hasAdminIdentity(session?.user)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   try {
     const [crawl, leads] = await Promise.all([
       getQueueSnapshot(crawlQueue),

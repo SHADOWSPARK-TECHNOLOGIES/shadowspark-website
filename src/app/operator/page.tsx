@@ -11,6 +11,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import { BentoGrid, BentoGridItem } from "@/components/ui/templates/BentoGridPro";
 import OperatorLeadTable, { type OperatorLead } from "./OperatorLeadTable";
 import LiveTelemetryPanel from "./LiveTelemetryPanel";
+import { hasAdminIdentity } from "@/lib/auth/authorization";
 
 type LeadWithDemo = Prisma.LeadGetPayload<{ include: { demo: true } }>;
 type DemoWithLead = Prisma.DemoGetPayload<{ include: { lead: true } }>;
@@ -31,7 +32,7 @@ function normalizeStatus(lead: {
 
 export default async function OperatorDashboard() {
   const session = await auth();
-  if (session?.user?.role !== "admin") {
+  if (!hasAdminIdentity(session?.user)) {
     redirect("/dashboard");
   }
 
@@ -150,7 +151,7 @@ export default async function OperatorDashboard() {
                 </span>
               </div>
               <div className="space-y-4">
-                {systemErrors.length ? systemErrors.map((err: any) => (
+                {systemErrors.length ? systemErrors.map((err) => (
                   <div key={err.id} className="group relative rounded-2xl border border-rose-500/20 bg-rose-500/3 p-4 transition-colors hover:border-rose-500/40">
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-rose-500 to-transparent rounded-l-2xl opacity-50 group-hover:opacity-100" />
                     <p className="font-mono text-xs text-rose-300 break-all">{err.digest || "ERR_UNKNOWN_DIGEST"}</p>
@@ -187,7 +188,7 @@ export default async function OperatorDashboard() {
                 </span>
               </div>
               <div className="space-y-4">
-                {recentActivity.length ? recentActivity.map((item: { id: string; label: string; timestamp: string }, i: number) => (
+                {recentActivity.length ? recentActivity.map((item: { id: string; label: string; timestamp: string }) => (
                   <div key={item.id} className="group relative rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 transition-colors hover:border-cyan-500/30">
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-transparent rounded-l-2xl opacity-0 transition-opacity group-hover:opacity-100" />
                     <p className="text-sm text-white">{item.label}</p>
@@ -204,4 +205,3 @@ export default async function OperatorDashboard() {
     </div>
   );
 }
-

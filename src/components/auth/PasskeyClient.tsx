@@ -15,6 +15,22 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Fingerprint, ShieldCheck, Loader2, Key } from "lucide-react";
+import {
+  startAuthentication,
+  startRegistration,
+} from "@simplewebauthn/browser";
+
+import type {
+  AuthenticationResponseJSON,
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
+  RegistrationResponseJSON,
+} from "@simplewebauthn/server";
+import {
+  authenticationVerificationPayload,
+  registrationVerificationPayload,
+  verificationSucceeded,
+} from "@/lib/auth/passkey-client-contract";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -28,33 +44,6 @@ interface PasskeyClientProps {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-
-/**
- * Encode an ArrayBuffer to a base64url string.
- */
-function bufferToBase64Url(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-/**
- * Encode an ArrayBuffer to a standard base64 string.
- */
-function bufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
 
 // ── Component ──────────────────────────────────────────────────────────────
 
@@ -102,67 +91,28 @@ export function PasskeyClient({
           throw new Error(errData.error || "Failed to get registration options");
         }
 
-        const { options, challenge } = await optionsRes.json();
+        const registrationOptions =
+          (await optionsRes.json()) as PublicKeyCredentialCreationOptionsJSON;
 
-        // 2. Convert challenge and user.id to ArrayBuffer for WebAuthn
-        const publicKey: PublicKeyCredentialCreationOptions = {
-          ...options,
-          challenge: Uint8Array.from(atob(challenge), (c) =>
-            c.charCodeAt(0),
-          ).buffer as ArrayBuffer,
-          user: {
-            ...options.user,
-            id: Uint8Array.from(atob(options.user.id), (c) =>
-              c.charCodeAt(0),
-            ).buffer as ArrayBuffer,
-          },
-          excludeCredentials: [],
-        };
-
-        // 3. Create credential via WebAuthn
-        const credential = (await navigator.credentials.create({
-          publicKey,
-        })) as PublicKeyCredential | null;
-
-        if (!credential) {
-          throw new Error("Passkey creation was cancelled");
-        }
-
-        // 4. Serialize credential response for the server
-        const response = credential.response as AuthenticatorAttestationResponse;
-        const credentialData = {
-          id: credential.id,
-          rawId: bufferToBase64Url(credential.rawId),
-          type: credential.type,
-          response: {
-            clientDataJSON: bufferToBase64Url(response.clientDataJSON),
-            attestationObject: bufferToBase64Url(
-              response.attestationObject,
-            ),
-            publicKey: response.getPublicKey
-              ? bufferToBase64(response.getPublicKey()!)
-              : null,
-            publicKeyAlgorithm: response.getPublicKeyAlgorithm(),
-            transports: response.getTransports
-              ? response.getTransports()
-              : [],
-          },
-        };
+        const response: RegistrationResponseJSON = await startRegistration({
+          optionsJSON: registrationOptions,
+        });
 
         // 5. Verify registration on server
         const verifyRes = await fetch("/api/auth/verify-registration", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: options.userId,
-            credential: credentialData,
-            challenge,
-          }),
+          body: JSON.stringify(
+            registrationVerificationPayload(registrationOptions, response),
+          ),
         });
 
-        if (!verifyRes.ok) {
-          const errData = await verifyRes.json();
-          throw new Error(errData.error || "Failed to verify registration");
+        const verifyBody = (await verifyRes.json()) as {
+          verified?: boolean;
+          error?: string;
+        };
+        if (!verificationSucceeded(verifyRes.ok, verifyBody)) {
+          throw new Error(verifyBody.error || "Failed to verify registration");
         }
 
         setSuccess(true);
@@ -204,73 +154,29 @@ export function PasskeyClient({
           throw new Error(errData.error || "Failed to get login options");
         }
 
-        const { options, challenge } = await optionsRes.json();
+        const authenticationOptions =
+          (await optionsRes.json()) as PublicKeyCredentialRequestOptionsJSON;
 
-        // 2. Convert challenge to ArrayBuffer for WebAuthn
-        const publicKey: PublicKeyCredentialRequestOptions = {
-          ...options,
-          challenge: Uint8Array.from(atob(challenge), (c) =>
-            c.charCodeAt(0),
-          ).buffer as ArrayBuffer,
-          allowCredentials: options.allowCredentials?.map(
-            (cred: { id: string; type: string; transports: string[] }) => ({
-              ...cred,
-              id: Uint8Array.from(atob(cred.id), (c) => c.charCodeAt(0))
-                .buffer as ArrayBuffer,
-            }),
-          ) || [],
-        };
-
-        // 3. Get credential via WebAuthn
-        const credential = (await navigator.credentials.get({
-          publicKey,
-        })) as PublicKeyCredential | null;
-
-        if (!credential) {
-          throw new Error("Passkey authentication was cancelled");
-        }
-
-        // 4. Serialize credential response
-        const response = credential.response as AuthenticatorAssertionResponse;
-        const credentialData = {
-          id: credential.id,
-          rawId: bufferToBase64Url(credential.rawId),
-          type: credential.type,
-          response: {
-            clientDataJSON: bufferToBase64Url(response.clientDataJSON),
-            authenticatorData: bufferToBase64Url(
-              response.authenticatorData,
-            ),
-            signature: bufferToBase64Url(response.signature),
-            userHandle: response.userHandle
-              ? bufferToBase64Url(response.userHandle)
-              : null,
-            signatureCounter: response.userHandle
-              ? 0
-              : parseInt(
-                  bufferToBase64(response.authenticatorData).slice(-4),
-                  16,
-                ) || 0,
-          },
-        };
+        const response: AuthenticationResponseJSON = await startAuthentication({
+          optionsJSON: authenticationOptions,
+        });
 
         // 5. Verify login on server
         const verifyRes = await fetch("/api/auth/verify-login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            credential: credentialData,
-            challenge,
-          }),
+          body: JSON.stringify(
+            authenticationVerificationPayload(authenticationOptions, response),
+          ),
         });
 
-        if (!verifyRes.ok) {
-          const errData = await verifyRes.json();
-          throw new Error(errData.error || "Failed to verify authentication");
+        const verifyBody = (await verifyRes.json()) as {
+          verified?: boolean;
+          error?: string;
+        };
+        if (!verificationSucceeded(verifyRes.ok, verifyBody)) {
+          throw new Error(verifyBody.error || "Failed to verify authentication");
         }
-
-        await verifyRes.json();
         setSuccess(true);
         onSuccess?.();
 

@@ -1,238 +1,77 @@
-/**
- * POST /api/auth/verify-login
- *
- * Verifies a WebAuthn authentication assertion and issues a session/JWT.
- *
- * Security hardening:
- * - Server-side challenge lookup (prevents replay from other ceremonies)
- * - Challenge invalidation after single use (prevents replay of same challenge)
- * - Ceremony type enforcement (auth challenges can't be used for registration)
- * - Challenge expiry check (stale challenges rejected)
- * - Strict origin verification
- * - Signature counter replay protection
- * - Passkey-auth-bypass marker gated on ceremony context
- *
- * Body: {
- *   email: string;
- *   credential: { id: string; rawId: string; type: string; response: any };
- *   challenge: string;
- * }
- * Response: { verified: boolean; user: { id: string; email: string; name?: string; role?: string } }
- */
+/** POST /api/auth/verify-login — verify an assertion and issue one session. */
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { signIn } from "@/auth";
 import { z } from "zod";
+
+import { logSecurityEvent } from "@/lib/auth/security-log";
+import { authenticationResponseSchema } from "@/lib/auth/webauthn-schemas";
+import { verifyAuthenticationCeremony } from "@/lib/auth/webauthn-authentication";
 import { rateLimit } from "@/lib/rate-limit";
 
-const WEBAUTHN_ORIGIN = process.env.WEBAUTHN_ORIGIN || "https://shadowspark-tech.org";
-const ALLOWED_ORIGINS = Array.from(new Set([
-  "http://localhost:3000",
-  "https://shadowspark-tech.org",
-  "https://shadowspark.com",
-  "https://www.shadowspark-tech.org",
-  "https://www.shadowspark.com",
-  WEBAUTHN_ORIGIN,
-]));
+function requestId(request: Request): string {
+  return request.headers.get("x-request-id") ?? crypto.randomUUID();
+}
+
+function sessionWasIssued(result: unknown): boolean {
+  if (result instanceof URL) {
+    return !result.searchParams.has("error");
+  }
+
+  if (typeof result !== "string" || result.length === 0) {
+    return false;
+  }
+
+  try {
+    return !new URL(result).searchParams.has("error");
+  } catch {
+    return false;
+  }
+}
 
 const verifyLoginSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  credential: z.any(),
-  challenge: z.string().min(1, "Challenge is required"),
-});
+  challenge: z.string().min(1),
+  response: authenticationResponseSchema,
+}).strict();
 
 export async function POST(request: Request) {
+  const id = requestId(request);
   try {
-    const { success: allowed, headers: rateLimitHeaders } = await rateLimit(
-      request,
-      "auth:verify-login",
-      5,
-      "10 s",
-    );
-    if (!allowed) {
-      return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429, headers: rateLimitHeaders },
-      );
-    }
+    const { success: allowed, headers } = await rateLimit(request, "auth:verify-login", 5, "10 s");
+    if (!allowed) return NextResponse.json({ verified: false, error: "Authentication failed" }, { status: 429, headers });
 
-    const body = await request.json();
-    const parsed = verifyLoginSchema.safeParse(body);
+    const parsed = verifyLoginSchema.safeParse(await request.json());
+    if (!parsed.success) return NextResponse.json({ verified: false, error: "Authentication failed" }, { status: 400 });
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues[0].message },
-        { status: 400 },
-      );
-    }
-
-    const { email, credential, challenge } = parsed.data;
-
-    // STEP 1: Look up challenge in server-side store
-    const storedChallenge = await prisma.webAuthnChallenge.findUnique({
-      where: { challenge },
+    const verified = await verifyAuthenticationCeremony({
+      challenge: parsed.data.challenge,
+      response: parsed.data.response,
+      requestId: id,
     });
+    if (!verified.ok) return NextResponse.json({ verified: false, error: "Authentication failed" }, { status: 401 });
 
-    if (!storedChallenge) {
-      return NextResponse.json(
-        { error: "Challenge not found or already used" },
-        { status: 400 },
-      );
-    }
+    try {
+      const signInResult = await signIn("credentials", {
+        email: verified.email,
+        handoff: verified.handoff,
+        redirect: false,
+        redirectTo: "/dashboard",
+      });
 
-    // STEP 2: Check challenge hasn't expired
-    if (storedChallenge.expiresAt < new Date()) {
-      // Clean up expired challenge
-      await prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } });
-      return NextResponse.json(
-        { error: "Challenge has expired — please try again" },
-        { status: 400 },
-      );
-    }
-
-    // STEP 3: Verify ceremony binding — challenge must be for authentication
-    if (storedChallenge.type !== "authentication") {
-      // Clean up misused challenge
-      await prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } });
-      return NextResponse.json(
-        { error: "Challenge was created for a different ceremony type" },
-        { status: 400 },
-      );
-    }
-
-    // STEP 4: Invalidate challenge (single-use, prevent replay)
-    await prisma.webAuthnChallenge.update({
-      where: { id: storedChallenge.id },
-      data: { usedAt: new Date() },
-    });
-
-    // Find the user
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: { passkeys: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // Find the matching passkey by credential ID
-    const passkey = user.passkeys.find(
-      (pk) => pk.credentialId === credential.id,
-    );
-
-    if (!passkey) {
-      return NextResponse.json(
-        { error: "Credential not registered" },
-        { status: 404 },
-      );
-    }
-
-    const { response } = credential;
-
-    // Parse and verify client data
-    const clientDataJSON = response.clientDataJSON
-      ? Buffer.from(response.clientDataJSON, "base64url").toString()
-      : null;
-
-    let clientData: Record<string, unknown> = {};
-    if (clientDataJSON) {
-      try {
-        clientData = JSON.parse(clientDataJSON);
-      } catch {
+      if (!sessionWasIssued(signInResult)) {
         return NextResponse.json(
-          { error: "Invalid clientDataJSON" },
-          { status: 400 },
+          { verified: false, error: "Authentication failed" },
+          { status: 401 },
         );
       }
+    } catch (error) {
+      logSecurityEvent("webauthn_authentication_verification", id, error);
+      return NextResponse.json({ verified: false, error: "Authentication failed" }, { status: 401 });
     }
 
-    // Verify the challenge matches what the client signed
-    if (clientData.challenge !== challenge) {
-      return NextResponse.json(
-        { error: "Challenge mismatch" },
-        { status: 400 },
-      );
-    }
-
-    // Verify the WebAuthn ceremony type
-    if (clientData.type !== "webauthn.get") {
-      return NextResponse.json(
-        { error: `Invalid WebAuthn type: ${clientData.type}` },
-        { status: 400 },
-      );
-    }
-
-    // Verify the origin
-    if (
-      clientData.origin &&
-      !ALLOWED_ORIGINS.includes(clientData.origin as string)
-    ) {
-      return NextResponse.json(
-        { error: `Origin not allowed: ${clientData.origin}` },
-        { status: 400 },
-      );
-    }
-
-    // Verify authenticator data (counter check for replay prevention)
-    const newCounter = BigInt(response.signatureCounter || 0);
-    if (newCounter > 0 && newCounter <= passkey.counter) {
-      return NextResponse.json(
-        { error: "Replay attack detected — counter did not increase" },
-        { status: 400 },
-      );
-    }
-
-    // Update the passkey counter and last used timestamp
-    await prisma.passkey.update({
-      where: { id: passkey.id },
-      data: {
-        counter: newCounter,
-        lastUsedAt: new Date(),
-      },
-    });
-
-    // Clean up the used challenge
-    await prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } });
-
-    // Create a session via NextAuth using the passkey-auth-bypass marker
-    // Note: auth.ts now requires the user to have at least one verified passkey
-    // before accepting the bypass marker, preventing arbitrary session creation
-    try {
-      await signIn("credentials", {
-        email: user.email,
-        password: "passkey-auth-bypass",
-        redirect: false,
-      });
-
-      return NextResponse.json({
-        verified: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        },
-      });
-    } catch {
-      // If NextAuth sign-in fails (e.g., due to ceremony validation),
-      // the WebAuthn verification itself still succeeded
-      return NextResponse.json({
-        verified: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        },
-      });
-    }
+    return NextResponse.json({ verified: true });
   } catch (error) {
-    console.error("Verify login error:", error);
-    return NextResponse.json(
-      { error: "Failed to verify authentication" },
-      { status: 500 },
-    );
+    logSecurityEvent("webauthn_authentication_verification", id, error);
+    return NextResponse.json({ verified: false, error: "Authentication failed" }, { status: 500 });
   }
 }

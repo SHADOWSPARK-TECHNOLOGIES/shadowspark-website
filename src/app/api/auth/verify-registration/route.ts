@@ -1,48 +1,19 @@
-/**
- * POST /api/auth/verify-registration
- *
- * Verifies and stores a WebAuthn credential after the client completes
- * navigator.credentials.create().
- *
- * Security hardening:
- * - Server-side challenge lookup (prevents replay from other ceremonies)
- * - Challenge invalidation after single use (prevents replay of same challenge)
- * - Ceremony type enforcement (registration challenges can't be used for auth)
- * - Challenge expiry check (stale challenges rejected)
- * - Strict origin verification
- *
- * Body: {
- *   userId: string;
- *   credential: { id: string; rawId: string; type: string; response: any };
- *   challenge: string;
- * }
- * Response: { verified: boolean; credentialId: string }
- */
-
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+
+import { registrationResponseSchema } from "@/lib/auth/webauthn-schemas";
+import { logSecurityEvent } from "@/lib/auth/security-log";
+import { verifyRegistration } from "@/lib/auth/webauthn-registration";
 import { rateLimit } from "@/lib/rate-limit";
 
-const WEBAUTHN_ORIGIN = process.env.WEBAUTHN_ORIGIN || "https://shadowspark-tech.org";
-const ALLOWED_ORIGINS = Array.from(new Set([
-  "http://localhost:3000",
-  "https://shadowspark-tech.org",
-  "https://shadowspark.com",
-  "https://www.shadowspark-tech.org",
-  "https://www.shadowspark.com",
-  WEBAUTHN_ORIGIN,
-]));
-
-const verifyRegistrationSchema = z.object({
-  userId: z.string().min(1, "userId is required"),
-  credential: z.any(),
-  challenge: z.string().min(1, "Challenge is required"),
-});
+function requestId(request: Request): string {
+  return request.headers.get("x-request-id") ?? crypto.randomUUID();
+}
 
 export async function POST(request: Request) {
+  const id = requestId(request);
   try {
-    const { success: allowed, headers: rateLimitHeaders } = await rateLimit(
+    const { success: allowed, headers } = await rateLimit(
       request,
       "auth:verify-registration",
       5,
@@ -50,164 +21,42 @@ export async function POST(request: Request) {
     );
     if (!allowed) {
       return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429, headers: rateLimitHeaders },
+        { error: "Registration not allowed" },
+        { status: 429, headers },
       );
     }
 
-    const body = await request.json();
-    const parsed = verifyRegistrationSchema.safeParse(body);
+    const body: unknown = await request.json();
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid registration request" }, { status: 400 });
+    }
 
+    const parsed = z
+      .object({
+        challenge: z.string().min(1),
+        response: registrationResponseSchema,
+      })
+      .strict()
+      .safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues[0].message },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid registration request" }, { status: 400 });
     }
 
-    const { userId, credential, challenge } = parsed.data;
-
-    // STEP 1: Look up challenge in server-side store
-    const storedChallenge = await prisma.webAuthnChallenge.findUnique({
-      where: { challenge },
+    const { challenge, response } = parsed.data;
+    const result = await verifyRegistration({
+      challenge,
+      response,
+      requestId: id,
     });
-
-    if (!storedChallenge) {
-      return NextResponse.json(
-        { error: "Challenge not found or already used" },
-        { status: 400 },
-      );
+    if (!result.ok) {
+      return NextResponse.json({ error: "Invalid registration request" }, { status: 400 });
     }
 
-    // STEP 2: Check challenge hasn't expired
-    if (storedChallenge.expiresAt < new Date()) {
-      // Clean up expired challenge
-      await prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } });
-      return NextResponse.json(
-        { error: "Challenge has expired — please try again" },
-        { status: 400 },
-      );
-    }
-
-    // STEP 3: Verify ceremony binding — challenge must be for registration
-    if (storedChallenge.type !== "registration") {
-      // Clean up misused challenge
-      await prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } });
-      return NextResponse.json(
-        { error: "Challenge was created for a different ceremony type" },
-        { status: 400 },
-      );
-    }
-
-    // STEP 4: Invalidate challenge (single-use, prevent replay)
-    await prisma.webAuthnChallenge.update({
-      where: { id: storedChallenge.id },
-      data: { usedAt: new Date() },
-    });
-
-    // Verify the user exists
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const { id, response } = credential;
-
-    // Extract client data JSON and attestation object
-    const clientDataJSON = response.clientDataJSON
-      ? Buffer.from(response.clientDataJSON, "base64url").toString()
-      : null;
-
-    let clientData: Record<string, unknown> = {};
-    if (clientDataJSON) {
-      try {
-        clientData = JSON.parse(clientDataJSON);
-      } catch {
-        return NextResponse.json(
-          { error: "Invalid clientDataJSON" },
-          { status: 400 },
-        );
-      }
-    }
-
-    // Verify the challenge matches what the client signed
-    if (clientData.challenge !== challenge) {
-      return NextResponse.json(
-        { error: "Challenge mismatch" },
-        { status: 400 },
-      );
-    }
-
-    // Verify the origin
-    if (
-      clientData.origin &&
-      !ALLOWED_ORIGINS.includes(clientData.origin as string)
-    ) {
-      return NextResponse.json(
-        { error: `Origin not allowed: ${clientData.origin}` },
-        { status: 400 },
-      );
-    }
-
-    // Verify the RP ID matches what the authenticator used
-    // The clientDataJSON contains "type" which should be "webauthn.create"
-    if (clientData.type !== "webauthn.create") {
-      return NextResponse.json(
-        { error: `Invalid WebAuthn type: ${clientData.type}` },
-        { status: 400 },
-      );
-    }
-
-    // Extract the public key from the attestation response
-    const publicKeyBase64 = response.publicKey
-      ? Buffer.from(response.publicKey, "base64url").toString("base64")
-      : null;
-
-    if (!publicKeyBase64 && !id) {
-      return NextResponse.json(
-        { error: "Missing credential data" },
-        { status: 400 },
-      );
-    }
-
-    // Check for duplicate credential
-    const existingPasskey = await prisma.passkey.findUnique({
-      where: { credentialId: id },
-    });
-
-    if (existingPasskey) {
-      return NextResponse.json(
-        { error: "Credential already registered" },
-        { status: 409 },
-      );
-    }
-
-    // Store the passkey
-    const passkey = await prisma.passkey.create({
-      data: {
-        userId,
-        credentialId: id,
-        publicKey: publicKeyBase64 || "",
-        counter: BigInt(response.signatureCounter || 0),
-        deviceType: response.authenticatorAttachment || "platform",
-        transports: response.transports
-          ? JSON.stringify(response.transports)
-          : null,
-        backedUp: response.credProps?.rk || false,
-      },
-    });
-
-    // Clean up the used challenge
-    await prisma.webAuthnChallenge.delete({ where: { id: storedChallenge.id } });
-
-    return NextResponse.json({
-      verified: true,
-      credentialId: passkey.credentialId,
-    });
+    return NextResponse.json({ verified: true, credentialId: result.credentialId });
   } catch (error) {
-    console.error("Verify registration error:", error);
+    logSecurityEvent("webauthn_registration_verification", id, error);
     return NextResponse.json(
-      { error: "Failed to verify registration" },
+      { error: "Unable to verify registration" },
       { status: 500 },
     );
   }

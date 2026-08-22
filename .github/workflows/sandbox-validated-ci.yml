@@ -2,103 +2,40 @@ name: Sandbox-validated CI
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: sandbox-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  setup:
+  quality:
     runs-on: ubuntu-latest
-    outputs:
-      node-version: '20'
+    env:
+      CI: "true"
+      SANDBOX: "true"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: '8'
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-
-  lint:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run linters
-        run: pnpm -w -s lint
-
-  test:
-    needs: setup
-    runs-on: ubuntu-latest
-    env:
-      CI: 'true'
-      SANDBOX: 'true'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run workspace tests
-        run: pnpm -w -s test
-
-  sandbox-validate:
-    needs: [test]
-    runs-on: ubuntu-latest
-    env:
-      SANDBOX: 'true'
-      DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run sandbox smoke tests
-        run: |
-          # Prefer a project-provided script for sandbox checks. Fallback to a conservative command.
-          if pnpm -w -s run sandbox:smoke 2>/dev/null; then
-            echo "Ran sandbox:smoke"
-          elif pnpm -w -s run test:sandbox 2>/dev/null; then
-            echo "Ran test:sandbox"
-          else
-            echo "No sandbox-specific script found; running lightweight check"
-            pnpm -w -s run test -- --grep "smoke" || true
-          fi
-      - name: Verify read-only assertions (best-effort)
-        run: |
-          if [ -f scripts/ci/assert-read-only.sh ]; then
-            bash scripts/ci/assert-read-only.sh
-          else
-            echo "No assert-read-only script; ensure tests respect SANDBOX env var"
-          fi
-
-  preview-deploy-check:
-    needs: [sandbox-validate]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build (sandbox)
-        env:
-          SANDBOX: 'true'
-        run: pnpm -w -s -r build --if-present
-      - name: Upload preview artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: preview-artifact
-          path: |
-            apps/*/out
-            apps/*/.next
-            packages/*/dist
-      - name: Mark preview gated
-        run: echo "Preview artifact created. This preview is gated: requires manual approval (CODEOWNERS or repo admin) to publish."
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --prod --audit-level high
+      - run: pnpm exec vitest run tests/security
+      - run: pnpm typecheck
+      - run: node scripts/ci/lint-changed.mjs origin/main
+      - run: pnpm test
+      - run: pnpm build
+      - run: node scripts/ci/scan-added-secrets.mjs origin/main
