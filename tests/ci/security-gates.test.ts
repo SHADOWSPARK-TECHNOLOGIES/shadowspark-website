@@ -26,6 +26,44 @@ function fixture(): string {
 }
 
 describe("CI security gate helpers", () => {
+  it("generates the Prisma client before invoking the application build", () => {
+    const packageManifest = JSON.parse(
+      readFileSync(join(repositoryRoot, "package.json"), "utf8"),
+    ) as { scripts?: Record<string, string> };
+    const buildScript = packageManifest.scripts?.build;
+    if (!buildScript) {
+      throw new Error("package.json must define a build script");
+    }
+
+    const cwd = mkdtempSync(join(tmpdir(), "issue-13-build-"));
+    const bin = mkdtempSync(join(tmpdir(), "issue-13-build-bin-"));
+    const generatedClient = join(cwd, "generated-client");
+    const nextArguments = join(cwd, "next-arguments.txt");
+
+    writeFileSync(
+      join(bin, "prisma"),
+      '#!/bin/sh\nif [ "$1" != "generate" ]; then\n  exit 2\nfi\n: > "$GENERATED_CLIENT"\n',
+      { mode: 0o755 },
+    );
+    writeFileSync(
+      join(bin, "next"),
+      '#!/bin/sh\nif [ ! -f "$GENERATED_CLIENT" ]; then\n  echo "generated client missing" >&2\n  exit 3\nfi\nprintf \'%s\\n\' "$@" > "$NEXT_ARGUMENTS"\n',
+      { mode: 0o755 },
+    );
+
+    execFileSync("sh", ["-c", buildScript], {
+      cwd,
+      env: {
+        ...process.env,
+        GENERATED_CLIENT: generatedClient,
+        NEXT_ARGUMENTS: nextArguments,
+        PATH: `${bin}${delimiter}${process.env.PATH ?? ""}`,
+      },
+    });
+
+    expect(readFileSync(nextArguments, "utf8")).toBe("build\n--webpack\n");
+  });
+
   it("treats no changed source files as a successful lint", () => {
     const cwd = fixture();
     const output = execFileSync(process.execPath, [lintScript, "main"], {
