@@ -18,13 +18,16 @@ COPY . .
 RUN pnpm exec prisma generate
 RUN pnpm build
 
-FROM base AS runner
+FROM alpine:3.24 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+
+RUN apk add --no-cache libstdc++
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+COPY --from=base /usr/local/bin/node /usr/local/bin/node
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
