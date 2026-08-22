@@ -6,7 +6,12 @@ This directory owns evidence about what is configured and operating in a named
 environment. Repository source and public architecture doctrine do not substitute
 for these records.
 
-No deployment record in this directory currently verifies a production topology.
+## Current records
+
+- [`PRODUCTION_2026-08-22.md`](./PRODUCTION_2026-08-22.md) maps the public website
+  production deployment. It verifies hosting, domain, source revision, canonical,
+  and database-health evidence while explicitly preserving unknown worker, provider,
+  storage, recovery, retention, and human-ownership boundaries.
 
 Each future record should identify:
 
