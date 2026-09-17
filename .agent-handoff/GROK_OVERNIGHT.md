@@ -12,7 +12,7 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-7e7982de0e4d35a65ab8dafc6a163cbee3366b34
+see git rev-parse HEAD after push
 
 ## Current truth
 
@@ -83,7 +83,7 @@ Messaging unit + integration + Meta + Twilio tests passed.
 - Cron: missing/blank/invalid bearer → 401
 - Meta: missing/invalid signature → 401; no GET token fallback
 - Twilio: official `validateRequest` against configured public URL
-- Secret scan: rename Twilio locals so `authToken = getTwilioAuthToken()` is not a false positive; re-run after commit
+- Secret scan: Twilio webhook locals renamed so the helper identifier is not treated as assigned credential material
 - `pnpm audit --prod --audit-level high`: pre-existing high findings in `fast-uri` (via Prisma) and `sharp` (via next). Not introduced by this branch; not silently ignored as “fixed”
 
 ## Deployment findings
