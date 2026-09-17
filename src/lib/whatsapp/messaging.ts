@@ -82,6 +82,19 @@ export function sendFraudAlert(phone: string, listingTitle: string) {
   fireAndForget({ to: phone, template: "fraud_alert", parameters: [listingTitle] });
 }
 
-export function sendListingExpiryReminder(phone: string, listingTitle: string, daysLeft: number) {
-  fireAndForget({ to: phone, template: "listing_expiry_reminder", parameters: [listingTitle, String(daysLeft)] });
+export async function sendListingExpiryReminder(
+  phone: string,
+  listingTitle: string,
+  daysLeft: number
+): Promise<{ success: boolean; messageId?: string }> {
+  if (!config.features.whatsappEnabled) {
+    console.warn("[WhatsApp:DISABLED] Listing expiry reminder was not delivered");
+    return { success: false };
+  }
+
+  return sendTemplateMessage({
+    to: phone,
+    template: "listing_expiry_reminder",
+    parameters: [listingTitle, String(daysLeft)],
+  });
 }
