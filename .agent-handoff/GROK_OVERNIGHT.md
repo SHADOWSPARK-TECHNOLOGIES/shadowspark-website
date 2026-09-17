@@ -12,7 +12,7 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-b848b02
+37d0ae8
 PR:
 https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 
@@ -49,7 +49,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - #27: Official Twilio SDK signature checks, SMS STOP opt-out, Voice separate, WhatsApp rejected.
 - #18: pin `sslmode=require|prefer|verify-ca` to explicit `verify-full` without logging DATABASE_URL.
 - #28: local verification recorded below. Docs at `docs/MODEL_A_MESSAGING.md`.
-- #10 (partial): WhatsApp AI outage sends the deterministic receipt and writes `whatsapp_human_handoff`. Lead scoring no longer defaults to 50 or writes `QUALIFIED` on provider failure (`NEEDS_REVIEW`). Purge-and-reembed probes embeddings before DELETE.
+- #10 (partial): WhatsApp AI outage sends the deterministic receipt and writes `whatsapp_human_handoff`. Lead scoring no longer defaults to 50 or writes `QUALIFIED` on provider failure (`NEEDS_REVIEW`). Purge-and-reembed probes embeddings before DELETE. Mini-audit fallback is labeled as an example.
 - CI quality blocker: Next.js 16.3.1 → 16.3.5 (GHSA-p293-qw3h-jr36, GHSA-2xp9-vwfh-vxw4). Workspace overrides pin browserslist 4.28.7, fast-uri 3.1.8, sharp 0.35.4, mysql2 3.24.4.
 - Dual Graph secret names: prefer `WHATSAPP_*`, fall back to `META_*`, one token per request.
 - Dashboard settings is a read-only view of cron/webhook paths and secret names. Fake `postgresql://neon-secret-url`, SA key, team roster, and no-op Save are gone.
@@ -69,6 +69,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - `85359b9` fix(leads): fail closed when intent scoring is unavailable
 - `d2238ba` fix(rag): probe embeddings before purge-and-reembed
 - `b848b02` fix(dashboard): stop showing mock credentials on settings
+- `37d0ae8` fix(audit): label mini-audit fallback as an example
 - plus Model A docs and overnight handoff commits
 
 ## Files changed
