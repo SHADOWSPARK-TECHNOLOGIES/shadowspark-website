@@ -12,7 +12,9 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-6271306d8a697bec40ecf2206319af1106e25b98
+1c0fd38d0db6ea8a20a1b15ec251257509d8e420
+PR:
+https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 
 ## Current truth
 
@@ -132,7 +134,7 @@ LOW:
 
 ## Next executable action
 
-Commit remaining TLS/docs/scan-fix, push `grok/overnight-2026-09-17`, open a PR, stop before merge.
+Review PR #31. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, and a post-deploy TLS warning check.
 
 ## Resume command
 
