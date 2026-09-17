@@ -30,4 +30,18 @@ export {
   sendWhatsAppViaMeta,
   toWhatsAppAddress,
 } from "./meta-whatsapp";
+export {
+  getTwilioAuthToken,
+  getTwilioPublicUrl,
+  parseTwilioFormBody,
+  verifyTwilioSignature,
+} from "./twilio-signature";
+export {
+  isSmsStopCommand,
+  processTwilioSmsWebhook,
+  processTwilioVoiceWebhook,
+  rejectTwilioWhatsApp,
+  sendSmsViaTwilio,
+  sendVoiceViaTwilio,
+} from "./twilio-adapter";
 
