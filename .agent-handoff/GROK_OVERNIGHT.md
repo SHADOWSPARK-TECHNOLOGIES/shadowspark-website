@@ -12,7 +12,7 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-cb18db88f336db98c83a0fc8f101dada3bb22836
+0528e2e4405c317d5917416da229e5d73d1a5a8e
 PR:
 https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 
@@ -48,6 +48,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - CI quality blocker: Next.js 16.3.1 → 16.3.5 (GHSA-p293-qw3h-jr36, GHSA-2xp9-vwfh-vxw4). Workspace overrides pin browserslist 4.28.7, fast-uri 3.1.8, sharp 0.35.4, mysql2 3.24.4.
 - Dual Graph secret names: prefer `WHATSAPP_*`, fall back to `META_*`, one token per request.
 - Dashboard no longer advertises `/api/webhooks/whatsapp/twilio`. Paths are Meta WhatsApp, Twilio SMS, Twilio Voice, Paystack.
+- Runtime image: floor Alpine `libcrypto3`/`libssl3` to `>=3.5.8-r0` (Scout critical/high OpenSSL CVEs on 3.5.7-r0).
 
 ## Commits created
 
@@ -101,7 +102,9 @@ Messaging unit + integration + Meta + Twilio tests passed.
 - Vercel cron path `/api/cron/listings/expiry` now has GET.
 - Production `CRON_SECRET` configuration and a captured scheduled invocation remain human.
 - Do not promote `53ec9a3` or this branch to production.
-- PR #31 CI on previous HEAD: `quality` failed on audit (now patched locally). Vercel status: account blocked. Netlify deploy-preview failed. Those hosting failures are not code-path defects.
+- PR #31 `quality` is green on `4ceb96b` (audit + tests + typecheck + lint + build + secret scan).
+- Docker Scout on that SHA failed: Alpine openssl 3.5.7-r0 (2 critical, 7 high), patched by flooring `libcrypto3`/`libssl3` to 3.5.8-r0 in the runner.
+- Vercel status: account blocked. Netlify deploy-preview failed. Those hosting failures are not code-path defects.
 
 ## Product/revenue findings
 
@@ -143,7 +146,7 @@ LOW:
 
 ## Next executable action
 
-Push `cb18db8` to `origin/grok/overnight-2026-09-17` if not already pushed, then wait for Sandbox-validated CI `quality` on PR #31. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, hosting-account unblock, and a post-deploy TLS warning check.
+Wait for Sandbox-validated CI `quality` and Docker Scout on the OpenSSL floor commit. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, hosting-account unblock, and a post-deploy TLS warning check.
 
 ## Resume command
 
