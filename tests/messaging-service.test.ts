@@ -5,6 +5,7 @@ import {
   MessagingConsentError,
   MessagingService,
   MessagingStateError,
+  isOutboundAlreadyAccepted,
 } from "@/lib/messaging";
 
 const mocks = vi.hoisted(() => ({
@@ -56,6 +57,14 @@ describe("MessagingService", () => {
     mocks.transaction.mockImplementation(async (callback: (tx: typeof db) => unknown) =>
       callback(db),
     );
+  });
+
+  it("treats only accepted delivery states as already sent", () => {
+    expect(isOutboundAlreadyAccepted("QUEUED")).toBe(false);
+    expect(isOutboundAlreadyAccepted("FAILED")).toBe(false);
+    expect(isOutboundAlreadyAccepted("SENT")).toBe(true);
+    expect(isOutboundAlreadyAccepted("DELIVERED")).toBe(true);
+    expect(isOutboundAlreadyAccepted("READ")).toBe(true);
   });
 
   it("refuses outbound send without channel consent", async () => {
@@ -145,6 +154,34 @@ describe("MessagingService", () => {
         attemptNumber: 2,
         providerMessageId: "wamid.1",
         status: "ACCEPTED",
+      }),
+    });
+    expect(result.message.state).toBe("SENT");
+  });
+
+  it("allows a successful retry after a failed attempt", async () => {
+    mocks.messageFindUnique.mockResolvedValue({
+      id: "m1",
+      direction: "OUTBOUND",
+      provider: "META",
+      state: "FAILED",
+      providerMessageId: null,
+    });
+    mocks.attemptAggregate.mockResolvedValue({ _max: { attemptNumber: 1 } });
+    mocks.attemptCreate.mockResolvedValue({ id: "a2", attemptNumber: 2 });
+    mocks.messageUpdate.mockResolvedValue({ id: "m1", state: "SENT" });
+
+    const result = await service.recordOutboundAttempt({
+      messageId: "m1",
+      status: "ACCEPTED",
+      providerMessageId: "wamid.retry",
+    });
+
+    expect(mocks.messageUpdate).toHaveBeenCalledWith({
+      where: { id: "m1" },
+      data: expect.objectContaining({
+        state: "SENT",
+        providerMessageId: "wamid.retry",
       }),
     });
     expect(result.message.state).toBe("SENT");

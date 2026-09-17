@@ -10,8 +10,9 @@ export default function SettingsPage() {
   const [cbnPortalUrl, setCbnPortalUrl] = useState('https://cbn.gov.ng/regulations');
   const [firsPortalUrl, setFirsPortalUrl] = useState('https://firs.gov.ng/news');
   const [metaWebhook, setMetaWebhook] = useState('/api/webhooks/whatsapp/meta');
-  const [twilioWebhook, setTwilioWebhook] = useState('/api/webhooks/whatsapp/twilio');
-  const [paystackWebhook, setPaystackWebhook] = useState('/api/webhooks/paystack/route.ts');
+  const [twilioSmsWebhook, setTwilioSmsWebhook] = useState('/api/webhooks/twilio/sms');
+  const [twilioVoiceWebhook, setTwilioVoiceWebhook] = useState('/api/webhooks/twilio/voice');
+  const [paystackWebhook, setPaystackWebhook] = useState('/api/webhooks/paystack');
   const [gcpProjectId, setGcpProjectId] = useState('shadowspark-production');
   const [gcpRegion, setGcpRegion] = useState('europe-central2');
   const [saKeyActive, setSaKeyActive] = useState('c005a720-key-confirmed');
@@ -85,16 +86,16 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* WhatsApp Webhooks */}
+      {/* Messaging webhooks */}
       <div className="dashboard-card">
         <div className="card-header">
-          <div className="card-title">WhatsApp Webhooks</div>
+          <div className="card-title">Messaging webhooks</div>
+          <div className="card-sub">WhatsApp is Meta-only. Twilio is SMS and Voice.</div>
         </div>
         <div className="settings-section">
           <div className="settings-row">
             <div>
-              <div className="settings-label">Meta Webhook</div>
-              <div className="settings-desc">App ID 24260677440297544</div>
+              <div className="settings-label">Meta WhatsApp webhook</div>
             </div>
             <input
               className="settings-input"
@@ -104,17 +105,27 @@ export default function SettingsPage() {
           </div>
           <div className="settings-row">
             <div>
-              <div className="settings-label">Twilio Webhook</div>
+              <div className="settings-label">Twilio SMS webhook</div>
             </div>
             <input
               className="settings-input"
-              value={twilioWebhook}
-              onChange={(e) => setTwilioWebhook(e.target.value)}
+              value={twilioSmsWebhook}
+              onChange={(e) => setTwilioSmsWebhook(e.target.value)}
             />
           </div>
           <div className="settings-row">
             <div>
-              <div className="settings-label">Paystack Webhook</div>
+              <div className="settings-label">Twilio Voice webhook</div>
+            </div>
+            <input
+              className="settings-input"
+              value={twilioVoiceWebhook}
+              onChange={(e) => setTwilioVoiceWebhook(e.target.value)}
+            />
+          </div>
+          <div className="settings-row">
+            <div>
+              <div className="settings-label">Paystack webhook</div>
             </div>
             <input
               className="settings-input"

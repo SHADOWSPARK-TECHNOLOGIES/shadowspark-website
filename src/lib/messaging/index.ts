@@ -15,6 +15,7 @@ export {
   MessagingConsentError,
   MessagingService,
   MessagingStateError,
+  isOutboundAlreadyAccepted,
   type MessagingDb,
   type ConsentInput,
   type DeliveryAttemptStatus,

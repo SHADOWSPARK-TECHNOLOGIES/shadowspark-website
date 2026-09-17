@@ -2,7 +2,13 @@ import type { MessagingDb } from "./service";
 
 import { sendTextWhatsApp } from "@/lib/whatsapp/send-payment-link";
 
-import { MessagingConsentError, MessagingStateError, type MessagingService, type MessageState } from "./service";
+import {
+  MessagingConsentError,
+  MessagingStateError,
+  isOutboundAlreadyAccepted,
+  type MessagingService,
+  type MessageState,
+} from "./service";
 
 type MetaMessage = {
   id?: string;
@@ -80,6 +86,13 @@ export async function sendWhatsAppViaMeta(
     leadId: input.leadId,
     provider: "META",
   });
+
+  if (isOutboundAlreadyAccepted(message.state)) {
+    return {
+      message,
+      result: { success: true, messageId: message.providerMessageId ?? undefined },
+    };
+  }
 
   const result = await sendTextWhatsApp(input.address, input.body);
   await messaging.recordOutboundAttempt({

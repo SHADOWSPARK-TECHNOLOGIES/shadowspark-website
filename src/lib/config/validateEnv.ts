@@ -16,10 +16,12 @@ export function validateEnv() {
     "GOOGLE_CLIENT_SECRET",
   ];
 
-  const conditionalOnWhatsApp = [
-    "WHATSAPP_API_TOKEN",
-    "WHATSAPP_PHONE_NUMBER_ID",
-  ];
+  const hasWhatsAppToken =
+    Boolean(process.env.WHATSAPP_API_TOKEN?.trim()) ||
+    Boolean(process.env.META_ACCESS_TOKEN?.trim());
+  const hasWhatsAppPhone =
+    Boolean(process.env.WHATSAPP_PHONE_NUMBER_ID?.trim()) ||
+    Boolean(process.env.META_PHONE_NUMBER_ID?.trim());
 
   const missing: string[] = [];
 
@@ -50,8 +52,9 @@ export function validateEnv() {
   }
 
   if (process.env.WHATSAPP_ENABLED === "true") {
-    for (const key of conditionalOnWhatsApp) {
-      if (!process.env[key]?.trim()) missing.push(key);
+    if (!hasWhatsAppToken) missing.push("WHATSAPP_API_TOKEN|META_ACCESS_TOKEN");
+    if (!hasWhatsAppPhone) {
+      missing.push("WHATSAPP_PHONE_NUMBER_ID|META_PHONE_NUMBER_ID");
     }
   }
 

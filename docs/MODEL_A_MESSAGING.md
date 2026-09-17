@@ -18,8 +18,8 @@ Meta WhatsApp:
 
 - `WHATSAPP_VERIFY_TOKEN` — GET webhook verification; no built-in fallback
 - `META_APP_SECRET` — POST `X-Hub-Signature-256` HMAC
-- `META_ACCESS_TOKEN` / `WHATSAPP_API_TOKEN` — Graph send (existing split; do not mix in one request)
-- `META_PHONE_NUMBER_ID` / `WHATSAPP_PHONE_NUMBER_ID`
+- `WHATSAPP_API_TOKEN` or `META_ACCESS_TOKEN` — Graph send. Prefer `WHATSAPP_API_TOKEN`. One token per request; do not concatenate.
+- `WHATSAPP_PHONE_NUMBER_ID` or `META_PHONE_NUMBER_ID` — Graph phone number id. Prefer `WHATSAPP_PHONE_NUMBER_ID`.
 - `WHATSAPP_ENABLED`
 
 Twilio SMS / Voice:

@@ -45,8 +45,12 @@ const ALLOWED_TRANSITIONS: Record<MessageState, readonly MessageState[]> = {
   SENT: ["DELIVERED", "FAILED"],
   DELIVERED: ["READ", "FAILED"],
   READ: [],
-  FAILED: [],
+  FAILED: ["SENT"],
 };
+
+export function isOutboundAlreadyAccepted(state: string): boolean {
+  return state === "SENT" || state === "DELIVERED" || state === "READ";
+}
 
 export type SendMessageInput = {
   channel: MessagingChannel;

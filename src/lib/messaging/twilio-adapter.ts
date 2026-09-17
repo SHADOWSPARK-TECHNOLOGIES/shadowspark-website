@@ -5,6 +5,7 @@ import { optionalEnv } from "@/lib/env";
 import { MessagingRoutingError } from "./routing";
 import {
   MessagingStateError,
+  isOutboundAlreadyAccepted,
   type MessageState,
   type MessagingDb,
   type MessagingService,
@@ -68,6 +69,10 @@ export async function sendSmsViaTwilio(
     provider: "TWILIO",
   });
 
+  if (isOutboundAlreadyAccepted(message.state)) {
+    return { message, sid: message.providerMessageId ?? undefined };
+  }
+
   try {
     const sent = await twilioClient().messages.create({
       to: input.address,
@@ -107,6 +112,10 @@ export async function sendVoiceViaTwilio(
     leadId: input.leadId,
     provider: "TWILIO",
   });
+
+  if (isOutboundAlreadyAccepted(message.state)) {
+    return { message, sid: message.providerMessageId ?? undefined };
+  }
 
   try {
     const call = await twilioClient().calls.create({

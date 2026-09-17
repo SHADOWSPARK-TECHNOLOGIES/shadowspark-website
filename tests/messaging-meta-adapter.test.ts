@@ -102,6 +102,24 @@ describe("Meta WhatsApp adapter", () => {
     expect(messaging.applyDeliveryState).toHaveBeenCalledWith("out-1", "DELIVERED");
   });
 
+  it("does not re-send to Meta when the idempotent message is already accepted", async () => {
+    messaging.send.mockResolvedValue({
+      id: "out-1",
+      state: "SENT",
+      providerMessageId: "wamid.out",
+    });
+
+    const result = await sendWhatsAppViaMeta(messaging as never, {
+      address: "+2348012345678",
+      body: "hello",
+      idempotencyKey: "wa-1",
+    });
+
+    expect(mocks.sendText).not.toHaveBeenCalled();
+    expect(messaging.recordOutboundAttempt).not.toHaveBeenCalled();
+    expect(result.result).toEqual({ success: true, messageId: "wamid.out" });
+  });
+
   it("requires WhatsApp consent before an outbound Meta send", async () => {
     messaging.send.mockRejectedValue(new MessagingConsentError("Consent required"));
 

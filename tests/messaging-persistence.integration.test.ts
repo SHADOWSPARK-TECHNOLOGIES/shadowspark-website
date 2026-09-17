@@ -121,6 +121,31 @@ describeDb("Model A messaging PostgreSQL persistence", () => {
     expect(await prisma.message.count({ where: { idempotencyKey: "sms-retry-1" } })).toBe(1);
   });
 
+  it("recovers a failed outbound attempt onto the same message identity", async () => {
+    const sms = "+2348011100099";
+    await messaging.grantConsent({ channel: "SMS", address: sms, source: "test" });
+    const message = await messaging.send({
+      channel: "SMS",
+      address: sms,
+      idempotencyKey: "sms-fail-retry",
+    });
+    const failed = await messaging.recordOutboundAttempt({
+      messageId: message.id,
+      status: "FAILED",
+      error: "timeout",
+    });
+    expect(failed.message.state).toBe("FAILED");
+
+    const recovered = await messaging.recordOutboundAttempt({
+      messageId: message.id,
+      status: "ACCEPTED",
+      providerMessageId: "SM-retry",
+    });
+    expect(recovered.message.state).toBe("SENT");
+    expect(recovered.attempt.attemptNumber).toBe(2);
+    expect(await prisma.message.count({ where: { idempotencyKey: "sms-fail-retry" } })).toBe(1);
+  });
+
   it("replays provider events by provider event id", async () => {
     const wa = "+2348022200022";
     await messaging.grantConsent({ channel: "WHATSAPP", address: wa, source: "test" });
