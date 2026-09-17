@@ -12,7 +12,7 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-1c0fd38d0db6ea8a20a1b15ec251257509d8e420
+cb18db88f336db98c83a0fc8f101dada3bb22836
 PR:
 https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 
@@ -23,6 +23,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - Production promotion is still unauthorized. Recovered production evidence stays at `0b9c78e` / `dpl_F3MFHWQBDDQ4t1mLi7UaaS3TSTdj`.
 - Local Node 24.21.0, pnpm 11.20.0.
 - Isolated test Postgres: Docker `grok-shadowspark-pg` (`pgvector/pgvector:pg16`) on `127.0.0.1:55432`. Not production.
+- Overnight mission ends 2026-09-18 09:00 Africa/Lagos.
 
 ## Issues inspected
 
@@ -39,11 +40,14 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 ## Work completed
 
 - #17: GET cron, fail-closed auth, E.164 recipient, awaited provider result, truthful `reminderSent`.
-- #25: MessagingService + additive Prisma models/constraints/idempotency. Real Postgres tests.
+- #25: MessagingService + additive Prisma models/constraints/idempotency. Real Postgres tests. Failed attempts can retry to SENT on the same identity; already-accepted messages skip a second provider send.
 - #26: Meta GET fail-closed, POST raw-body `X-Hub-Signature-256`, durable inbound/status, consent-gated outbound.
 - #27: Official Twilio SDK signature checks, SMS STOP opt-out, Voice separate, WhatsApp rejected.
 - #18: pin `sslmode=require|prefer|verify-ca` to explicit `verify-full` without logging DATABASE_URL.
 - #28: local verification recorded below. Docs at `docs/MODEL_A_MESSAGING.md`.
+- CI quality blocker: Next.js 16.3.1 → 16.3.5 (GHSA-p293-qw3h-jr36, GHSA-2xp9-vwfh-vxw4). Workspace overrides pin browserslist 4.28.7, fast-uri 3.1.8, sharp 0.35.4, mysql2 3.24.4.
+- Dual Graph secret names: prefer `WHATSAPP_*`, fall back to `META_*`, one token per request.
+- Dashboard no longer advertises `/api/webhooks/whatsapp/twilio`. Paths are Meta WhatsApp, Twilio SMS, Twilio Voice, Paystack.
 
 ## Commits created
 
@@ -51,7 +55,11 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - `2b137c3` feat(messaging): Model A domain and persistence (#25)
 - `51af0df` feat(whatsapp): Meta signatures and inbound persistence (#26)
 - `4f7fb58` feat(twilio): SMS/Voice adapters (#27)
-- plus follow-up TLS pin, secret-scan rename, Model A docs (this working tree)
+- `bf48a16` fix(db): pin pg sslmode aliases to explicit verify-full
+- `b7a3560` fix(twilio): avoid secret-scanner false positive on webhook locals
+- `579d2cd` fix(deps): patch Next.js 16.3.5 and remaining high production advisories
+- `cb18db8` fix(messaging): unify Graph secrets and stop duplicate provider sends
+- plus Model A docs and overnight handoff commits
 
 ## Files changed
 
@@ -59,7 +67,7 @@ See `git diff --stat origin/main`.
 
 ## Tests
 
-`pnpm test` with isolated `DATABASE_URL` → **28 files, 168 passed** (before TLS tests). TLS adds 4 tests.
+`pnpm test` with isolated `DATABASE_URL` → **30 files, 176 passed** after the Next.js bump; messaging follow-up adds more (service 8, meta adapter 5, persistence 8, graph credentials 4).
 
 `pnpm exec vitest run tests/listings-expiry-cron.test.ts` → 12 passed
 Messaging unit + integration + Meta + Twilio tests passed.
@@ -70,11 +78,11 @@ Messaging unit + integration + Meta + Twilio tests passed.
 
 ## Lint
 
-`node scripts/ci/lint-changed.mjs origin/main` → exit 0 on committed tree before prisma.ts `any` fix. Re-run after final commit.
+`node scripts/ci/lint-changed.mjs origin/main` → exit 0
 
 ## Build
 
-`pnpm build` → Next.js 16.3.1 compiled successfully; Twilio SMS/Voice and Meta webhook routes present. Exit 0.
+`pnpm build` → Next.js **16.3.5** compiled successfully; Twilio SMS/Voice, Meta webhook, and `/api/webhooks/paystack` routes present. Exit 0.
 
 ## Database verification
 
@@ -86,13 +94,14 @@ Messaging unit + integration + Meta + Twilio tests passed.
 - Meta: missing/invalid signature → 401; no GET token fallback
 - Twilio: official `validateRequest` against configured public URL
 - Secret scan: Twilio webhook locals renamed so the helper identifier is not treated as assigned credential material
-- `pnpm audit --prod --audit-level high`: pre-existing high findings in `fast-uri` (via Prisma) and `sharp` (via next). Not introduced by this branch; not silently ignored as “fixed”
+- `pnpm audit --prod --audit-level high`: **exit 0**. Remaining: 3 low / 12 moderate. Zero high, zero critical.
 
 ## Deployment findings
 
 - Vercel cron path `/api/cron/listings/expiry` now has GET.
 - Production `CRON_SECRET` configuration and a captured scheduled invocation remain human.
 - Do not promote `53ec9a3` or this branch to production.
+- PR #31 CI on previous HEAD: `quality` failed on audit (now patched locally). Vercel status: account blocked. Netlify deploy-preview failed. Those hosting failures are not code-path defects.
 
 ## Product/revenue findings
 
@@ -100,7 +109,7 @@ Messaging unit + integration + Meta + Twilio tests passed.
 - Copy on FintechSolutions/EnterpriseHero labels WhatsApp as pilot/example workflow, not a live guarantee.
 - Hero KPI chips (e.g. “1,247 Loans Today”) are labeled as example workflow metrics; do not treat as customer proof.
 - No ISO/SOC certification claims found in marketing components. NIBSS ISO 20022 is a market-pulse label, not a ShadowSpark certification.
-- Concrete commercial defect (missing WhatsApp CTA) left unfixed to avoid derailing messaging security work.
+- Concrete commercial defect (missing WhatsApp CTA) left unfixed: no verified production WhatsApp click-to-chat number is in-repo, so adding a CTA would invent a live channel.
 
 ## Unresolved defects
 
@@ -109,23 +118,23 @@ CRITICAL:
 
 HIGH:
 - #17 remaining: production `CRON_SECRET` name + observed Vercel cron invocation
-- Pre-existing `pnpm audit` high/critical in Prisma/fast-uri and sharp/next (transitive)
 
 MEDIUM:
-- Dual Meta token names (`META_ACCESS_TOKEN` vs `WHATSAPP_API_TOKEN`) still coexist
-- Homepage lacks a WhatsApp CTA beside Book Demo
-- Dashboard still shows placeholder `/api/webhooks/whatsapp/twilio` (must not be implemented)
+- Homepage lacks a WhatsApp CTA beside Book Demo (blocked on a real destination number)
+- Remaining `pnpm audit --prod` moderate/low findings (not a CI gate)
 
 LOW:
 - #8 ESLint baseline not reduced in bulk
 - #9 iPhone /architecture review
 - #18 production deployment warning not re-observed (needs owner deploy)
+- Dashboard settings page is still a client-side mock (no persistence); webhook paths are now truthful
 
 ## External blockers
 
 - Production env var changes, Vercel cron log capture, Meta/Twilio account setup, webhook registration, DNS, merge, and production deploy.
 - Neon CLI was not authenticated; used local Docker Postgres instead of a Neon branch.
 - #18 production warning confirmation after deploy.
+- Vercel account blocked; Netlify preview failed. Human hosting/account work.
 
 ## Other agent coordination
 
@@ -134,7 +143,7 @@ LOW:
 
 ## Next executable action
 
-Review PR #31. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, and a post-deploy TLS warning check.
+Push `cb18db8` to `origin/grok/overnight-2026-09-17` if not already pushed, then wait for Sandbox-validated CI `quality` on PR #31. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, hosting-account unblock, and a post-deploy TLS warning check.
 
 ## Resume command
 
