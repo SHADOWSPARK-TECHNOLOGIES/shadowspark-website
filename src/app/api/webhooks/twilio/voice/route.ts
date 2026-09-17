@@ -13,9 +13,9 @@ import { prisma } from "@/lib/prisma";
 const VOICE_PATH = "/api/webhooks/twilio/voice";
 
 export async function POST(request: Request) {
-  const authToken = getTwilioAuthToken();
+  const twilioToken = getTwilioAuthToken();
   const publicUrl = getTwilioPublicUrl(VOICE_PATH);
-  if (!authToken || !publicUrl) {
+  if (!twilioToken || !publicUrl) {
     console.error("[twilio:voice] TWILIO_AUTH_TOKEN or TWILIO_PUBLIC_BASE_URL is not configured");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const rawBody = await request.text();
   const params = parseTwilioFormBody(rawBody);
   const signature = request.headers.get("x-twilio-signature");
-  if (!verifyTwilioSignature({ authToken, signature, publicUrl, params })) {
+  if (!verifyTwilioSignature({ authToken: twilioToken, signature, publicUrl, params })) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
