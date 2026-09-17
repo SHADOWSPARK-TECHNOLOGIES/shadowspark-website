@@ -9,6 +9,7 @@ interface AuditData {
   recommendedPackage: string;
   headline: string;
   bullets: string[];
+  usedFallback?: boolean;
 }
 
 /** A single regulatory intelligence signal to display in the UI. */
@@ -86,7 +87,9 @@ export default function MiniAudit({
   return (
     <section className="audit-reveal w-full max-w-2xl bg-[#0A0A0A] border border-[#00FFFF]/20 rounded-3xl p-10 shadow-[0_0_50px_rgba(0,255,255,0.05)]">
       <Badge variant="outline" className="mb-6 border-[#00FFFF]/40 text-[#00FFFF] px-4 py-1 font-mono uppercase tracking-widest text-xs">
-        {data?.recommendedPackage} Tier Recommended
+        {data?.usedFallback
+          ? "Example recommendation — model unavailable"
+          : `${data?.recommendedPackage} Tier Recommended`}
         {hnwTierBoost !== undefined && hnwTierBoost > 0 && (
           <span className="ml-2 rounded bg-yellow-500/20 px-2 py-0.5 text-[10px] text-yellow-400">
             HNW Boost: +{hnwTierBoost}

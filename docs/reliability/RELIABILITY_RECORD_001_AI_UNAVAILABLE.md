@@ -13,7 +13,7 @@ production environment.
 
 | Boundary | Normal behavior | AI unavailable | User-visible result | State preserved | Authority decision |
 | --- | --- | --- | --- | --- | --- |
-| Mini-audit preview | Gemini prepares recommendation copy. | DETERMINISTIC_FALLBACK returns fixed recommendation content. | A recommendation still appears. | UI state only; no durable write. | Automated display; no consequential authority. |
+| Mini-audit preview | Gemini prepares recommendation copy. | DETERMINISTIC_FALLBACK returns fixed recommendation content labeled as an example. | The visitor sees “Example recommendation — model unavailable.” | UI state only; no durable write. | Automated display; no consequential authority. |
 | Main website chat | Anthropic prepares a conversational answer. | DETERMINISTIC_FALLBACK returns contact-oriented failure copy. | The visitor sees a retry/contact message. | Browser conversation state only. | No operational action is authorized. |
 | Assistant grounding | Gemini embeddings retrieve context for the prompt. | DEGRADE continues generation with absent or reduced grounding. | A generic answer may still appear without an explicit grounding-loss notice. | Retrieval is read-only. | The model remains proposal-only. |
 | Assistant generation | Gemini streams the assistant answer. | FAIL_CLOSED returns an error without generated content. | The user sees a system error and retry instruction. | No application mutation is performed. | No action is authorized. |
@@ -75,7 +75,7 @@ not AI fallbacks.
 - WhatsApp fallback now writes a `whatsapp_human_handoff` SystemEvent. Operator
   assignment and alerting remain open.
 - Assistant grounding can be lost without a clear user-visible qualification.
-- Mini-audit fallback can look personalized while using fixed content.
+- Mini-audit fallback is labeled as an example when the model is unavailable.
 - Runtime ownership, alerting, retry exhaustion handling, and incident response are
   not established by source code.
 

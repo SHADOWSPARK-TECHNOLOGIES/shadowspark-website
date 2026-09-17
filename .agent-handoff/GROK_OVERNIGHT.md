@@ -137,7 +137,7 @@ HIGH:
 MEDIUM:
 - Homepage lacks a WhatsApp CTA beside Book Demo (blocked on a real destination number)
 - Remaining `pnpm audit --prod` moderate/low findings (not a CI gate)
-- #10 remaining: named product/engineering owners, alerting, retry-exhaustion ownership; assistant grounding qualification; mini-audit fallback honesty
+- #10 remaining: named product/engineering owners, alerting, retry-exhaustion ownership; assistant grounding qualification
 
 LOW:
 - #8 ESLint baseline not reduced in bulk
