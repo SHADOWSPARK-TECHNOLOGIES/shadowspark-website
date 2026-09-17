@@ -1,7 +1,7 @@
 # GROK OVERNIGHT HANDOFF
 
 STATUS:
-IN_PROGRESS
+READY_FOR_REVIEW
 
 REPOSITORY:
 SHADOWSPARK-TECHNOLOGIES/shadowspark-website
@@ -12,7 +12,7 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-d7a4d69
+b848b02
 PR:
 https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 
@@ -52,7 +52,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - #10 (partial): WhatsApp AI outage sends the deterministic receipt and writes `whatsapp_human_handoff`. Lead scoring no longer defaults to 50 or writes `QUALIFIED` on provider failure (`NEEDS_REVIEW`). Purge-and-reembed probes embeddings before DELETE.
 - CI quality blocker: Next.js 16.3.1 → 16.3.5 (GHSA-p293-qw3h-jr36, GHSA-2xp9-vwfh-vxw4). Workspace overrides pin browserslist 4.28.7, fast-uri 3.1.8, sharp 0.35.4, mysql2 3.24.4.
 - Dual Graph secret names: prefer `WHATSAPP_*`, fall back to `META_*`, one token per request.
-- Dashboard no longer advertises `/api/webhooks/whatsapp/twilio`. Paths are Meta WhatsApp, Twilio SMS, Twilio Voice, Paystack.
+- Dashboard settings is a read-only view of cron/webhook paths and secret names. Fake `postgresql://neon-secret-url`, SA key, team roster, and no-op Save are gone.
 - Runtime image: floor Alpine `libcrypto3`/`libssl3` to `>=3.5.8-r0` (Scout critical/high OpenSSL CVEs on 3.5.7-r0).
 
 ## Commits created
@@ -68,6 +68,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - `e927b7e` fix(whatsapp): grant inbound consent and record AI fallback handoff
 - `85359b9` fix(leads): fail closed when intent scoring is unavailable
 - `d2238ba` fix(rag): probe embeddings before purge-and-reembed
+- `b848b02` fix(dashboard): stop showing mock credentials on settings
 - plus Model A docs and overnight handoff commits
 
 ## Files changed
@@ -142,7 +143,6 @@ LOW:
 - #8 ESLint baseline not reduced in bulk
 - #9 iPhone /architecture review
 - #18 production deployment warning not re-observed (needs owner deploy)
-- Dashboard settings page is still a client-side mock (no persistence); webhook paths are now truthful
 
 ## External blockers
 
@@ -159,7 +159,7 @@ LOW:
 
 ## Next executable action
 
-After this push: confirm PR #31 `quality` is green on the new HEAD. Remaining local code: dashboard settings mock, then a scoped #8 ESLint batch if time remains. Do not merge until a human approves.
+Review PR #31. Quality CI was green on `dca1f7f`; recheck after the settings commit. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, Vercel/Netlify account unblock, #10 owners/alerting, and a post-deploy TLS warning check.
 
 ## Resume command
 
