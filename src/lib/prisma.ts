@@ -1,6 +1,7 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import { pinPostgresTls } from "@/lib/postgres-ssl";
 
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
@@ -8,7 +9,7 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL is not set");
   }
 
-  const pool = new pg.Pool({ connectionString });
+  const pool = new pg.Pool({ connectionString: pinPostgresTls(connectionString) });
   const adapter = new PrismaPg(pool);
 
   const baseClient = new PrismaClient({ adapter });
@@ -20,8 +21,15 @@ function createPrismaClient() {
           const result = await query(args);
 
           if (args.data.type === "intent_signal") {
-            const metadata = args.data.metadata as any;
-            const leadId = metadata?.leadId;
+            const metadata = args.data.metadata as unknown;
+            const leadId =
+              metadata &&
+              typeof metadata === "object" &&
+              !Array.isArray(metadata) &&
+              "leadId" in metadata &&
+              typeof metadata.leadId === "string"
+                ? metadata.leadId
+                : undefined;
 
             if (leadId) {
               // Dynamic import prevents circular dependency issues
