@@ -18,7 +18,7 @@ production environment.
 | Assistant grounding | Gemini embeddings retrieve context for the prompt. | DEGRADE continues generation with absent or reduced grounding. | A generic answer may still appear without an explicit grounding-loss notice. | Retrieval is read-only. | The model remains proposal-only. |
 | Assistant generation | Gemini streams the assistant answer. | FAIL_CLOSED returns an error without generated content. | The user sees a system error and retry instruction. | No application mutation is performed. | No action is authorized. |
 | Demo vault-insight ranking | Gemini embedding ranks stored audit chunks. | DETERMINISTIC_FALLBACK uses keyword ranking or deterministic defaults. | Limited insights remain available. | Stored audit state is unchanged. | Automated presentation only. |
-| WhatsApp reply | Anthropic prepares a short reply. | DETERMINISTIC_FALLBACK attempts a static receipt acknowledgment. | The sender is told that a team member will respond. | The handler does not prove durable inbound-message or handoff storage. | No durable human assignment is proven. |
+| WhatsApp reply | Anthropic prepares a short reply. | DETERMINISTIC_FALLBACK sends a static receipt acknowledgment. | The sender is told that a team member will respond. | Inbound message, customer-care consent, outbound attempt, and a `whatsapp_human_handoff` SystemEvent are written. | Automated receipt only; a human still has to act on the handoff event. |
 | Inbound email reply | Gemini prepares and sends an automatic response. | FAIL_CLOSED sends no generated reply. | No outgoing response is received. | The inbound email event is written first. | Automated sending stops; no human handoff is proven. |
 | Lead follow-up email | Gemini drafts the next follow-up. | FAIL_CLOSED sends no email. | The lead receives no follow-up. | Lead state remains; schedule and sent-event state do not advance. | Automated sending stops. |
 | Lead scoring | AnythingLLM prepares intent score and reasoning. | DETERMINISTIC_FALLBACK assigns score 50. | No outage is disclosed. | No: qualification state and score can be written. | Automated qualification can continue. |
@@ -57,8 +57,9 @@ operator response, or recovery.
 
 ## Human and deterministic fallbacks
 
-**HUMAN_FALLBACK:** No durable human-review or human-handoff fallback is proven by
-the inspected source.
+**HUMAN_FALLBACK:** WhatsApp deterministic fallback writes a `whatsapp_human_handoff`
+SystemEvent. No owner assignment, queue, or alerting is proven. Lead scoring now
+writes `NEEDS_REVIEW` instead of `QUALIFIED` when the model is unavailable.
 
 **DETERMINISTIC_FALLBACK:** Website chat, demo vault ranking, hybrid search,
 mini-audit copy, and the WhatsApp receipt acknowledgment contain deterministic
@@ -67,11 +68,12 @@ not AI fallbacks.
 
 ## No-fallback items and tracked known risks
 
-- Lead scoring defaults to 50 and can still mutate a lead to `QUALIFIED`; it does
-  not fail closed or require human review.
-- Purge-and-re-embed deletes vector state before proving AI availability and has no
-  repository-proven transaction or rollback.
-- WhatsApp fallback promises human follow-up without a durable handoff record.
+- Lead scoring no longer defaults to 50. Provider failure writes `NEEDS_REVIEW`
+  and does not mutate `QUALIFIED`. Named owners and alerting remain open.
+- Purge-and-re-embed now probes the embedding provider before deleting vectors.
+  Mid-run scrape/embed failure after that probe still has no rollback.
+- WhatsApp fallback now writes a `whatsapp_human_handoff` SystemEvent. Operator
+  assignment and alerting remain open.
 - Assistant grounding can be lost without a clear user-visible qualification.
 - Mini-audit fallback can look personalized while using fixed content.
 - Runtime ownership, alerting, retry exhaustion handling, and incident response are
