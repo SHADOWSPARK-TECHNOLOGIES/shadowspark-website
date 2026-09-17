@@ -119,4 +119,11 @@ describe("CI security gate helpers", () => {
     expect(stderr).toContain("credential-assignment");
     expect(stderr).not.toContain(sampleValue);
   });
+
+  it("floors Alpine OpenSSL packages in the runtime image", () => {
+    const dockerfile = readFileSync(join(repositoryRoot, "Dockerfile"), "utf8");
+    expect(dockerfile).toContain("FROM alpine:3.24 AS runner");
+    expect(dockerfile).toContain('"libcrypto3>=3.5.8-r0"');
+    expect(dockerfile).toContain('"libssl3>=3.5.8-r0"');
+  });
 });
