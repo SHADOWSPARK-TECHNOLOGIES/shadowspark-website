@@ -102,8 +102,8 @@ Messaging unit + integration + Meta + Twilio tests passed.
 - Vercel cron path `/api/cron/listings/expiry` now has GET.
 - Production `CRON_SECRET` configuration and a captured scheduled invocation remain human.
 - Do not promote `53ec9a3` or this branch to production.
-- PR #31 `quality` is green on `4ceb96b` (audit + tests + typecheck + lint + build + secret scan).
-- Docker Scout on that SHA failed: Alpine openssl 3.5.7-r0 (2 critical, 7 high), patched by flooring `libcrypto3`/`libssl3` to 3.5.8-r0 in the runner.
+- PR #31 `quality` is green (audit + tests + typecheck + lint + build + secret scan).
+- Docker Scout is green on `0528e2e` after flooring Alpine `libcrypto3`/`libssl3` to `>=3.5.8-r0`.
 - Vercel status: account blocked. Netlify deploy-preview failed. Those hosting failures are not code-path defects.
 
 ## Product/revenue findings
@@ -146,7 +146,7 @@ LOW:
 
 ## Next executable action
 
-Wait for Sandbox-validated CI `quality` and Docker Scout on the OpenSSL floor commit. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, hosting-account unblock, and a post-deploy TLS warning check.
+Review PR #31. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, Vercel/Netlify account unblock, and a post-deploy TLS warning check.
 
 ## Resume command
 
