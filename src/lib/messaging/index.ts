@@ -15,6 +15,7 @@ export {
   MessagingConsentError,
   MessagingService,
   MessagingStateError,
+  type MessagingDb,
   type ConsentInput,
   type DeliveryAttemptStatus,
   type MessageDirection,
@@ -22,3 +23,11 @@ export {
   type ReceiveMessageInput,
   type SendMessageInput,
 } from "./service";
+
+export { getMetaAppSecret, getWhatsAppVerifyToken, verifyMetaSignature } from "./meta-signature";
+export {
+  processMetaWhatsAppWebhook,
+  sendWhatsAppViaMeta,
+  toWhatsAppAddress,
+} from "./meta-whatsapp";
+

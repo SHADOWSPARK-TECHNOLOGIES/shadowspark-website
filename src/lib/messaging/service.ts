@@ -1,4 +1,15 @@
-import { Prisma, type PrismaClient } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
+import type { ExtendedPrismaClient } from "@/lib/prisma";
+
+export type MessagingDb = Pick<
+  ExtendedPrismaClient,
+  | "$transaction"
+  | "message"
+  | "channelConsent"
+  | "consentEvent"
+  | "providerEvent"
+  | "outboundDeliveryAttempt"
+>;
 
 import {
   assertRoute,
@@ -66,10 +77,10 @@ export type ConsentInput = {
   leadId?: string;
 };
 
-type DbClient = PrismaClient | Prisma.TransactionClient;
+type DbClient = MessagingDb | Prisma.TransactionClient;
 
 export class MessagingService {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(private readonly db: MessagingDb) {}
 
   async hasConsent(channel: MessagingChannel, address: string): Promise<boolean> {
     return hasConsentOn(this.db, channel, address);
@@ -338,7 +349,7 @@ async function recordConsentOn(
 }
 
 async function ingestProviderEventOn(
-  db: PrismaClient,
+  db: MessagingDb,
   input: {
     provider: MessagingProvider;
     providerEventId: string;

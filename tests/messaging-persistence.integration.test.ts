@@ -9,6 +9,7 @@ import {
   MessagingService,
   MessagingStateError,
   assertRoute,
+  type MessagingDb,
 } from "@/lib/messaging";
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
@@ -24,7 +25,7 @@ describeDb("Model A messaging PostgreSQL persistence", () => {
     if (!databaseUrl) return;
     pool = new pg.Pool({ connectionString: databaseUrl });
     prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
-    messaging = new MessagingService(prisma);
+    messaging = new MessagingService(prisma as unknown as MessagingDb);
   });
 
   afterAll(async () => {

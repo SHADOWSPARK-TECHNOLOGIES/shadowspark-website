@@ -1,129 +1,118 @@
-import { NextRequest, NextResponse } from "next/server";
-import { sendTextWhatsApp } from "@/lib/whatsapp/send-payment-link";
+import { NextResponse } from "next/server";
+
 import { getBotReply } from "@/lib/ai/whatsapp-bot";
+import {
+  getMetaAppSecret,
+  getWhatsAppVerifyToken,
+  verifyMetaSignature,
+} from "@/lib/messaging/meta-signature";
+import {
+  maybeReplyToInbound,
+  processMetaWhatsAppWebhook,
+  type MetaWebhookPayload,
+} from "@/lib/messaging/meta-whatsapp";
+import { MessagingService } from "@/lib/messaging";
+import { prisma } from "@/lib/prisma";
 
-/**
- * WhatsApp Meta Cloud API Webhook
- *
- * Handles:
- * - GET: Webhook verification (Meta sends a challenge token)
- * - POST: Incoming messages, status updates
- *
- * VERIFY_TOKEN must match the token configured in Meta Developer Console
- * for the Shadowspark ClawBot app (ID: 24260677440297544).
- *
- * SECURITY: All log output is redacted to prevent PII leakage.
- * Phone numbers, message bodies, and raw payloads are never written
- * to production logs.
- */
-
-const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "shadowspark-clawbot-v1";
-
-/** Redact a phone number for safe logging — keeps last 2 digits only. */
 function redactPhone(phone: string): string {
   if (phone.length <= 4) return "****";
   return "****" + phone.slice(-4);
 }
 
-/** Redact a message body for safe logging — keeps length and first 3 chars. */
 function redactText(text: string): string {
   if (!text) return "";
   const preview = text.length > 3 ? text.slice(0, 3) : text;
   return `${preview}…[${text.length} chars]`;
 }
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const mode = searchParams.get("hub.mode");
-  const token = searchParams.get("hub.verify_token");
-  const challenge = searchParams.get("hub.challenge");
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const mode = url.searchParams.get("hub.mode");
+  const token = url.searchParams.get("hub.verify_token");
+  const challenge = url.searchParams.get("hub.challenge");
+  const verifyToken = getWhatsAppVerifyToken();
 
-  // Meta sends a verification request when setting up the webhook
-  if (mode === "subscribe" && token === VERIFY_TOKEN && challenge) {
+  if (!verifyToken) {
+    console.warn("WhatsApp webhook verification failed: WHATSAPP_VERIFY_TOKEN is not configured");
+    return new NextResponse("Verification failed", { status: 403 });
+  }
+
+  if (mode === "subscribe" && token === verifyToken && challenge) {
     console.log("WhatsApp webhook verified successfully");
     return new NextResponse(challenge, { status: 200 });
   }
 
-  // Verification failed — log only that it failed, not the token value
-  console.warn("WhatsApp webhook verification failed", { mode, tokenMatch: token === VERIFY_TOKEN });
+  console.warn("WhatsApp webhook verification failed", {
+    mode,
+    tokenMatch: token === verifyToken,
+  });
   return new NextResponse("Verification failed", { status: 403 });
 }
 
-/**
- * Routes an incoming WhatsApp message to the appropriate handler.
- *
- * Text messages are answered conversationally by Claude (Anthropic SDK). If the
- * model call fails (missing key, rate limit, API error), we fall back to a safe
- * static acknowledgment so the sender always gets a reply.
- */
-async function handleIncomingMessage(from: string, text: string, msgType: string) {
-  console.log(`[WhatsApp Handler] Routing message from ${redactPhone(from)}: type=${msgType}, text=${redactText(text)}`);
-
-  if (msgType !== "text" || !text.trim()) {
-    return;
+export async function POST(request: Request) {
+  const appSecret = getMetaAppSecret();
+  if (!appSecret) {
+    console.error("[whatsapp:meta] META_APP_SECRET is not configured");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
-    const reply = await getBotReply(text.trim());
-    await sendTextWhatsApp(
-      from,
-      reply || "Thank you for reaching out to ShadowSpark. A team member will respond shortly."
-    );
-  } catch (err) {
-    console.error(`[WhatsApp Handler] Claude reply failed for ${redactPhone(from)}:`, err);
-    await sendTextWhatsApp(
-      from,
-      "Thank you for reaching out to ShadowSpark. Your message has been received and a team member will respond shortly."
-    );
+  const rawBody = await request.text();
+  const signature = request.headers.get("x-hub-signature-256");
+  if (!verifyMetaSignature(rawBody, signature, appSecret)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-}
 
-export async function POST(request: NextRequest) {
+  let payload: MetaWebhookPayload;
   try {
-    const body = await request.json();
+    payload = JSON.parse(rawBody) as MetaWebhookPayload;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
-    // Log webhook event metadata only — never the full payload (may contain PII)
-    const entryCount = body?.entry?.length ?? 0;
-    console.log(`WhatsApp webhook received: ${entryCount} entries`);
+  const messaging = new MessagingService(prisma);
+  try {
+    const result = await processMetaWhatsAppWebhook(payload, messaging, prisma);
+    console.log(
+      "[whatsapp:meta] processed inbound=%d statuses=%d",
+      result.inbound,
+      result.statuses,
+    );
 
-    // Handle different payload types
-    const entry = body?.entry?.[0];
-    const change = entry?.changes?.[0];
-    const value = change?.value;
-
-    if (!value) {
-      return NextResponse.json({ status: "ok" }, { status: 200 });
-    }
-
-    // Handle incoming messages
-    if (value.messages) {
-      for (const message of value.messages) {
-        const from = message.from; // sender phone number
-        const msgType = message.type; // text, image, interactive, etc.
-        const text = message.text?.body || "";
-
-        console.log(`WhatsApp message from ${redactPhone(from)}: [${msgType}] ${redactText(text)}`);
-
-        // Route to message handler (fire-and-forget to avoid webhook timeout)
-        handleIncomingMessage(from, text, msgType).catch((err) => {
-          console.error(`[WhatsApp Handler] Error processing message from ${redactPhone(from)}:`, err);
-        });
+    for (const entry of payload.entry ?? []) {
+      for (const change of entry.changes ?? []) {
+        for (const message of change.value?.messages ?? []) {
+          const from = message.from ?? "";
+          const text = message.text?.body ?? "";
+          const msgType = message.type ?? "";
+          if (msgType !== "text" || !text.trim() || !message.id) continue;
+          console.log(
+            `WhatsApp message from ${redactPhone(from)}: [${msgType}] ${redactText(text)}`,
+          );
+          try {
+            const reply = await getBotReply(text.trim());
+            await maybeReplyToInbound(messaging, {
+              from,
+              inboundId: message.id,
+              text,
+              reply:
+                reply ||
+                "Thank you for reaching out to ShadowSpark. A team member will respond shortly.",
+            });
+          } catch (error) {
+            console.error(
+              `[WhatsApp Handler] Error processing message from ${redactPhone(from)}:`,
+              error,
+            );
+          }
+        }
       }
     }
 
-    // Handle message status updates (delivered, read, failed)
-    if (value.statuses) {
-      for (const status of value.statuses) {
-        console.log(`WhatsApp status update: ${status.status} for message ${redactPhone(status.id ?? "")}`);
-      }
-    }
-
-    return NextResponse.json({ status: "ok" }, { status: 200 });
+    return NextResponse.json({ status: "ok", ...result });
   } catch (error) {
     console.error("WhatsApp webhook error:", error);
     return NextResponse.json({ status: "error", message: "Internal server error" }, { status: 500 });
   }
 }
 
-// Required for Meta webhook
 export const dynamic = "force-dynamic";
