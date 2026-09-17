@@ -12,7 +12,7 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-37d0ae8
+f0c927d
 PR:
 https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 
@@ -24,7 +24,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - Local Node 24.21.0, pnpm 11.20.0.
 - Isolated test Postgres: Docker `grok-shadowspark-pg` (`pgvector/pgvector:pg16`) on `127.0.0.1:55432`. Not production.
 - Overnight mission ends 2026-09-18 09:00 Africa/Lagos.
-- PR #31 quality CI was green on `9dc48a4`. This round added commits after that SHA; re-verify CI after push.
+- PR #31 `quality` is green on `f0c927d` (audit, tests, typecheck, lint, build, secret scan).
 
 ## Issues inspected
 
@@ -70,6 +70,7 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - `d2238ba` fix(rag): probe embeddings before purge-and-reembed
 - `b848b02` fix(dashboard): stop showing mock credentials on settings
 - `37d0ae8` fix(audit): label mini-audit fallback as an example
+- `f0c927d` fix(audit): remove impure MiniAudit diagnostic id
 - plus Model A docs and overnight handoff commits
 
 ## Files changed
@@ -160,7 +161,7 @@ LOW:
 
 ## Next executable action
 
-Review PR #31. Quality CI was green on `dca1f7f`; recheck after the settings commit. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, Vercel/Netlify account unblock, #10 owners/alerting, and a post-deploy TLS warning check.
+Review PR #31. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, Vercel/Netlify account unblock, #10 owners/alerting, and a post-deploy TLS warning check.
 
 ## Resume command
 
