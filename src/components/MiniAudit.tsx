@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { generateAuditAction } from "@/app/actions/generate-audit";
 import { Badge } from "./ui/badge";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 interface AuditData {
   recommendedPackage: string;
@@ -129,11 +129,13 @@ export default function MiniAudit({
         ))}
       </ul>
 
-      {showCta && (
+      {showCta && data?.usedFallback ? (
         <div className="mt-10 pt-8 border-t border-zinc-900 text-center">
-           <p className="text-xs font-mono text-zinc-600 uppercase tracking-widest">Diagnostic ID: SS-AUDIT-{Math.floor(Math.random() * 10000)}</p>
+          <p className="text-xs font-mono text-zinc-600 uppercase tracking-widest">
+            Not a live audit
+          </p>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }
