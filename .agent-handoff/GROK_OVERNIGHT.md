@@ -12,7 +12,7 @@ grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
 END_SHA:
-pending final commits
+7e7982de0e4d35a65ab8dafc6a163cbee3366b34
 
 ## Current truth
 
