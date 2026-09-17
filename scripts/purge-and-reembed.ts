@@ -1,4 +1,3 @@
-import path from 'path';
 import { PrismaClient } from '../src/generated/prisma/client/index.js';
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
@@ -106,7 +105,7 @@ async function main() {
             `;
           }
           success++;
-        } catch (e) {
+        } catch {
           console.error(`  Failed to embed chunk for ${target.url}`);
         }
       }

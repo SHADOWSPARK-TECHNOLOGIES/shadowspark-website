@@ -1,233 +1,84 @@
-'use client';
+const WEBHOOKS = [
+  { label: "Meta WhatsApp webhook", path: "/api/webhooks/whatsapp/meta" },
+  { label: "Twilio SMS webhook", path: "/api/webhooks/twilio/sms" },
+  { label: "Twilio Voice webhook", path: "/api/webhooks/twilio/voice" },
+  { label: "Paystack webhook", path: "/api/webhooks/paystack" },
+] as const;
 
-import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
-import Badge from '@/components/dashboard/Badge';
+const SECRET_NAMES = [
+  "CRON_SECRET",
+  "WHATSAPP_VERIFY_TOKEN",
+  "META_APP_SECRET",
+  "WHATSAPP_API_TOKEN",
+  "TWILIO_AUTH_TOKEN",
+  "DATABASE_URL",
+] as const;
 
 export default function SettingsPage() {
-  const [scanSchedule, setScanSchedule] = useState('0 7 * * 1');
-  const [secPortalUrl, setSecPortalUrl] = useState('https://sec.gov.ng/circulars');
-  const [cbnPortalUrl, setCbnPortalUrl] = useState('https://cbn.gov.ng/regulations');
-  const [firsPortalUrl, setFirsPortalUrl] = useState('https://firs.gov.ng/news');
-  const [metaWebhook, setMetaWebhook] = useState('/api/webhooks/whatsapp/meta');
-  const [twilioSmsWebhook, setTwilioSmsWebhook] = useState('/api/webhooks/twilio/sms');
-  const [twilioVoiceWebhook, setTwilioVoiceWebhook] = useState('/api/webhooks/twilio/voice');
-  const [paystackWebhook, setPaystackWebhook] = useState('/api/webhooks/paystack');
-  const [gcpProjectId, setGcpProjectId] = useState('shadowspark-production');
-  const [gcpRegion, setGcpRegion] = useState('europe-central2');
-  const [saKeyActive, setSaKeyActive] = useState('c005a720-key-confirmed');
-  const [neonDbUrl, setNeonDbUrl] = useState('postgresql://neon-secret-url');
-
-  function handleSave() {
-    // Settings saved via form submission — values are managed by state
-  }
-
   return (
     <>
       <div>
-        <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, letterSpacing: '-0.02em' }}>
+        <h2 style={{ fontSize: "var(--text-lg)", fontWeight: 700, letterSpacing: "-0.02em" }}>
           Settings
         </h2>
-        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: 2 }}>
-          Stack configuration · credentials · cron schedule
+        <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: 2 }}>
+          Read-only repository paths and secret names. Values are not stored on this page.
         </p>
       </div>
 
-      {/* Watchtower Cron */}
       <div className="dashboard-card">
         <div className="card-header">
-          <div className="card-title">Watchtower Cron</div>
-          <div className="card-sub">Vercel cron schedule (UTC)</div>
+          <div className="card-title">Listings expiry cron</div>
+          <div className="card-sub">From vercel.json · Vercel invokes GET</div>
         </div>
         <div className="settings-section">
           <div className="settings-row">
             <div>
-              <div className="settings-label">Scan Schedule</div>
-              <div className="settings-desc">Cron expression (UTC)</div>
+              <div className="settings-label">Path</div>
             </div>
-            <input
-              className="settings-input"
-              value={scanSchedule}
-              onChange={(e) => setScanSchedule(e.target.value)}
-              placeholder="0 7 * * 1"
-            />
+            <code className="settings-input">/api/cron/listings/expiry</code>
           </div>
           <div className="settings-row">
             <div>
-              <div className="settings-label">SEC Portal URL</div>
-              <div className="settings-desc">Override scan target</div>
+              <div className="settings-label">Schedule (UTC)</div>
             </div>
-            <input
-              className="settings-input"
-              value={secPortalUrl}
-              onChange={(e) => setSecPortalUrl(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">CBN Portal URL</div>
-            </div>
-            <input
-              className="settings-input"
-              value={cbnPortalUrl}
-              onChange={(e) => setCbnPortalUrl(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">FIRS Portal URL</div>
-            </div>
-            <input
-              className="settings-input"
-              value={firsPortalUrl}
-              onChange={(e) => setFirsPortalUrl(e.target.value)}
-            />
+            <code className="settings-input">0 9 * * *</code>
           </div>
         </div>
       </div>
 
-      {/* Messaging webhooks */}
       <div className="dashboard-card">
         <div className="card-header">
           <div className="card-title">Messaging webhooks</div>
           <div className="card-sub">WhatsApp is Meta-only. Twilio is SMS and Voice.</div>
         </div>
         <div className="settings-section">
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Meta WhatsApp webhook</div>
+          {WEBHOOKS.map((hook) => (
+            <div className="settings-row" key={hook.path}>
+              <div>
+                <div className="settings-label">{hook.label}</div>
+              </div>
+              <code className="settings-input">{hook.path}</code>
             </div>
-            <input
-              className="settings-input"
-              value={metaWebhook}
-              onChange={(e) => setMetaWebhook(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Twilio SMS webhook</div>
-            </div>
-            <input
-              className="settings-input"
-              value={twilioSmsWebhook}
-              onChange={(e) => setTwilioSmsWebhook(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Twilio Voice webhook</div>
-            </div>
-            <input
-              className="settings-input"
-              value={twilioVoiceWebhook}
-              onChange={(e) => setTwilioVoiceWebhook(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Paystack webhook</div>
-            </div>
-            <input
-              className="settings-input"
-              value={paystackWebhook}
-              onChange={(e) => setPaystackWebhook(e.target.value)}
-            />
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* API Credentials */}
       <div className="dashboard-card">
         <div className="card-header">
-          <div className="card-title">API Credentials</div>
-          <div className="card-sub">Stored in GCP Secret Manager — never in git</div>
+          <div className="card-title">Hosting secrets</div>
+          <div className="card-sub">Names only. Values live in the hosting environment.</div>
         </div>
         <div className="settings-section">
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">GCP Project ID</div>
+          {SECRET_NAMES.map((name) => (
+            <div className="settings-row" key={name}>
+              <div>
+                <div className="settings-label">{name}</div>
+              </div>
+              <span className="settings-desc">not shown here</span>
             </div>
-            <input
-              className="settings-input"
-              value={gcpProjectId}
-              onChange={(e) => setGcpProjectId(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">GCP Region</div>
-            </div>
-            <input
-              className="settings-input"
-              value={gcpRegion}
-              onChange={(e) => setGcpRegion(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">SA Key Active</div>
-              <div className="settings-desc">c005a720 — verify intent</div>
-            </div>
-            <input
-              className="settings-input masked"
-              value={saKeyActive}
-              onChange={(e) => setSaKeyActive(e.target.value)}
-            />
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Neon DB URL</div>
-              <div className="settings-desc">Wake before migrate deploy</div>
-            </div>
-            <input
-              className="settings-input masked"
-              value={neonDbUrl}
-              onChange={(e) => setNeonDbUrl(e.target.value)}
-            />
-          </div>
+          ))}
         </div>
-      </div>
-
-      {/* Team Access */}
-      <div className="dashboard-card">
-        <div className="card-header">
-          <div className="card-title">Team Access</div>
-        </div>
-        <div className="settings-section">
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Stephen (ARCHITECT)</div>
-              <div className="settings-desc">roles/owner · Gmail account</div>
-            </div>
-            <Badge variant="green">Active</Badge>
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Emmanuel (COO)</div>
-              <div className="settings-desc">roles/editor · admin access</div>
-            </div>
-            <Badge variant="green">Active</Badge>
-          </div>
-          <div className="settings-row">
-            <div>
-              <div className="settings-label">Reginald</div>
-              <div className="settings-desc">Pending removal — admin.google.com</div>
-            </div>
-            <button
-              className="btn btn-ghost"
-              style={{ color: 'var(--color-notification)', borderColor: 'var(--color-notification)' }}
-            >
-              <Trash2 size={15} /> Remove
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Save Changes */}
-      <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
-        <button className="btn btn-primary" onClick={handleSave}>
-          Save Changes
-        </button>
       </div>
     </>
   );
