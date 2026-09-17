@@ -4,11 +4,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   processWebhook: vi.fn(),
   maybeReply: vi.fn(),
-  getBotReply: vi.fn(),
+  getWhatsAppReply: vi.fn(),
+  systemEventCreate: vi.fn(),
 }));
 
-vi.mock("@/lib/prisma", () => ({ prisma: {} }));
-vi.mock("@/lib/ai/whatsapp-bot", () => ({ getBotReply: mocks.getBotReply }));
+vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    systemEvent: { create: mocks.systemEventCreate },
+  },
+}));
+vi.mock("@/lib/ai/whatsapp-bot", () => ({
+  getWhatsAppReply: mocks.getWhatsAppReply,
+}));
 vi.mock("@/lib/messaging/meta-whatsapp", async () => {
   const actual = await vi.importActual<typeof import("@/lib/messaging/meta-whatsapp")>(
     "@/lib/messaging/meta-whatsapp",
@@ -44,9 +51,10 @@ describe("WhatsApp Meta webhook", () => {
     vi.clearAllMocks();
     process.env.META_APP_SECRET = secret;
     process.env.WHATSAPP_VERIFY_TOKEN = verifyToken;
-    mocks.processWebhook.mockResolvedValue({ inbound: 0, statuses: 0 });
+    mocks.processWebhook.mockResolvedValue({ inbound: 0, statuses: 0, newInbound: [] });
     mocks.maybeReply.mockResolvedValue(false);
-    mocks.getBotReply.mockResolvedValue("ack");
+    mocks.getWhatsAppReply.mockResolvedValue({ text: "ack", usedFallback: false });
+    mocks.systemEventCreate.mockResolvedValue({});
   });
 
   afterEach(() => {
@@ -116,13 +124,91 @@ describe("WhatsApp Meta webhook", () => {
         },
       ],
     });
-    mocks.processWebhook.mockResolvedValue({ inbound: 1, statuses: 0 });
+    mocks.processWebhook.mockResolvedValue({
+      inbound: 1,
+      statuses: 0,
+      newInbound: [{ id: "wamid.1", from: "2348012345678", text: "hello" }],
+    });
 
     const response = await POST(postRequest(body, sign(body)));
 
     expect(response.status).toBe(200);
     expect(mocks.processWebhook).toHaveBeenCalledTimes(1);
+    expect(mocks.getWhatsAppReply).toHaveBeenCalledWith("hello");
+    expect(mocks.maybeReply).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        from: "2348012345678",
+        inboundId: "wamid.1",
+        reply: "ack",
+      }),
+    );
+    expect(mocks.systemEventCreate).not.toHaveBeenCalled();
     expect(await response.json()).toMatchObject({ status: "ok", inbound: 1 });
+  });
+
+  it("does not generate or send a reply when inbound is a webhook replay", async () => {
+    const body = JSON.stringify({
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                messages: [
+                  {
+                    id: "wamid.1",
+                    from: "2348012345678",
+                    type: "text",
+                    text: { body: "hello" },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    mocks.processWebhook.mockResolvedValue({ inbound: 1, statuses: 0, newInbound: [] });
+
+    const response = await POST(postRequest(body, sign(body)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.getWhatsAppReply).not.toHaveBeenCalled();
+    expect(mocks.maybeReply).not.toHaveBeenCalled();
+  });
+
+  it("sends the deterministic fallback and records a human handoff when AI is unavailable", async () => {
+    const body = JSON.stringify({ entry: [] });
+    mocks.processWebhook.mockResolvedValue({
+      inbound: 1,
+      statuses: 0,
+      newInbound: [{ id: "wamid.1", from: "2348012345678", text: "hello" }],
+    });
+    mocks.getWhatsAppReply.mockResolvedValue({
+      text: "Thank you for reaching out to ShadowSpark. A team member will respond shortly.",
+      usedFallback: true,
+    });
+
+    const response = await POST(postRequest(body, sign(body)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.maybeReply).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        inboundId: "wamid.1",
+        reply: expect.stringContaining("team member will respond"),
+      }),
+    );
+    expect(mocks.systemEventCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        type: "whatsapp_human_handoff",
+        metadata: expect.objectContaining({
+          inboundId: "wamid.1",
+          address: "****5678",
+          reason: "ai_unavailable_or_empty",
+        }),
+      }),
+    });
   });
 
   it("fails closed when META_APP_SECRET is missing", async () => {

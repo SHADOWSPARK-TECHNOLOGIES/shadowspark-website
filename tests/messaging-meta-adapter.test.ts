@@ -17,6 +17,7 @@ vi.mock("@/lib/whatsapp/send-payment-link", () => ({
 describe("Meta WhatsApp adapter", () => {
   const messaging = {
     receive: vi.fn(),
+    grantConsent: vi.fn(),
     ingestProviderEvent: vi.fn(),
     applyDeliveryState: vi.fn(),
     send: vi.fn(),
@@ -24,17 +25,20 @@ describe("Meta WhatsApp adapter", () => {
   };
   const prisma = {
     message: { findFirst: vi.fn() },
+    providerEvent: { findUnique: vi.fn() },
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sendText.mockResolvedValue({ success: true, messageId: "wamid.out" });
     messaging.receive.mockResolvedValue({ id: "in-1" });
+    messaging.grantConsent.mockResolvedValue({});
     messaging.ingestProviderEvent.mockResolvedValue({});
     messaging.applyDeliveryState.mockResolvedValue({ id: "out-1", state: "DELIVERED" });
     messaging.send.mockResolvedValue({ id: "out-1" });
     messaging.recordOutboundAttempt.mockResolvedValue({});
     prisma.message.findFirst.mockResolvedValue({ id: "out-1" });
+    prisma.providerEvent.findUnique.mockResolvedValue(null);
   });
 
   it("persists inbound messages idempotently by Meta message id", async () => {
@@ -60,6 +64,7 @@ describe("Meta WhatsApp adapter", () => {
     };
 
     await processMetaWhatsAppWebhook(payload, messaging as never, prisma as never);
+    prisma.providerEvent.findUnique.mockResolvedValue({ messageId: "in-1" });
     await processMetaWhatsAppWebhook(payload, messaging as never, prisma as never);
 
     expect(messaging.receive).toHaveBeenCalledTimes(2);
@@ -71,6 +76,56 @@ describe("Meta WhatsApp adapter", () => {
         providerMessageId: "wamid.in",
       }),
     );
+    expect(messaging.grantConsent).toHaveBeenCalledTimes(1);
+    expect(messaging.grantConsent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "WHATSAPP",
+        address: "+2348012345678",
+        source: "whatsapp-inbound",
+        purpose: "customer-care-reply",
+      }),
+    );
+  });
+
+  it("returns new inbound only on first persist so replies are not replayed", async () => {
+    const payload = {
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                messages: [
+                  {
+                    id: "wamid.in",
+                    from: "2348012345678",
+                    type: "text",
+                    text: { body: "hi" },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const first = await processMetaWhatsAppWebhook(
+      payload,
+      messaging as never,
+      prisma as never,
+    );
+    expect(first.newInbound).toEqual([
+      { id: "wamid.in", from: "2348012345678", text: "hi" },
+    ]);
+
+    prisma.providerEvent.findUnique.mockResolvedValue({ messageId: "in-1" });
+    const replay = await processMetaWhatsAppWebhook(
+      payload,
+      messaging as never,
+      prisma as never,
+    );
+    expect(replay.inbound).toBe(1);
+    expect(replay.newInbound).toEqual([]);
   });
 
   it("maps delivery and read statuses onto the persisted outbound message", async () => {

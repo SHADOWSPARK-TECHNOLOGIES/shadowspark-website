@@ -59,6 +59,9 @@ function getClient(): Anthropic {
  * so each message is answered on its own. Pass prior turns via `history` once a
  * conversation store is added.
  */
+export const WHATSAPP_FALLBACK_REPLY =
+  "Thank you for reaching out to ShadowSpark. A team member will respond shortly.";
+
 export async function getBotReply(
   userText: string,
   history: Anthropic.MessageParam[] = [],
@@ -85,4 +88,21 @@ export async function getBotReply(
     .trim();
 
   return text;
+}
+
+/** Never throws. AI outage or empty model output uses the deterministic receipt. */
+export async function getWhatsAppReply(
+  userText: string,
+  history: Anthropic.MessageParam[] = [],
+): Promise<{ text: string; usedFallback: boolean }> {
+  try {
+    const text = await getBotReply(userText, history);
+    if (!text) {
+      return { text: WHATSAPP_FALLBACK_REPLY, usedFallback: true };
+    }
+    return { text, usedFallback: false };
+  } catch (error) {
+    console.error("[whatsapp:bot] AI reply unavailable; using deterministic fallback", error);
+    return { text: WHATSAPP_FALLBACK_REPLY, usedFallback: true };
+  }
 }

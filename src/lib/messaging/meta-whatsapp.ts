@@ -49,13 +49,20 @@ export function toWhatsAppAddress(phone: string | undefined): string | null {
   return /^\+[1-9]\d{7,14}$/.test(normalized) ? normalized : null;
 }
 
+export type NewInboundWhatsApp = {
+  id: string;
+  from: string;
+  text: string;
+};
+
 export async function processMetaWhatsAppWebhook(
   payload: MetaWebhookPayload,
   messaging: MessagingService,
   prisma: MessagingDb,
-): Promise<{ inbound: number; statuses: number }> {
+): Promise<{ inbound: number; statuses: number; newInbound: NewInboundWhatsApp[] }> {
   let inbound = 0;
   let statuses = 0;
+  const newInbound: NewInboundWhatsApp[] = [];
 
   for (const entry of payload.entry ?? []) {
     for (const change of entry.changes ?? []) {
@@ -63,7 +70,16 @@ export async function processMetaWhatsAppWebhook(
       if (!value) continue;
 
       for (const message of value.messages ?? []) {
-        if (await persistInbound(message, messaging)) inbound += 1;
+        const persisted = await persistInbound(message, messaging, prisma);
+        if (!persisted) continue;
+        inbound += 1;
+        if (persisted.created && persisted.replyable) {
+          newInbound.push({
+            id: persisted.id,
+            from: persisted.from,
+            text: persisted.text,
+          });
+        }
       }
       for (const status of value.statuses ?? []) {
         if (await persistStatus(status, messaging, prisma)) statuses += 1;
@@ -71,7 +87,7 @@ export async function processMetaWhatsAppWebhook(
     }
   }
 
-  return { inbound, statuses };
+  return { inbound, statuses, newInbound };
 }
 
 export async function sendWhatsAppViaMeta(
@@ -105,13 +121,37 @@ export async function sendWhatsAppViaMeta(
   return { message, result };
 }
 
-async function persistInbound(message: MetaMessage, messaging: MessagingService): Promise<boolean> {
-  if (!message.id) return false;
+async function persistInbound(
+  message: MetaMessage,
+  messaging: MessagingService,
+  prisma: MessagingDb,
+): Promise<
+  | {
+      created: boolean;
+      replyable: boolean;
+      id: string;
+      from: string;
+      text: string;
+    }
+  | null
+> {
+  if (!message.id) return null;
   const address = toWhatsAppAddress(message.from);
   if (!address) {
     console.warn("[whatsapp:meta] inbound skipped: invalid sender listing=%s", message.id);
-    return false;
+    return null;
   }
+
+  const existing = await prisma.providerEvent.findUnique({
+    where: {
+      provider_providerEventId: {
+        provider: "META",
+        providerEventId: message.id,
+      },
+    },
+    select: { messageId: true },
+  });
+  const created = !existing?.messageId;
 
   await messaging.receive({
     channel: "WHATSAPP",
@@ -121,7 +161,24 @@ async function persistInbound(message: MetaMessage, messaging: MessagingService)
     providerMessageId: message.id,
     payload: { type: message.type ?? "unknown" },
   });
-  return true;
+
+  if (created) {
+    await messaging.grantConsent({
+      channel: "WHATSAPP",
+      address,
+      source: "whatsapp-inbound",
+      purpose: "customer-care-reply",
+    });
+  }
+
+  const text = message.text?.body ?? "";
+  return {
+    created,
+    replyable: (message.type ?? "text") === "text" && Boolean(text.trim()) && Boolean(message.from),
+    id: message.id,
+    from: message.from ?? "",
+    text,
+  };
 }
 
 async function persistStatus(

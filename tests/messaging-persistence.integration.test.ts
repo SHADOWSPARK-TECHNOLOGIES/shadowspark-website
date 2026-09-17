@@ -11,6 +11,7 @@ import {
   assertRoute,
   type MessagingDb,
 } from "@/lib/messaging";
+import { processMetaWhatsAppWebhook } from "@/lib/messaging/meta-whatsapp";
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const describeDb = databaseUrl ? describe : describe.skip;
@@ -219,5 +220,56 @@ describeDb("Model A messaging PostgreSQL persistence", () => {
   it("keeps application routing identical to the database check", () => {
     expect(assertRoute("WHATSAPP").provider).toBe("META");
     expect(() => assertRoute("WHATSAPP", "TWILIO")).toThrow(MessagingRoutingError);
+  });
+
+  it("grants WhatsApp customer-care consent on first inbound and not on replay after revoke", async () => {
+    const wa = "+2348055500055";
+    const payload = {
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                messages: [
+                  {
+                    id: "wamid.consent-1",
+                    from: "2348055500055",
+                    type: "text",
+                    text: { body: "hello" },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const first = await processMetaWhatsAppWebhook(
+      payload,
+      messaging,
+      prisma as unknown as MessagingDb,
+    );
+    expect(first.newInbound).toHaveLength(1);
+    expect(await messaging.hasConsent("WHATSAPP", wa)).toBe(true);
+    await expect(
+      messaging.send({
+        channel: "WHATSAPP",
+        address: wa,
+        body: "ack",
+        idempotencyKey: "wa-reply:wamid.consent-1",
+      }),
+    ).resolves.toMatchObject({ state: "QUEUED" });
+
+    await messaging.revokeConsent({ channel: "WHATSAPP", address: wa, source: "operator" });
+    expect(await messaging.hasConsent("WHATSAPP", wa)).toBe(false);
+
+    const replay = await processMetaWhatsAppWebhook(
+      payload,
+      messaging,
+      prisma as unknown as MessagingDb,
+    );
+    expect(replay.newInbound).toEqual([]);
+    expect(await messaging.hasConsent("WHATSAPP", wa)).toBe(false);
   });
 });

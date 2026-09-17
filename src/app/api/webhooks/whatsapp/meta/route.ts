@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getBotReply } from "@/lib/ai/whatsapp-bot";
+import { getWhatsAppReply } from "@/lib/ai/whatsapp-bot";
 import {
   getMetaAppSecret,
   getWhatsAppVerifyToken,
@@ -73,42 +73,50 @@ export async function POST(request: Request) {
   try {
     const result = await processMetaWhatsAppWebhook(payload, messaging, prisma);
     console.log(
-      "[whatsapp:meta] processed inbound=%d statuses=%d",
+      "[whatsapp:meta] processed inbound=%d statuses=%d new=%d",
       result.inbound,
       result.statuses,
+      result.newInbound.length,
     );
 
-    for (const entry of payload.entry ?? []) {
-      for (const change of entry.changes ?? []) {
-        for (const message of change.value?.messages ?? []) {
-          const from = message.from ?? "";
-          const text = message.text?.body ?? "";
-          const msgType = message.type ?? "";
-          if (msgType !== "text" || !text.trim() || !message.id) continue;
-          console.log(
-            `WhatsApp message from ${redactPhone(from)}: [${msgType}] ${redactText(text)}`,
-          );
-          try {
-            const reply = await getBotReply(text.trim());
-            await maybeReplyToInbound(messaging, {
-              from,
-              inboundId: message.id,
-              text,
-              reply:
-                reply ||
-                "Thank you for reaching out to ShadowSpark. A team member will respond shortly.",
-            });
-          } catch (error) {
-            console.error(
-              `[WhatsApp Handler] Error processing message from ${redactPhone(from)}:`,
-              error,
-            );
-          }
+    for (const inbound of result.newInbound) {
+      console.log(
+        `WhatsApp message from ${redactPhone(inbound.from)}: [text] ${redactText(inbound.text)}`,
+      );
+      try {
+        const { text: reply, usedFallback } = await getWhatsAppReply(inbound.text.trim());
+        await maybeReplyToInbound(messaging, {
+          from: inbound.from,
+          inboundId: inbound.id,
+          text: inbound.text,
+          reply,
+        });
+        if (usedFallback) {
+          await prisma.systemEvent.create({
+            data: {
+              type: "whatsapp_human_handoff",
+              message: "Deterministic WhatsApp fallback sent; human follow-up required",
+              metadata: {
+                inboundId: inbound.id,
+                address: redactPhone(inbound.from),
+                reason: "ai_unavailable_or_empty",
+              },
+            },
+          });
         }
+      } catch (error) {
+        console.error(
+          `[WhatsApp Handler] Error processing message from ${redactPhone(inbound.from)}:`,
+          error,
+        );
       }
     }
 
-    return NextResponse.json({ status: "ok", ...result });
+    return NextResponse.json({
+      status: "ok",
+      inbound: result.inbound,
+      statuses: result.statuses,
+    });
   } catch (error) {
     console.error("WhatsApp webhook error:", error);
     return NextResponse.json({ status: "error", message: "Internal server error" }, { status: 500 });

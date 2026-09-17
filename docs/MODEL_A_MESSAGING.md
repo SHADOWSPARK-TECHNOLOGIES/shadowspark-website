@@ -45,8 +45,9 @@ Meta webhook path (existing):
 2. Point Meta's webhook at the Meta path above. Subscribe to messages and message statuses.
 3. Create a Twilio account with separately approved SMS and Voice numbers. Do not enable Twilio WhatsApp.
 4. Register Twilio SMS and Voice webhooks at the exact public URLs above.
-5. Capture channel consent before any outbound send. STOP/STOPALL/UNSUBSCRIBE/CANCEL/END/QUIT on SMS revokes SMS consent only.
-6. Do not paste secret values into issues, PRs, or logs.
+5. Capture channel consent before any outbound send. A first-time inbound WhatsApp message records `whatsapp-inbound` customer-care consent so a reply can send. Replaying the same Meta message id does not re-grant after an operator revoke. STOP/STOPALL/UNSUBSCRIBE/CANCEL/END/QUIT on SMS revokes SMS consent only. Inbound SMS does not auto-grant.
+6. If the WhatsApp bot model is unavailable, send the deterministic receipt and write a `whatsapp_human_handoff` SystemEvent. Do not skip the receipt.
+7. Do not paste secret values into issues, PRs, or logs.
 
 ## Local verification performed
 
