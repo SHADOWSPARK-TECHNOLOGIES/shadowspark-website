@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://shadowspark-tech.org";
+const BASE_URL = "https://shadowspark-tech.com";
 const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK_URL;
 
 async function sendSlackStatus(success: boolean, message: string) {

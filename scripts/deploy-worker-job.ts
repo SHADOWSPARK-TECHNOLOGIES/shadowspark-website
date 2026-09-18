@@ -53,7 +53,7 @@ async function deployWorkerJob() {
     "--args", "job:crawl",
     "--memory", "2Gi",
     "--task-timeout", "3600s",
-    "--set-env-vars=VAULT_BUCKET=shadowspark-vault,RAG_CRAWL_ROOT_URL=https://shadowspark-tech.org/blog,RAG_CRAWL_LIMIT=25",
+    "--set-env-vars=VAULT_BUCKET=shadowspark-vault,RAG_CRAWL_ROOT_URL=https://shadowspark-tech.com/blog,RAG_CRAWL_LIMIT=25",
     "--set-secrets=DATABASE_URL=DATABASE_URL:latest,FIRECRAWL_API_KEY=FIRECRAWL_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,ANYTHING_LLM_URL=ANYTHING_LLM_URL:latest,LOCAL_LLM_KEY=LOCAL_LLM_KEY:latest,REDIS_URL=REDIS_URL:latest"
   ].join(" ");
 

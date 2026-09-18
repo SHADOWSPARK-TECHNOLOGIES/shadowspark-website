@@ -19,7 +19,7 @@ describe('marketing doctrine', () => {
       'Pilot pricing and configuration options.',
     );
 
-    expect(SITE_URL).toBe('https://www.shadowspark-tech.org');
+    expect(SITE_URL).toBe('https://shadowspark-tech.com');
     expect(metadata.metadataBase?.toString()).toBe(`${SITE_URL}/`);
     expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/pricing`);
     expect(metadata.openGraph).toMatchObject({

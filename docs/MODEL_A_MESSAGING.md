@@ -26,7 +26,7 @@ Twilio SMS / Voice:
 
 - `TWILIO_ACCOUNT_SID`
 - `TWILIO_AUTH_TOKEN`
-- `TWILIO_PUBLIC_BASE_URL` — public origin Twilio signs (no trailing slash), e.g. `https://shadowspark-tech.org`
+- `TWILIO_PUBLIC_BASE_URL` — public origin Twilio signs (no trailing slash), e.g. `https://shadowspark-tech.com`
 - `TWILIO_SMS_FROM`
 - `TWILIO_VOICE_FROM`
 

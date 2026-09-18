@@ -117,7 +117,7 @@ export async function approvePayment(
   const amountDisplay = (amount / 100).toFixed(2);
   const sourceLabel = source === "operator_force_approve" ? " (Operator Force-Approved)" : "";
   notifySlack(
-    `🚀 *New ShadowSpark Sale!${sourceLabel}*\n*Lead:* ${lead.phoneNumber}\n*Business:* ${audit.companyName || "Unknown"}\n*Amount:* $${amountDisplay} (${tier} tier)\n*Reference:* ${reference}\n*Approve now:* ${process.env.NEXTAUTH_URL || "https://shadowspark-tech.org"}/operator`
+    `🚀 *New ShadowSpark Sale!${sourceLabel}*\n*Lead:* ${lead.phoneNumber}\n*Business:* ${audit.companyName || "Unknown"}\n*Amount:* $${amountDisplay} (${tier} tier)\n*Reference:* ${reference}\n*Approve now:* ${process.env.NEXTAUTH_URL || "https://shadowspark-tech.com"}/operator`
   );
 
   console.log(`[PaymentApproval] ✅ Payment ${reference} approved for lead ${leadId} [${source}]`);

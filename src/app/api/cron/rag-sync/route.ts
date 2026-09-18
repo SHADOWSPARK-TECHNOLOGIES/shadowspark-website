@@ -54,7 +54,7 @@ async function handleRequest(req: Request) {
     }
   }
 
-  const rootUrl = (body.rootUrl || searchParams.get("rootUrl") || process.env.RAG_CRAWL_ROOT_URL || "https://shadowspark-tech.org/blog").trim();
+  const rootUrl = (body.rootUrl || searchParams.get("rootUrl") || process.env.RAG_CRAWL_ROOT_URL || "https://shadowspark-tech.com/blog").trim();
   const slug = (body.slug || searchParams.get("slug") || "").trim() || undefined;
   const limit = Number(body.limit || searchParams.get("limit") || process.env.RAG_CRAWL_LIMIT || "25");
 

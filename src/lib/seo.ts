@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 /** Verified public deployment origin used by canonical and social metadata. */
-export const SITE_URL = 'https://www.shadowspark-tech.org';
+export const SITE_URL = 'https://shadowspark-tech.com';
 
 const ORGANIZATION_NAME = 'ShadowSpark Technologies';
 const DEFAULT_SOCIAL_IMAGE = '/hero/hero-bg.png';

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Sign In | ShadowSpark",
     description: "Sign in to your ShadowSpark Technologies account.",
-    url: "https://shadowspark-tech.org/login",
+    url: "https://shadowspark-tech.com/login",
     type: "website",
   },
   robots: {

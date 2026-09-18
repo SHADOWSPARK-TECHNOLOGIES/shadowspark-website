@@ -161,8 +161,8 @@ require product-specific evidence.
 
 ## Metadata and discovery invariants
 
-- Canonical origin: `https://www.shadowspark-tech.org`.
-- Canonical URL: `https://www.shadowspark-tech.org/architecture`.
+- Canonical origin: `https://shadowspark-tech.com`.
+- Canonical URL: `https://shadowspark-tech.com/architecture`.
 - The route owns truthful title, description, Open Graph, and X/Twitter metadata.
 - Corporate Organization structured data describes a product and technology company.
 - Product-specific keywords remain on product-specific surfaces.

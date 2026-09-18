@@ -26,7 +26,7 @@ describe('corporate navigation behavior', () => {
       for (const link of homeSectionLinks) {
         const destination = new URL(
           link.href,
-          `https://www.shadowspark-tech.org${origin}`,
+          `https://shadowspark-tech.com${origin}`,
         );
         expect(destination.pathname).toBe('/');
         expect(destination.hash).not.toBe('');
