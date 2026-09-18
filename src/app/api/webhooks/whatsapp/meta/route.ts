@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { getWhatsAppReply } from "@/lib/ai/whatsapp-bot";
-import {
-  getMetaAppSecret,
-  getWhatsAppVerifyToken,
-  verifyMetaSignature,
-} from "@/lib/messaging/meta-signature";
+import { optionalEnv } from "@/lib/env";
+import { verifyMetaSignature } from "@/lib/messaging/meta-signature";
 import {
   maybeReplyToInbound,
   processMetaWhatsAppWebhook,
@@ -30,7 +27,7 @@ export async function GET(request: Request) {
   const mode = url.searchParams.get("hub.mode");
   const token = url.searchParams.get("hub.verify_token");
   const challenge = url.searchParams.get("hub.challenge");
-  const verifyToken = getWhatsAppVerifyToken();
+  const verifyToken = optionalEnv("WHATSAPP_VERIFY_TOKEN");
 
   if (!verifyToken) {
     console.warn("WhatsApp webhook verification failed: WHATSAPP_VERIFY_TOKEN is not configured");
@@ -50,7 +47,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const appSecret = getMetaAppSecret();
+  const appSecret = optionalEnv("META_APP_SECRET");
   if (!appSecret) {
     console.error("[whatsapp:meta] META_APP_SECRET is not configured");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

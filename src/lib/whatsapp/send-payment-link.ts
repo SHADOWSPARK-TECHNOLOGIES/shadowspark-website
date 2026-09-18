@@ -9,13 +9,29 @@
  *   WHATSAPP_PHONE_NUMBER_ID or META_PHONE_NUMBER_ID
  */
 
-import { requireWhatsAppGraphCredentials } from "./graph-credentials";
+import { optionalEnv } from "@/lib/env";
 
 const META_API_VERSION = "v21.0";
 const META_GRAPH_URL = "https://graph.facebook.com";
 
-function getConfig() {
-  return requireWhatsAppGraphCredentials();
+export function requireWhatsAppGraphCredentials(): {
+  token: string;
+  phoneNumberId: string;
+} {
+  const token = optionalEnv("WHATSAPP_API_TOKEN") ?? optionalEnv("META_ACCESS_TOKEN");
+  const phoneNumberId =
+    optionalEnv("WHATSAPP_PHONE_NUMBER_ID") ?? optionalEnv("META_PHONE_NUMBER_ID");
+  if (!token) {
+    throw new Error(
+      "WhatsApp Graph token is not set (WHATSAPP_API_TOKEN or META_ACCESS_TOKEN)",
+    );
+  }
+  if (!phoneNumberId) {
+    throw new Error(
+      "WhatsApp phone number id is not set (WHATSAPP_PHONE_NUMBER_ID or META_PHONE_NUMBER_ID)",
+    );
+  }
+  return { token, phoneNumberId };
 }
 
 export type SendPaymentLinkResult = {
@@ -43,7 +59,7 @@ export async function sendPaymentLinkWhatsApp(
   }
 ): Promise<SendPaymentLinkResult> {
   try {
-    const { token, phoneNumberId } = getConfig();
+    const { token, phoneNumberId } = requireWhatsAppGraphCredentials();
 
     // Normalize phone number: ensure it starts with +
     const to = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
@@ -119,7 +135,7 @@ export async function sendTextWhatsApp(
   text: string
 ): Promise<SendPaymentLinkResult> {
   try {
-    const { token, phoneNumberId } = getConfig();
+    const { token, phoneNumberId } = requireWhatsAppGraphCredentials();
 
     const to = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
 

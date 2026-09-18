@@ -2,7 +2,8 @@ import { createHmac } from "node:crypto";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getWhatsAppVerifyToken, verifyMetaSignature } from "@/lib/messaging/meta-signature";
+import { optionalEnv } from "@/lib/env";
+import { verifyMetaSignature } from "@/lib/messaging/meta-signature";
 
 function sign(body: string, secret: string): string {
   return `sha256=${createHmac("sha256", secret).update(body, "utf8").digest("hex")}`;
@@ -39,6 +40,6 @@ describe("WhatsApp GET verify token", () => {
 
   it("has no built-in fallback token", () => {
     vi.stubEnv("WHATSAPP_VERIFY_TOKEN", "");
-    expect(getWhatsAppVerifyToken()).toBeUndefined();
+    expect(optionalEnv("WHATSAPP_VERIFY_TOKEN")).toBeUndefined();
   });
 });

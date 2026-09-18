@@ -23,10 +23,6 @@ export function isMessagingChannel(value: string): value is MessagingChannel {
   return (MESSAGING_CHANNELS as readonly string[]).includes(value);
 }
 
-export function isMessagingProvider(value: string): value is MessagingProvider {
-  return (MESSAGING_PROVIDERS as readonly string[]).includes(value);
-}
-
 export function providerFor(channel: MessagingChannel): MessagingProvider {
   return CHANNEL_PROVIDER[channel];
 }

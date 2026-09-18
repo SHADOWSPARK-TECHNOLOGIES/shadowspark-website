@@ -5,7 +5,6 @@ export {
   MessagingRoutingError,
   assertRoute,
   isMessagingChannel,
-  isMessagingProvider,
   providerFor,
   type MessagingChannel,
   type MessagingProvider,
@@ -25,16 +24,15 @@ export {
   type SendMessageInput,
 } from "./service";
 
-export { getMetaAppSecret, getWhatsAppVerifyToken, verifyMetaSignature } from "./meta-signature";
+export { verifyMetaSignature } from "./meta-signature";
 export {
   processMetaWhatsAppWebhook,
   sendWhatsAppViaMeta,
   toWhatsAppAddress,
 } from "./meta-whatsapp";
 export {
-  getTwilioAuthToken,
+  authorizeTwilioWebhook,
   getTwilioPublicUrl,
-  parseTwilioFormBody,
   verifyTwilioSignature,
 } from "./twilio-signature";
 export {

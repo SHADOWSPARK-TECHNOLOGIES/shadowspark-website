@@ -1,15 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-import { optionalEnv } from "@/lib/env";
-
-export function getMetaAppSecret(): string | undefined {
-  return optionalEnv("META_APP_SECRET");
-}
-
-export function getWhatsAppVerifyToken(): string | undefined {
-  return optionalEnv("WHATSAPP_VERIFY_TOKEN");
-}
-
 export function verifyMetaSignature(
   rawBody: string,
   signatureHeader: string | null | undefined,

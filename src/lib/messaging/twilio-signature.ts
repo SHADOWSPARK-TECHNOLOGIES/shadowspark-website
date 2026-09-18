@@ -2,22 +2,10 @@ import twilio from "twilio";
 
 import { optionalEnv } from "@/lib/env";
 
-export function getTwilioAuthToken(): string | undefined {
-  return optionalEnv("TWILIO_AUTH_TOKEN");
-}
-
 export function getTwilioPublicUrl(path: string): string | undefined {
   const base = optionalEnv("TWILIO_PUBLIC_BASE_URL");
   if (!base) return undefined;
   return `${base.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
-}
-
-export function parseTwilioFormBody(rawBody: string): Record<string, string> {
-  const params: Record<string, string> = {};
-  for (const [key, value] of new URLSearchParams(rawBody)) {
-    params[key] = value;
-  }
-  return params;
 }
 
 export function verifyTwilioSignature(input: {
@@ -33,4 +21,23 @@ export function verifyTwilioSignature(input: {
     input.publicUrl,
     input.params,
   );
+}
+
+export async function authorizeTwilioWebhook(
+  request: Request,
+  path: string,
+): Promise<{ ok: true; params: Record<string, string> } | { ok: false }> {
+  const authToken = optionalEnv("TWILIO_AUTH_TOKEN");
+  const publicUrl = getTwilioPublicUrl(path);
+  if (!authToken || !publicUrl) {
+    console.error("[twilio] TWILIO_AUTH_TOKEN or TWILIO_PUBLIC_BASE_URL is not configured");
+    return { ok: false };
+  }
+
+  const params = Object.fromEntries(new URLSearchParams(await request.text()));
+  const signature = request.headers.get("x-twilio-signature");
+  if (!verifyTwilioSignature({ authToken, signature, publicUrl, params })) {
+    return { ok: false };
+  }
+  return { ok: true, params };
 }

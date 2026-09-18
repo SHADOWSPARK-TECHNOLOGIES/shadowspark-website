@@ -2,11 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import {
-  requireWhatsAppGraphCredentials,
-  resolveWhatsAppGraphToken,
-  resolveWhatsAppPhoneNumberId,
-} from "@/lib/whatsapp/graph-credentials";
+import { requireWhatsAppGraphCredentials } from "@/lib/whatsapp/send-payment-link";
 
 const TOKEN_KEYS = [
   "WHATSAPP_API_TOKEN",
@@ -48,8 +44,6 @@ describe("WhatsApp Graph credential resolution", () => {
     process.env.WHATSAPP_PHONE_NUMBER_ID = " wa-phone ";
     process.env.META_PHONE_NUMBER_ID = "meta-phone";
 
-    expect(resolveWhatsAppGraphToken()).toBe("wa-token");
-    expect(resolveWhatsAppPhoneNumberId()).toBe("wa-phone");
     expect(requireWhatsAppGraphCredentials()).toEqual({
       token: "wa-token",
       phoneNumberId: "wa-phone",
