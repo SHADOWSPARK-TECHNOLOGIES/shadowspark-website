@@ -11,8 +11,12 @@ BRANCH:
 grok/overnight-2026-09-17
 START_SHA:
 53ec9a3e84433b799f88ac567e58d5ba72bf8689
-END_SHA:
+LAST_CODE_SHA:
 f0c927d
+RECOVERED_HEAD:
+13c5c2a
+END_SHA:
+13c5c2a
 PR:
 https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 
@@ -24,7 +28,9 @@ https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/pull/31
 - Local Node 24.21.0, pnpm 11.20.0.
 - Isolated test Postgres: Docker `grok-shadowspark-pg` (`pgvector/pgvector:pg16`) on `127.0.0.1:55432`. Not production.
 - Overnight mission ends 2026-09-18 09:00 Africa/Lagos.
-- PR #31 `quality` is green on `f0c927d` (audit, tests, typecheck, lint, build, secret scan).
+- SHA drift: `END_SHA` was `f0c927d` while branch HEAD was `13c5c2a` because `13c5c2a` is `docs(handoff): record green quality on f0c927d`. Last application-code SHA remains `f0c927d`. Recovered HEAD was `13c5c2a`. A git commit cannot contain its own hash; `END_SHA` names recovered HEAD, not a later docs stamp.
+- PR #31 `quality` is green on `13c5c2a` (audit, tests, typecheck, lint, build, secret scan).
+- 2026-09-18 reconciliation: #28 remains open pending human validation. No merge.
 
 ## Issues inspected
 
@@ -79,24 +85,29 @@ See `git diff --stat origin/main`.
 
 ## Tests
 
-`pnpm test` with isolated `DATABASE_URL` → **33 files, 196 passed** (was 176+ before this round).
+Overnight local: `pnpm test` with isolated `DATABASE_URL` → **33 files, 196 passed**.
 
-New coverage: inbound WhatsApp consent/replay, AI fallback handoff, lead scoring fail-closed, embedding preflight.
+CI `quality` on `13c5c2a`: `pnpm test` → **34 passed | 1 skipped (35 files), 190 passed | 9 skipped (199)**. Skipped file is `tests/messaging-persistence.integration.test.ts` (no `DATABASE_URL` in CI).
 
-`pnpm exec vitest run tests/listings-expiry-cron.test.ts` → 12 passed
-Messaging unit + integration + Meta + Twilio tests passed.
+2026-09-18 local relevant suite against Docker `grok-shadowspark-pg` (`shadowspark_msg_test` on `127.0.0.1:55432`):
+
+`pnpm exec vitest run tests/listings-expiry-cron.test.ts tests/messaging-*.test.ts tests/postgres-ssl.test.ts`
+
+→ **10 files, 67 passed**, including 9 PostgreSQL persistence tests. Exit 0.
 
 ## Typecheck
 
-`pnpm typecheck` → exit 0
+`pnpm typecheck` → exit 0 (2026-09-18 re-run)
 
 ## Lint
 
-`node scripts/ci/lint-changed.mjs origin/main` → exit 0
+`node scripts/ci/lint-changed.mjs origin/main` → exit 0 (2026-09-18 re-run). Issue #8 full baseline not touched.
+
+`git diff --check origin/main` reports trailing blank lines at EOF in already-committed `src/lib/messaging/index.ts` and `src/lib/messaging/twilio-adapter.ts`. Not a CI gate. Left unchanged (not code-closeable reconciliation).
 
 ## Build
 
-`pnpm build` → Next.js **16.3.5** compiled successfully on the previous SHA. Not re-run this round (no Next/route-export shape change beyond the existing Meta webhook). Re-run if CI requires it.
+`pnpm build` → Next.js **16.3.5** compiled successfully, 2026-09-18 local re-run, exit 0. CI `quality` on `13c5c2a` also compiled successfully.
 
 ## Database verification
 
@@ -108,17 +119,19 @@ Messaging unit + integration + Meta + Twilio tests passed.
 - Meta: missing/invalid signature → 401; no GET token fallback
 - Twilio: official `validateRequest` against configured public URL
 - Secret scan: Twilio webhook locals renamed so the helper identifier is not treated as assigned credential material
-- `node scripts/ci/scan-added-secrets.mjs origin/main` → no credential material
-- `pnpm audit --prod --audit-level high`: **exit 0** on previous SHA. Remaining: 3 low / 12 moderate. Zero high, zero critical.
+- `node scripts/ci/scan-added-secrets.mjs origin/main` → no credential material (2026-09-18 re-run)
+- `pnpm audit --prod --audit-level high`: **exit 0** on CI `13c5c2a`. Remaining: 3 low / 12 moderate. Zero high, zero critical.
 
 ## Deployment findings
 
 - Vercel cron path `/api/cron/listings/expiry` now has GET.
 - Production `CRON_SECRET` configuration and a captured scheduled invocation remain human.
 - Do not promote `53ec9a3` or this branch to production.
-- PR #31 `quality` was green on `9dc48a4`. Recheck after this push.
+- PR #31 `quality` is green on `13c5c2a`. Docker Scout/`build-scan-push` green. CodeQL green.
 - Docker Scout is green on `0528e2e` after flooring Alpine `libcrypto3`/`libssl3` to `>=3.5.8-r0`.
-- Vercel status: account blocked. Netlify deploy-preview failed. Those hosting failures are not code-path defects.
+- Hosting checks on `13c5c2a` (not application-code defects; no speculative code fix):
+  - Vercel commit status: **ACCOUNT**. Description: `Account is blocked.` Target: Vercel blocked-account docs. No Vercel deployment exists for this SHA.
+  - Netlify `deploy-preview` plus Redirect/Header/Pages checks: **EXTERNAL_PLATFORM**. All failed in ~8s with title `Deploy failed` and no application error text. CI `quality` build succeeded on the same SHA.
 
 ## Product/revenue findings
 
@@ -161,7 +174,7 @@ LOW:
 
 ## Next executable action
 
-Review PR #31. Do not merge until a human approves. Remaining human work: production `CRON_SECRET`, Meta/Twilio account setup, Vercel/Netlify account unblock, #10 owners/alerting, and a post-deploy TLS warning check.
+Human review of PR #31. Do not merge. Remaining human work: production `CRON_SECRET` + scheduled invocation, Meta/Twilio account/webhook/secrets, Vercel account unblock, Netlify preview disposition, #18 post-deploy TLS warning check, #10 owners/alerting.
 
 ## Resume command
 
