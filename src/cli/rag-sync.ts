@@ -10,7 +10,7 @@ async function main() {
   
   if (waiting + active === 0) {
     console.log("Queue is empty. Running fallback single sync...");
-    const rootUrl = (process.env.RAG_CRAWL_ROOT_URL || "https://shadowspark-tech.org/blog").trim();
+    const rootUrl = (process.env.RAG_CRAWL_ROOT_URL || "https://shadowspark-tech.com/blog").trim();
     const limit = Number(process.env.RAG_CRAWL_LIMIT || "3");
     const maxChars = Number(process.env.RAG_CHUNK_MAX_CHARS || "1800");
 

@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://www.shadowspark-tech.org/api",
+      "url": "https://shadowspark-tech.com/api",
       "description": "Production Server"
     }
   ],

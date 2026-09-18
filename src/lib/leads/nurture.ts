@@ -91,7 +91,7 @@ async function sendFollowUpEmail1(email: string, businessName: string) {
       <p style="font-size: 16px; line-height: 1.6; color: #A1A1AA;">
         Do you have any questions about the suggested features or the deployment process?
       </p>
-      <a href="https://shadowspark-tech.org/contact" style="display: inline-block; background-color: #00E5FF; color: #000000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 20px;">
+      <a href="https://shadowspark-tech.com/contact" style="display: inline-block; background-color: #00E5FF; color: #000000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 20px;">
         Talk to an Engineer
       </a>
     </div>
@@ -110,7 +110,7 @@ async function sendFollowUpEmail2(email: string, businessName: string) {
       <p style="font-size: 16px; line-height: 1.6; color: #A1A1AA;">
         ShadowSpark's autonomous nodes ensure zero-wait qualification. Your system is ready for deployment.
       </p>
-      <a href="https://shadowspark-tech.org/checkout/new" style="display: inline-block; background-color: #00E5FF; color: #000000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 20px;">
+      <a href="https://shadowspark-tech.com/checkout/new" style="display: inline-block; background-color: #00E5FF; color: #000000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 20px;">
         Deploy Demo Environment
       </a>
     </div>
@@ -130,7 +130,7 @@ async function sendFollowUpEmail3(email: string, businessName: string) {
         <p style="color: #00E5FF; font-weight: bold; margin: 0;">PROMO CODE: ACTIVATION20</p>
         <p style="font-size: 14px; margin: 5px 0 0 0;">20% off your first 3 months of any Growth or Autonomous system.</p>
       </div>
-      <a href="https://shadowspark-tech.org/checkout/new" style="display: inline-block; background-color: #00E5FF; color: #000000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none;">
+      <a href="https://shadowspark-tech.com/checkout/new" style="display: inline-block; background-color: #00E5FF; color: #000000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none;">
         Claim Your Offer
       </a>
     </div>
