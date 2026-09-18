@@ -1,7 +1,16 @@
 function isNetlifyPreviewContext(): boolean {
-  if (process.env.NETLIFY !== "true") return false;
   const context = process.env.CONTEXT?.trim();
-  return context === "deploy-preview" || context === "branch-deploy";
+  if (context === "deploy-preview" || context === "branch-deploy") return true;
+  if (process.env.NETLIFY !== "true") return false;
+  if (context === "production") return false;
+  const urls = [
+    process.env.DEPLOY_PRIME_URL,
+    process.env.DEPLOY_URL,
+    process.env.URL,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return urls.includes("deploy-preview") || /--[\w-]+\.netlify\.app/.test(urls);
 }
 
 export function validateEnv() {

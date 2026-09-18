@@ -5,6 +5,7 @@ import { validateEnv } from "@/lib/config/validateEnv";
 const KEYS = [
   "NETLIFY",
   "CONTEXT",
+  "DEPLOY_PRIME_URL",
   "DATABASE_URL",
   "AUTH_SECRET",
   "WEBAUTHN_RP_ID",
@@ -51,6 +52,16 @@ describe("validateEnv", () => {
     delete process.env.WEBAUTHN_ORIGIN;
     delete process.env.PAYMENTS_ENABLED;
     delete process.env.WHATSAPP_ENABLED;
+
+    expect(() => validateEnv()).not.toThrow();
+  });
+
+  it("treats Netlify function URLs as preview when CONTEXT is absent at runtime", () => {
+    process.env.NETLIFY = "true";
+    delete process.env.CONTEXT;
+    process.env.DEPLOY_PRIME_URL = "https://deploy-preview-31--shadowspark-tech.netlify.app";
+    delete process.env.DATABASE_URL;
+    delete process.env.AUTH_SECRET;
 
     expect(() => validateEnv()).not.toThrow();
   });
