@@ -4,25 +4,33 @@
  * Sends a personalized Paystack payment link to a lead via Meta Cloud API.
  * Uses the WhatsApp Business API to deliver Nigeria-optimized payment nudges.
  *
- * Environment variables required:
- *   META_ACCESS_TOKEN  — WhatsApp Cloud API access token
- *   META_PHONE_NUMBER_ID — WhatsApp Business phone number ID
+ * Environment variables required (one token per request):
+ *   WHATSAPP_API_TOKEN or META_ACCESS_TOKEN
+ *   WHATSAPP_PHONE_NUMBER_ID or META_PHONE_NUMBER_ID
  */
+
+import { optionalEnv } from "@/lib/env";
 
 const META_API_VERSION = "v21.0";
 const META_GRAPH_URL = "https://graph.facebook.com";
 
-function getConfig() {
-  const token = process.env.META_ACCESS_TOKEN;
-  const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
-
+export function requireWhatsAppGraphCredentials(): {
+  token: string;
+  phoneNumberId: string;
+} {
+  const token = optionalEnv("WHATSAPP_API_TOKEN") ?? optionalEnv("META_ACCESS_TOKEN");
+  const phoneNumberId =
+    optionalEnv("WHATSAPP_PHONE_NUMBER_ID") ?? optionalEnv("META_PHONE_NUMBER_ID");
   if (!token) {
-    throw new Error("META_ACCESS_TOKEN is not set");
+    throw new Error(
+      "WhatsApp Graph token is not set (WHATSAPP_API_TOKEN or META_ACCESS_TOKEN)",
+    );
   }
   if (!phoneNumberId) {
-    throw new Error("META_PHONE_NUMBER_ID is not set");
+    throw new Error(
+      "WhatsApp phone number id is not set (WHATSAPP_PHONE_NUMBER_ID or META_PHONE_NUMBER_ID)",
+    );
   }
-
   return { token, phoneNumberId };
 }
 
@@ -51,7 +59,7 @@ export async function sendPaymentLinkWhatsApp(
   }
 ): Promise<SendPaymentLinkResult> {
   try {
-    const { token, phoneNumberId } = getConfig();
+    const { token, phoneNumberId } = requireWhatsAppGraphCredentials();
 
     // Normalize phone number: ensure it starts with +
     const to = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
@@ -127,7 +135,7 @@ export async function sendTextWhatsApp(
   text: string
 ): Promise<SendPaymentLinkResult> {
   try {
-    const { token, phoneNumberId } = getConfig();
+    const { token, phoneNumberId } = requireWhatsAppGraphCredentials();
 
     const to = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
 

@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { generateAuditAction } from "@/app/actions/generate-audit";
 import { Badge } from "./ui/badge";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 interface AuditData {
   recommendedPackage: string;
   headline: string;
   bullets: string[];
+  usedFallback?: boolean;
 }
 
 /** A single regulatory intelligence signal to display in the UI. */
@@ -86,7 +87,9 @@ export default function MiniAudit({
   return (
     <section className="audit-reveal w-full max-w-2xl bg-[#0A0A0A] border border-[#00FFFF]/20 rounded-3xl p-10 shadow-[0_0_50px_rgba(0,255,255,0.05)]">
       <Badge variant="outline" className="mb-6 border-[#00FFFF]/40 text-[#00FFFF] px-4 py-1 font-mono uppercase tracking-widest text-xs">
-        {data?.recommendedPackage} Tier Recommended
+        {data?.usedFallback
+          ? "Example recommendation — model unavailable"
+          : `${data?.recommendedPackage} Tier Recommended`}
         {hnwTierBoost !== undefined && hnwTierBoost > 0 && (
           <span className="ml-2 rounded bg-yellow-500/20 px-2 py-0.5 text-[10px] text-yellow-400">
             HNW Boost: +{hnwTierBoost}
@@ -126,11 +129,13 @@ export default function MiniAudit({
         ))}
       </ul>
 
-      {showCta && (
+      {showCta && data?.usedFallback ? (
         <div className="mt-10 pt-8 border-t border-zinc-900 text-center">
-           <p className="text-xs font-mono text-zinc-600 uppercase tracking-widest">Diagnostic ID: SS-AUDIT-{Math.floor(Math.random() * 10000)}</p>
+          <p className="text-xs font-mono text-zinc-600 uppercase tracking-widest">
+            Not a live audit
+          </p>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

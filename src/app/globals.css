@@ -1132,6 +1132,12 @@ body {
   outline: none;
 }
 
+code.settings-input {
+  display: block;
+  box-sizing: border-box;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 .settings-input:focus { border-color: var(--color-primary); }
 .settings-input.masked { -webkit-text-security: disc; letter-spacing: 2px; }
 

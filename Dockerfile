@@ -22,7 +22,12 @@ FROM alpine:3.24 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-RUN apk add --no-cache libstdc++
+# Floor pins Alpine OpenSSL 3.5.8 so Scout cannot ship 3.5.7-r0
+# (CVE-2026-63073, CVE-2026-75803 and related high findings).
+RUN apk add --no-cache \
+    libstdc++ \
+    "libcrypto3>=3.5.8-r0" \
+    "libssl3>=3.5.8-r0"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

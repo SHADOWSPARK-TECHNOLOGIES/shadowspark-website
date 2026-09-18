@@ -30,6 +30,7 @@ model Lead {
   demo           Demo?
   emailEvents    EmailEvent[]
   payments       Payment[]
+  messages       Message[]
 }
 
 model User {
@@ -410,4 +411,99 @@ model SystemContext {
 
   @@index([category])
   @@map("system_context")
+}
+
+/// Provider-neutral logical message. Retries reuse this identity.
+/// channel: WHATSAPP | SMS | VOICE
+/// provider: META | TWILIO
+/// direction: OUTBOUND | INBOUND
+/// state: QUEUED | SENT | DELIVERED | READ | FAILED
+model Message {
+  id                String                     @id @default(cuid())
+  channel           String
+  provider          String
+  direction         String
+  state             String                     @default("QUEUED")
+  address           String
+  body              String?
+  templateName      String?
+  idempotencyKey    String?                    @unique
+  leadId            String?
+  providerMessageId String?
+  error             String?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  lead              Lead?                      @relation(fields: [leadId], references: [id])
+  attempts          OutboundDeliveryAttempt[]
+  providerEvents    ProviderEvent[]
+
+  @@index([channel, address])
+  @@index([state])
+  @@index([provider, providerMessageId])
+  @@map("messages")
+}
+
+/// Current consent for one channel + address. Mutated only via ConsentEvent.
+model ChannelConsent {
+  id        String   @id @default(cuid())
+  channel   String
+  address   String
+  leadId    String?
+  granted   Boolean
+  purpose   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([channel, address])
+  @@index([address])
+  @@map("channel_consents")
+}
+
+/// Immutable consent ledger. Rows are insert-only.
+/// action: GRANT | REVOKE
+model ConsentEvent {
+  id        String   @id @default(cuid())
+  channel   String
+  address   String
+  action    String
+  source    String
+  purpose   String?
+  createdAt DateTime @default(now())
+
+  @@index([channel, address, createdAt])
+  @@map("consent_events")
+}
+
+/// Durable provider webhook/event inbox. Replay is unique on provider + event id.
+model ProviderEvent {
+  id              String    @id @default(cuid())
+  provider        String
+  providerEventId String
+  kind            String
+  payload         Json
+  messageId       String?
+  processedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  message         Message?  @relation(fields: [messageId], references: [id])
+
+  @@unique([provider, providerEventId])
+  @@index([createdAt])
+  @@map("provider_events")
+}
+
+/// One outbound transport attempt against a single Message identity.
+model OutboundDeliveryAttempt {
+  id                String   @id @default(cuid())
+  messageId         String
+  provider          String
+  attemptNumber     Int
+  providerMessageId String?
+  status            String
+  error             String?
+  createdAt         DateTime @default(now())
+  message           Message  @relation(fields: [messageId], references: [id])
+
+  @@unique([messageId, attemptNumber])
+  @@index([providerMessageId])
+  @@map("outbound_delivery_attempts")
 }

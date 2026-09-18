@@ -1,0 +1,12 @@
+[build]
+  command = "pnpm run build"
+  publish = ".next"
+
+[build.environment]
+  PNPM_FLAGS = "--shamefully-hoist --frozen-lockfile"
+  AUTH_TRUST_HOST = "true"
+
+[dev]
+  command = "pnpm dev"
+  targetPort = 3000
+  framework = "#custom"

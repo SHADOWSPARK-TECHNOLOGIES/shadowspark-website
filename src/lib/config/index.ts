@@ -28,8 +28,12 @@ export const config = {
   // WhatsApp (Meta Business API)
   whatsapp: {
     apiUrl: process.env.WHATSAPP_API_URL || "https://graph.facebook.com/v18.0",
-    accessToken: process.env.WHATSAPP_API_TOKEN || "",
-    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || "",
+    accessToken:
+      process.env.WHATSAPP_API_TOKEN || process.env.META_ACCESS_TOKEN || "",
+    phoneNumberId:
+      process.env.WHATSAPP_PHONE_NUMBER_ID ||
+      process.env.META_PHONE_NUMBER_ID ||
+      "",
   },
 
   // OAuth

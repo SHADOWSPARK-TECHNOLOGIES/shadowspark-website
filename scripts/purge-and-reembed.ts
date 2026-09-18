@@ -1,9 +1,9 @@
-import path from 'path';
 import { PrismaClient } from '../src/generated/prisma/client/index.js';
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import "dotenv/config";
+import { requireEmbeddingProvider } from "../src/lib/ai/embedding-preflight";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -52,6 +52,9 @@ async function getKnowledgeEmbeddingColumns(): Promise<Set<string>> {
 }
 
 async function main() {
+  console.log("Embedding preflight: proving the provider before deleting vectors...");
+  await requireEmbeddingProvider(embed);
+
   console.log("🧹 Purging existing jina_reader and competitor vectors...");
   
   // Delete all rows associated with these sources or jina
@@ -102,7 +105,7 @@ async function main() {
             `;
           }
           success++;
-        } catch (e) {
+        } catch {
           console.error(`  Failed to embed chunk for ${target.url}`);
         }
       }
