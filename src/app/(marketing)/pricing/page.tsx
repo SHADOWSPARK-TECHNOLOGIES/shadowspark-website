@@ -10,6 +10,8 @@ export const metadata: Metadata = marketingMetadata(
 import Link from "next/link";
 import { ArrowLeft, Check, Shield, Zap, Building2 } from "lucide-react";
 import { BookDemoButton } from "@/components/book-demo-button";
+import { Footer } from "@/components/sections/Footer";
+import { Navigation } from "@/components/sections/Navigation";
 import { PricingCTAButton } from "./pricing-cta-button";
 
 type Tier = {
@@ -93,6 +95,7 @@ const faqs = [
 export default function PricingPage() {
   return (
     <main className="bg-obsidian min-h-screen font-sans text-zinc-400 selection:bg-emerald-500/30">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-zinc-800 px-6 pb-16 pt-28">
         <div className="pointer-events-none absolute inset-0">
@@ -123,6 +126,14 @@ export default function PricingPage() {
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-zinc-400">
             Example pilot configurations; final scope and pricing require a written quote
           </p>
+          <div className="mt-8">
+            <BookDemoButton
+              location="pricing_hero"
+              className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-6 py-3 text-sm font-bold uppercase tracking-widest text-emerald-400 backdrop-blur-md transition-colors hover:bg-emerald-500/20"
+            >
+              Discuss Pilot
+            </BookDemoButton>
+          </div>
         </div>
       </section>
 
@@ -238,6 +249,7 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+      <Footer />
     </main>
   );
 }
