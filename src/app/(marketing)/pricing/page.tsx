@@ -94,7 +94,7 @@ const faqs = [
 
 export default function PricingPage() {
   return (
-    <main className="bg-obsidian min-h-screen font-sans text-zinc-400 selection:bg-emerald-500/30">
+    <div className="bg-obsidian min-h-screen font-sans text-zinc-400 selection:bg-emerald-500/30">
       <Navigation />
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-zinc-800 px-6 pb-16 pt-28">
@@ -250,6 +250,6 @@ export default function PricingPage() {
         </div>
       </section>
       <Footer />
-    </main>
+    </div>
   );
 }

@@ -495,7 +495,7 @@ export default function DemoPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-950">
       <Navigation />
 
       {/* Hero */}
@@ -708,6 +708,6 @@ export default function DemoPage() {
       </section>
 
       <Footer />
-    </main>
+    </div>
   );
 }

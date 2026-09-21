@@ -12,10 +12,10 @@ export const metadata: Metadata = marketingMetadata(
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black">
       <Navigation />
       <CTA />
       <Footer />
-    </main>
+    </div>
   );
 }
