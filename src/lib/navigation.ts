@@ -3,6 +3,7 @@ export const navigationLinks = [
   { label: 'Systems', href: '/#solutions' },
   { label: 'Work', href: '/#case-study' },
   { label: 'Architecture', href: '/architecture' },
+  { label: 'Pricing', href: '/pricing' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ] as const;

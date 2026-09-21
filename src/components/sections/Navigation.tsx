@@ -70,7 +70,7 @@ export function Navigation() {
           onClick={() =>
             setOpen((current) => nextNavigationMenuState(current, "toggle"))
           }
-          className="inline-flex items-center justify-center rounded-lg p-2 text-slate-400 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 lg:hidden"
+          className="inline-flex h-11 w-11 min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 lg:hidden"
           aria-label={open ? "Close navigation" : "Open navigation"}
           aria-expanded={open}
           aria-controls="primary-mobile-navigation"

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CTA } from "@/components/sections/CTA";
 import { Footer } from "@/components/sections/Footer";
+import { Navigation } from "@/components/sections/Navigation";
 import { marketingMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = marketingMetadata(
@@ -12,6 +13,7 @@ export const metadata: Metadata = marketingMetadata(
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-black">
+      <Navigation />
       <CTA />
       <Footer />
     </main>
