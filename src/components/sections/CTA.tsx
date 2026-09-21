@@ -103,7 +103,9 @@ export function CTA() {
                   </label>
                   <input
                     id='demo-name'
+                    name='name'
                     type='text'
+                    autoComplete='name'
                     required
                     minLength={2}
                     maxLength={100}
@@ -121,7 +123,9 @@ export function CTA() {
                   </label>
                   <input
                     id='demo-company'
+                    name='company'
                     type='text'
+                    autoComplete='organization'
                     maxLength={200}
                     value={form.company}
                     onChange={(event) => set('company', event.target.value)}
@@ -136,7 +140,9 @@ export function CTA() {
                 </label>
                 <input
                   id='demo-email'
+                  name='email'
                   type='email'
+                  autoComplete='email'
                   required
                   maxLength={254}
                   value={form.email}
@@ -151,6 +157,8 @@ export function CTA() {
                 </label>
                 <textarea
                   id='demo-message'
+                  name='message'
+                  autoComplete='off'
                   required
                   minLength={10}
                   maxLength={5_000}
