@@ -8,6 +8,7 @@ const footerColumns = [
       { label: "Systems", href: "/#solutions" },
       { label: "Architecture", href: "/architecture" },
       { label: "Selected Work", href: "/#case-study" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Workflow Demo", href: "/demo" },
     ],
   },
