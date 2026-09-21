@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   ...canonical("/security"),
   title: "Security",
   description:
-    "ShadowSpark employs AES-256 encryption, TLS 1.3, rPPG liveness detection, and Google Cloud Run infrastructure with VPC isolation for institutional-grade security.",
+    "ShadowSpark uses AES-256 encryption, TLS 1.3, and rPPG liveness detection. Production web traffic is served via Railway and Cloudflare; broader platform isolation is a design goal as we scale.",
 };
 
 import Link from "next/link";
@@ -24,7 +24,7 @@ const sections = [
     title: "Infrastructure Security",
     icon: Server,
     content:
-      "The Platform is deployed on Google Cloud Run within isolated Virtual Private Clouds (VPCs), ensuring network-level segmentation between customer environments. Our infrastructure is protected by a Web Application Firewall (WAF) that filters malicious traffic, DDoS protection systems, and intrusion detection/prevention systems (IDS/IPS). All infrastructure is configured with immutable infrastructure principles — no manual server access, no persistent SSH keys, and all changes deployed through CI/CD pipelines with mandatory code review. Regular vulnerability scanning and penetration testing are conducted by independent third-party security firms.",
+      "The public website is hosted on Railway behind Cloudflare. Platform workloads are designed for isolated cloud networking and customer segmentation as we scale beyond the pilot. We apply WAF and DDoS protections available through our edge provider, prefer immutable deploys through CI/CD with code review, and avoid standing SSH access to production. Independent penetration testing and formal audits are planned; we do not currently publish third-party reports.",
   },
   {
     id: "biometric",
@@ -59,7 +59,7 @@ const sections = [
     title: "Certifications and Standards",
     icon: Award,
     content:
-      "ShadowSpark's security program is designed to align with international standards including ISO/IEC 27001 (Information Security Management), SOC 2 Type II (Service Organization Controls), and NDPR (Nigeria Data Protection Regulation) compliance. We undergo annual independent audits and penetration tests. Our infrastructure maintains compliance with PCI DSS Level 1 standards for payment data handling. We are committed to achieving ISO 27001 certification by Q3 2026.",
+      "ShadowSpark's security program is designed to align with international standards including ISO/IEC 27001 (Information Security Management), SOC 2 Type II controls, and NDPR (Nigeria Data Protection Regulation) expectations. We are not presently PCI DSS Level 1 certified; payment-data handling in pilot scope follows least-privilege practices and provider controls rather than a claimed Level 1 attestation. Independent annual audits and pen-tests are goals, not present-tense claims without published reports. We remain committed to achieving ISO 27001 certification by Q3 2026.",
   },
 ];
 
