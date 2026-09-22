@@ -7,7 +7,7 @@
 **Governance issue:**
 [`#11`](https://github.com/SHADOWSPARK-TECHNOLOGIES/shadowspark-website/issues/11)
 
-**Verified:** 2026-08-22, 16:19–17:25 WAT (UTC+01:00)
+**Verified:** 2026-08-22, 16:19–18:00 WAT (UTC+01:00)
 
 **Verifier:** Codex, using the authenticated Vercel account available in the
 engineering workspace plus public DNS and HTTP requests
@@ -22,6 +22,8 @@ state from source-code presence.
   or source at the deployed commit.
 - **INFERRED** — the smallest conclusion supported by multiple verified facts;
   the reasoning is stated.
+- **PARTIAL** — one part of the boundary was directly verified while material
+  operating details remain unknown.
 - **UNKNOWN** — not established by the available evidence or intentionally not
   inspected.
 
@@ -34,10 +36,10 @@ state from source-code presence.
 | Vercel owner/scope | VERIFIED | Display owner `SHADOW TEAM`; CLI scope `shadow-team-e059c792`. |
 | Vercel project | VERIFIED | Project selector `shadowspark-website-lsny`; project ID `prj_XF0uBgpLOIJAW1WCzIYPfOfS0PAQ`; Next.js; root directory `.`; Node.js 24.x. |
 | Environment | VERIFIED | `production`. |
-| Deployment | VERIFIED | ID `dpl_HiMKjsc11PESTd3qMcrszmKrQUE4`; state `Ready`; created 2026-08-14 22:40:08 WAT. |
-| Immutable deployment URL | VERIFIED | `https://shadowspark-website-pvezrv2o1-morontomornica7-5177s-projects.vercel.app`. |
-| Source | VERIFIED | Repository `SHADOWSPARK-TECHNOLOGIES/shadowspark-website`, ref `main`, commit `62051ad660663d91e0c9b6db2af25582383ec8cf`. |
-| Deployment-reported name | VERIFIED | The deployment reports `shadowspark-website`, while the current project selector reports `shadowspark-website-lsny`. Both identifiers are retained to avoid hiding the Vercel naming discrepancy. |
+| Deployment | VERIFIED | ID `dpl_F3MFHWQBDDQ4t1mLi7UaaS3TSTdj`; state `Ready`; created 2026-08-22 17:53:28 WAT. |
+| Immutable deployment URL | VERIFIED | `https://shadowspark-website-lsny-z8flcy058-shadow-team-e059c792.vercel.app`. |
+| Source | VERIFIED | Repository `SHADOWSPARK-TECHNOLOGIES/shadowspark-website`, ref `main`, commit `0b9c78e4f0eeac89e09148436075202c12c6b565`. |
+| Deployment-reported name | VERIFIED | `shadowspark-website-lsny`, matching the current project selector. |
 | Function topology | VERIFIED | Vercel inspection showed Node functions in region `iad1`; deployment metadata reported five Node.js function bundles. |
 
 The same Vercel team also owns distinct `shadowspark-production` and
@@ -64,6 +66,21 @@ DNS returned Vercel edge A records for the apex and `www`. HTTP behavior, Vercel
 aliases, repository `SITE_URL`, rendered metadata, and the sitemap agree on `www`
 as canonical.
 
+## Promotion incident and recovery
+
+The first automatic production deployment of commit `0b9c78e`,
+`dpl_8kkPGqQvKrUosFEbyJB96UdAq122`, reached Vercel `Ready` status but returned HTTP
+500 for the homepage, architecture page, and database health endpoint. Runtime logs
+showed that the instrumentation hook failed closed because `WEBAUTHN_RP_ID` and
+`WEBAUTHN_ORIGIN` were absent from Production.
+
+After explicit approval, those two non-sensitive configuration names were added to
+Production and the same source commit was redeployed as
+`dpl_F3MFHWQBDDQ4t1mLi7UaaS3TSTdj`. The canonical homepage and architecture page
+then returned HTTP 200, apex redirection remained correct, database health returned
+HTTP 200, and an HTTP-500 log query against the recovery deployment returned no
+entries. No source rollback or credential-value retrieval was performed.
+
 ## Routes and feature boundaries
 
 Source at the deployed commit contains 32 page modules and 62 route-handler
@@ -73,7 +90,7 @@ every route.
 | Route or feature family | Production classification |
 | --- | --- |
 | Public marketing, architecture, contact, pricing, legal, and demo pages | VERIFIED source-present; homepage and architecture route were HTTP-verified. |
-| Authentication and passkey registration/login | VERIFIED source-present; runtime flow UNKNOWN because no account operation was performed. |
+| Authentication and passkey registration/login | VERIFIED source-present and configured by required name; schema-invalid registration and login-options POSTs failed closed with HTTP 400. A complete account ceremony remains UNKNOWN because no credential operation was performed. |
 | Dashboard, operator, and administrator interfaces | VERIFIED source-present; authorization and data behavior UNKNOWN because authenticated stateful routes were not invoked. |
 | Contact forwarding | VERIFIED `BACKEND_API_URL` name exists in production; downstream service identity, health, and delivery are UNKNOWN. |
 | Database-backed API routes | VERIFIED source-present; the public database health query succeeded. Individual mutation paths were not exercised. |
@@ -98,6 +115,7 @@ Production has these application-relevant names:
 
 - core: `AUTH_SECRET`, `BACKEND_API_URL`, `DATABASE_URL`, `DIRECT_URL`, and
   `REDIS_URL`;
+- WebAuthn relying-party configuration: `WEBAUTHN_RP_ID` and `WEBAUTHN_ORIGIN`;
 - Vercel KV-compatible names: `KV_URL`, `KV_REST_API_URL`,
   `KV_REST_API_TOKEN`, and `KV_REST_API_READ_ONLY_TOKEN`;
 - Google Cloud integration names: `GCP_SERVICE_ACCOUNT_BASE64`, `GCP_LOCATION`,
@@ -132,6 +150,7 @@ application consumes those integrations.
 | Redis/KV | VERIFIED configured name; UNKNOWN health | `REDIS_URL` and KV-compatible names exist. No authenticated Redis health or queue-stat check was available. Provider and owner are UNKNOWN. |
 | Google Cloud storage | UNKNOWN | Vercel has three `GCP_*` names, but source expects different names and no storage read/write was exercised. The Google Cloud inventory could not be refreshed without interactive reauthentication. |
 | Contact backend | VERIFIED configured name; UNKNOWN health | `BACKEND_API_URL` exists. No state-changing form submission was made and no downstream owner was established. |
+| WebAuthn configuration | VERIFIED configured and startup-safe | The two required Production names exist; canonical pages and Node health recovered after redeployment, and invalid ceremony inputs failed closed. A real account ceremony was not performed. |
 | Messaging | INFERRED unable to send; inbound UNKNOWN | Required WhatsApp and Resend names are absent. Source skips email without `RESEND_API_KEY`; the WhatsApp feature flag defaults false. An inbound webhook could still receive requests, so inbound delivery and provider-side state remain UNKNOWN. |
 | Payments | INFERRED inactive | Payment enablement and Paystack names are absent; source treats the missing enable flag as false. Provider-side state and owner are UNKNOWN. |
 | Model providers | INFERRED unavailable | Required Anthropic, Gemini, Firecrawl, and local-LLM names are absent. No paid or stateful provider request was made. |
@@ -194,10 +213,10 @@ Production provider classification is therefore:
 | Boundary | Classification | Evidence |
 | --- | --- | --- |
 | Public website | VERIFIED | Canonical homepage returned HTTP 200. |
-| Database | VERIFIED point-in-time | `/api/health` returned HTTP 200 and `database: connected` at 2026-08-22T16:21:36.186Z. |
+| Database | VERIFIED point-in-time | `/api/health` returned HTTP 200 and `database: connected` at 2026-08-22T16:57:29.234Z. |
 | Knowledge vectors | VERIFIED point-in-time | The same response reported zero rows. |
 | AI health | VERIFIED invalid as readiness evidence | The route is a randomized stub and does not call a provider. |
-| Runtime logs | UNKNOWN | Source emits console logs and Vercel provides runtime logs, but log delivery, access, alerting, and retention settings were not inspected. |
+| Runtime logs | PARTIAL | The failed startup cause and recovery deployment were queried directly. No HTTP 500 entry remained after recovery. A PostgreSQL driver warning about future SSL-mode semantics was observed. Delivery, alerting, and retention settings remain UNKNOWN. |
 | Backups | INFERRED inactive in Vercel | A backup route exists, but it is not scheduled in `vercel.json`, `CRON_SECRET` is absent, and no successful backup artifact or timestamp was observed. |
 | Restore/recovery | UNKNOWN | `NEON_RECOVERY_*` names exist, but no restoration procedure, recovery owner, recovery point, recovery time, or exercise evidence was found. |
 | Deployment retention/rollback | UNKNOWN | No project retention policy or tested rollback record was inspected. |
@@ -205,7 +224,7 @@ Production provider classification is therefore:
 
 ## Verification method
 
-Read-only evidence was gathered with:
+Evidence and the approved recovery were performed with:
 
 - Vercel CLI 58.4.4: project/domain lists and inspection, production deployment
   list and inspection, and production environment-name listing;
@@ -216,7 +235,9 @@ Read-only evidence was gathered with:
 - official Vercel documentation for function and cron execution semantics.
 
 No Vercel environment value was pulled, no credential was printed into this record,
-no stateful production route was invoked, and no deployment setting was changed.
+and no stateful production route was invoked. The only environment mutation was the
+approved addition of the two non-sensitive WebAuthn names, followed by redeployment
+of the already-merged source commit.
 
 ## Limitations and required follow-up
 
@@ -233,8 +254,8 @@ no stateful production route was invoked, and no deployment setting was changed.
    storage, providers, backups, restores, observability, and incident response.
 6. Record log and deployment-retention settings plus a tested backup/restore and
    rollback exercise.
-7. Refresh this snapshot after the pending security/build hardening pull request is
-   merged and promoted to production; this record describes commit `62051ad` only.
+7. Refresh this snapshot after any future production promotion; this record describes
+   commit `0b9c78e` and recovery deployment `dpl_F3MFHWQBDDQ4t1mLi7UaaS3TSTdj`.
 
 Until those items are evidenced, do not claim continuous worker processing,
 provider availability, durable backup/recovery, complete observability, or named
