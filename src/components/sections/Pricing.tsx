@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useCalendly } from "@/components/calendly-modal";
+import { BookDemoButton } from "@/components/book-demo-button";
 import { trackMetaInitiateCheckout } from "@/components/meta-events";
 
 type PricingTier = {
@@ -60,8 +60,6 @@ const tiers: PricingTier[] = [
 ];
 
 export function Pricing() {
-  const { openCalendly } = useCalendly();
-
   return (
     <section id="pricing" className="border-y border-slate-800 bg-slate-950 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -106,8 +104,14 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <button
-                type="button"
+              <BookDemoButton
+                location={tier.location}
+                variant={tier.highlighted ? "primary" : "ghost"}
+                className={`mt-8 w-full justify-center rounded-lg px-6 py-3 text-sm ${
+                  tier.highlighted
+                    ? "bg-amber-500 text-slate-950 hover:bg-amber-400"
+                    : "border border-slate-700 text-slate-100 hover:border-slate-500 hover:bg-slate-800"
+                }`}
                 onClick={() => {
                   trackMetaInitiateCheckout({
                     value: 0,
@@ -115,19 +119,10 @@ export function Pricing() {
                     content_name: tier.name,
                     content_type: "pricing_tier",
                   });
-                  openCalendly(tier.location);
                 }}
-                className={`mt-8 inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-bold transition-colors ${
-                  tier.highlighted
-                    ? "bg-amber-500 text-slate-950 hover:bg-amber-400"
-                    : "border border-slate-700 text-slate-100 hover:border-slate-500 hover:bg-slate-800"
-                }`}
-                data-event="calendly_open"
-                data-location={tier.location}
-                data-analytics={`home-${tier.location}-cta`}
               >
                 {tier.cta}
-              </button>
+              </BookDemoButton>
             </div>
           ))}
         </div>

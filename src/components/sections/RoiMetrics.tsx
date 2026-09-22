@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useCalendly } from "@/components/calendly-modal";
+import { BookDemoButton } from "@/components/book-demo-button";
 
 type Metric = {
   value: string;
@@ -38,8 +38,6 @@ const metrics: Metric[] = [
 ];
 
 export function RoiMetrics() {
-  const { openCalendly } = useCalendly();
-
   return (
     <section id="roi" className="bg-slate-950 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -71,17 +69,13 @@ export function RoiMetrics() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => openCalendly("roi")}
+          <BookDemoButton
+            location="roi"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-8 py-4 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
-            data-event="calendly_open"
-            data-location="roi"
-            data-analytics="roi-book-demo"
           >
             Book a Demo
             <ArrowRight className="h-4 w-4" />
-          </button>
+          </BookDemoButton>
         </div>
       </div>
     </section>
