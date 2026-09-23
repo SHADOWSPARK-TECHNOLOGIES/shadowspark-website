@@ -1,3 +1,4 @@
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { Globe, MessageCircle, ShieldCheck } from "lucide-react";
 
 export const SovereignFooter = () => (
@@ -11,7 +12,7 @@ export const SovereignFooter = () => (
         <a href="https://facebook.com/your-page-slug" className="hover:text-cyan-500 transition-all">
           <Globe />
         </a>
-        <a href="https://wa.me/your-whatsapp-number" className="hover:text-cyan-500 transition-all text-cyan-500">
+        <a href={getWhatsAppUrl()} className="hover:text-cyan-500 transition-all text-cyan-500">
           <MessageCircle />
         </a>
       </div>

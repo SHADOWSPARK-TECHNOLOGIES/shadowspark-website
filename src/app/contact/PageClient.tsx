@@ -43,6 +43,11 @@ export default function ContactClient() {
       return;
     }
 
+    if (formData.message.trim().length < 10) {
+      setError("Please describe your request in at least 10 characters.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -82,7 +87,7 @@ export default function ContactClient() {
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {[
               { label: "System Design", value: "Tailored to volume and workflow" },
-              { label: "Response Time", value: "Within 4 business hours" },
+              { label: "Response Time", value: "After review" },
               { label: "Engagement", value: "Consultative, not generic" },
             ].map((item) => (
               <div
@@ -102,7 +107,7 @@ export default function ContactClient() {
             </h2>
             <ol className="mt-4 space-y-3">
               {[
-                "We review your request and assess operational fit within 4 business hours.",
+                "We review your request and assess operational fit.",
                 "A senior infrastructure architect reaches out to schedule a 30-minute discovery call.",
                 "You receive a tailored system proposal with scope, timeline, and pricing.",
               ].map((step, i) => (
@@ -133,7 +138,7 @@ export default function ContactClient() {
               </p>
               <h2 className="mt-4 text-2xl font-black text-white">Consultation requested</h2>
               <p className="mt-4 text-sm leading-7 text-zinc-200">
-                We respond within 4 business hours with next steps for your infrastructure call.
+                Your request has been saved. We will follow up by email with next steps.
               </p>
             </div>
           ) : null}

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { createLead } from '@/lib/lead-service';
@@ -45,22 +46,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const body = await request.json().catch(() => ({}));
-    const { email, ...metadata } = body;
-    
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
+    const body = await request.json().catch(() => null);
+    const parsed = z.object({ email: z.string().trim().email().max(254) }).passthrough().safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
     }
-
-    const result = await createLead({ email, metadata });
-    return NextResponse.json(result, { status: 200 });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Internal server error';
+    const { email, ...metadata } = parsed.data;
+    const result = await createLead({ email, metadata: { ...metadata, source: 'lead' } });
+    return NextResponse.json({ success: true, leadId: result.lead.id });
+  } catch {
+    console.error('[lead] request failed');
     return NextResponse.json(
-      { error: message },
+      { error: 'Unable to submit lead' },
       { status: 500 }
     );
   }

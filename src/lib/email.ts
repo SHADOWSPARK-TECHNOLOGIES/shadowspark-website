@@ -19,12 +19,13 @@ export async function sendEmail(
 
   try {
     const client = new Resend(apiKey);
-    await client.emails.send({
+    const { error } = await client.emails.send({
       from: FROM,
       to: recipients,
       subject,
       html,
     });
+    if (error) return { sent: false, reason: error.message };
     return { sent: true };
   } catch (err) {
     console.error('Resend send failed:', err);

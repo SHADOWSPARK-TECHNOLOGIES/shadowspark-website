@@ -78,7 +78,7 @@ const faqs = [
   },
   {
     q: "What payment methods do you accept?",
-    a: "Payment arrangements are confirmed in the written pilot proposal.",
+    a: "Contact us for an operator-assisted invoice and bank-transfer instructions. Payment details and pilot scope are confirmed in writing before payment.",
   },
   {
     q: "Is there a setup fee?",

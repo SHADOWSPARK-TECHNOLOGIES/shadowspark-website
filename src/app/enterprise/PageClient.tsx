@@ -50,6 +50,11 @@ export default function EnterpriseClient() {
       return;
     }
 
+    if (formData.message.trim().length < 10) {
+      setError("Please describe your request in at least 10 characters.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {

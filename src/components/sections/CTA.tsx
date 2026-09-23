@@ -81,8 +81,8 @@ export function CTA() {
             >
               <p className='text-lg font-bold text-white'>Demo request accepted.</p>
               <p className='mt-2 text-zinc-400'>
-                The site validated your request and sent it through the configured
-                lead-capture path.
+                Your request has been saved. We will follow up by email to discuss
+                your pilot.
               </p>
             </div>
           ) : (

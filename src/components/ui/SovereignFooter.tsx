@@ -1,3 +1,4 @@
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { MessageCircle, ShieldCheck, Lock, CheckCircle2 } from "lucide-react";
 
 const FacebookIcon = ({ className, size = 24 }: { className?: string; size?: number }) => (
@@ -60,7 +61,7 @@ export const SovereignFooter = () => {
 
             {/* WHATSAPP LINK */}
             <a 
-              href="https://wa.me/your-number" 
+              href={getWhatsAppUrl()}
               target="_blank"
               rel="noreferrer"
               className="group flex flex-col items-center gap-2 text-neutral-400 hover:text-cyan-500 transition-all"

@@ -1,5 +1,6 @@
 "use client";
 
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,7 @@ export default function Hero() {
             </Button>
             
             <Link 
-              href="https://wa.me/2349000000000" 
+              href={getWhatsAppUrl()}
               target="_blank"
               className="flex items-center gap-2 text-zinc-400 hover:text-white font-mono text-sm tracking-widest transition-colors uppercase mt-4 sm:mt-0"
             >

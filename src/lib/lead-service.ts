@@ -1,5 +1,6 @@
 import { prisma } from './prisma';
-import type { Lead } from '@/generated/prisma/client/client';
+import { sendEmail } from './email';
+import type { Prisma } from '@/generated/prisma/client/client';
 import { scheduleDemoForLead } from './demo-service';
 import { enqueueFollowUp } from './leads/queue';
 import { detectVaspInstitutionalLead } from './scoring/engine';
@@ -9,7 +10,7 @@ export interface CreateLeadInput {
   email?: string;
   phoneNumber?: string;
   intent?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export async function createLead(input: CreateLeadInput) {
@@ -30,7 +31,7 @@ export async function createLead(input: CreateLeadInput) {
         email: email ?? undefined,
         intent: intent ?? undefined,
         status: initialStatus,
-        metadata: metadata ? (metadata as any) : undefined,
+        metadata: metadata ? (metadata as Prisma.InputJsonObject) : undefined,
         updatedAt: new Date(),
       },
       create: {
@@ -38,9 +39,26 @@ export async function createLead(input: CreateLeadInput) {
         phoneNumber: phoneNumber ?? null,
         intent: intent ?? 'inquiry',
         status: initialStatus,
-        metadata: metadata ? (metadata as any) : {},
+        metadata: metadata ? (metadata as Prisma.InputJsonObject) : {},
       },
     });
+
+    // Notify only after the durable write; email failure must not lose the lead.
+    let notificationStatus = 'failed';
+    const inbox = process.env.CONTACT_INBOX?.trim();
+    if (inbox) {
+      try {
+        const details = JSON.stringify({ leadId: lead.id, email, phoneNumber, intent, metadata }, null, 2)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const result = await sendEmail(inbox, 'ShadowSpark: lead inquiry', `<pre>${details}</pre>`);
+        if (result.sent) notificationStatus = 'sent';
+      } catch {
+        console.error('[lead] operator notification failed', { leadId: lead.id });
+      }
+    }
+    if (notificationStatus !== 'sent') {
+      console.error('[lead] operator follow-up required', { leadId: lead.id });
+    }
 
     // System Event Logging
     await prisma.systemEvent.create({
@@ -51,7 +69,8 @@ export async function createLead(input: CreateLeadInput) {
           tool: "createLead",
           leadId: lead.id,
           source: metadata?.source || "chatbot",
-          status: initialStatus
+          status: initialStatus,
+          notificationStatus
         }
       }
     });
@@ -75,7 +94,7 @@ export async function createLead(input: CreateLeadInput) {
           };
           await prisma.lead.update({
             where: { id: lead.id },
-            data: { metadata: updatedMetadata as any },
+            data: { metadata: updatedMetadata as Prisma.InputJsonObject },
           });
           console.log(
             `[SEC 26-1] Escrow account ${escrowAccount.id} provisioned for lead ${lead.id}`
