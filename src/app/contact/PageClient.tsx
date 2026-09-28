@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { gaEvent } from "@/components/google-analytics";
 
 type ContactFormData = {
   name: string;
@@ -57,6 +58,7 @@ export default function ContactClient() {
       }
 
       setSuccess(true);
+      gaEvent("generate_lead", { form: "contact" });
       setFormData(initialFormData);
     } catch {
       setError("Unable to submit your request right now. Please try again.");
