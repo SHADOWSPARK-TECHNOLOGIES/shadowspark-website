@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     );
 
     const result = await streamText({
-      model: google("gemini-2.0-flash-exp"),
+      model: google("gemini-2.5-flash"),
       system: `
       You are the ShadowSpark Assistant—a trusted infrastructure and automation advisor.
 

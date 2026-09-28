@@ -1,8 +1,13 @@
 // app/api/chat/route.ts
-// ShadowSpark site chatbot — Claude-powered, runs as a Vercel serverless function.
-// Requires env var: ANTHROPIC_API_KEY  (add via `vercel env add ANTHROPIC_API_KEY production`)
+// ShadowSpark site chatbot (Gemini / Grok / Claude, whichever key is configured).
+// Provider order: GEMINI_API_KEY (Google Gemini) → XAI_API_KEY (xAI Grok) → ANTHROPIC_API_KEY (Claude).
 
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText } from "ai";
 import { NextRequest, NextResponse } from "next/server";
+
+const GEMINI_MODEL = "gemini-2.5-flash";
+const XAI_MODEL = "grok-4.20-0309-non-reasoning";
 
 export const runtime = "edge"; // fast cold starts; remove if you prefer Node runtime
 
@@ -57,45 +62,74 @@ export async function POST(req: NextRequest) {
     // Trim history to last 10 turns to control token cost
     const trimmed = messages.slice(-10);
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const xaiKey = process.env.XAI_API_KEY;
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    if (!geminiKey && !xaiKey && !anthropicKey) {
       return NextResponse.json(
         { error: "Server not configured" },
         { status: 500 }
       );
     }
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 512,
+    let reply: string | null;
+    if (geminiKey) {
+      const google = createGoogleGenerativeAI({ apiKey: geminiKey });
+      const { text } = await generateText({
+        model: google(GEMINI_MODEL),
         system: SYSTEM_PROMPT,
         messages: trimmed,
-      }),
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Anthropic API error:", errText);
-      return NextResponse.json(
-        { error: "Upstream error" },
-        { status: 502 }
-      );
+        maxOutputTokens: 512,
+        providerOptions: { google: { thinkingConfig: { thinkingBudget: 0 } } },
+      });
+      reply = text || null;
+    } else if (xaiKey) {
+      const response = await fetch("https://api.x.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${xaiKey}`,
+        },
+        body: JSON.stringify({
+          model: XAI_MODEL,
+          max_tokens: 512,
+          messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmed],
+        }),
+      });
+      if (!response.ok) {
+        console.error("xAI API error:", await response.text());
+        return NextResponse.json({ error: "Upstream error" }, { status: 502 });
+      }
+      const data = await response.json();
+      reply = data.choices?.[0]?.message?.content ?? null;
+    } else {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": anthropicKey as string,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 512,
+          system: SYSTEM_PROMPT,
+          messages: trimmed,
+        }),
+      });
+      if (!response.ok) {
+        console.error("Anthropic API error:", await response.text());
+        return NextResponse.json({ error: "Upstream error" }, { status: 502 });
+      }
+      const data = await response.json();
+      reply =
+        data.content
+          ?.filter((b: { type: string }) => b.type === "text")
+          .map((b: { text: string }) => b.text)
+          .join("\n") || null;
     }
 
-    const data = await response.json();
-    const reply =
-      data.content
-        ?.filter((b: { type: string }) => b.type === "text")
-        .map((b: { text: string }) => b.text)
-        .join("\n") ?? "Sorry, I didn't catch that — could you rephrase?";
-
+    reply = reply ?? "Sorry, I didn't catch that — could you rephrase?";
     return NextResponse.json({ reply });
   } catch (err) {
     console.error("Chat route error:", err);
