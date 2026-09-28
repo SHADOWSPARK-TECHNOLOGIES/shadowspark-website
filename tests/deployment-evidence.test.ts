@@ -25,8 +25,10 @@ describe('named production environment evidence', () => {
     expect(record).toContain('https://www.shadowspark-tech.org');
     expect(record).toContain('shadow-team-e059c792');
     expect(record).toContain('shadowspark-website-lsny');
-    expect(record).toContain('dpl_HiMKjsc11PESTd3qMcrszmKrQUE4');
-    expect(record).toContain('62051ad660663d91e0c9b6db2af25582383ec8cf');
+    expect(record).toContain('dpl_F3MFHWQBDDQ4t1mLi7UaaS3TSTdj');
+    expect(record).toContain('0b9c78e4f0eeac89e09148436075202c12c6b565');
+    expect(record).toContain('WEBAUTHN_RP_ID');
+    expect(record).toContain('WEBAUTHN_ORIGIN');
   });
 
   it('classifies every issue 11 topology boundary and its limitations', async () => {
