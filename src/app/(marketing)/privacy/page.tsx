@@ -21,6 +21,7 @@ const sections = [
       "Biometric Data — Facial recognition data collected via rPPG (remote photoplethysmography) for liveness detection and anti-spoofing verification. This data is used exclusively for identity verification and is stored with AES-256 encryption.",
       "Business Data — Company registration details, director information, beneficial ownership structures, financial records, and compliance documentation required for regulatory reporting to SEC, CBN, and FIRS.",
       "Usage Data — Platform interaction data, including login timestamps, feature usage patterns, API call logs, and performance metrics. This data helps us optimize the platform and improve user experience.",
+      "Website Analytics — We use Google Analytics to collect anonymous, aggregated usage statistics about visits to our public website.",
       "Communication Data — Records of communications via WhatsApp, email, and in-platform messaging for compliance auditing and support purposes.",
     ],
   },

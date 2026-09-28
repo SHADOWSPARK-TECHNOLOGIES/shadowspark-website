@@ -12,6 +12,7 @@ import { InlineWidget, useCalendlyEventListener } from "react-calendly";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { trackMetaLead, trackMetaPurchase } from "@/components/meta-events";
+import { gaEvent } from "@/components/google-analytics";
 
 type CalendlyContextValue = {
   openCalendly: (location: string) => void;
@@ -30,6 +31,7 @@ export function CalendlyProvider({ children }: { children: ReactNode }) {
     setLocation(newLocation);
     console.log("[analytics] calendly_open", { location: newLocation });
     trackMetaLead({ location: newLocation });
+    gaEvent("book_demo_click", { location: newLocation });
     setIsOpen(true);
   }, []);
 

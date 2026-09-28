@@ -24,6 +24,7 @@ import { BookDemoButton } from "@/components/book-demo-button";
 import { Footer } from "@/components/sections/Footer";
 import { Navigation } from "@/components/sections/Navigation";
 import { trackMetaEvent, trackMetaLead } from "@/components/meta-events";
+import { gaEvent } from "@/components/google-analytics";
 
 type Status = "SUBMITTED" | "KYC_PENDING" | "KYC_VERIFIED" | "APPROVED" | "DISBURSED";
 
@@ -697,7 +698,10 @@ export default function DemoPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
-                onClick={() => trackMetaEvent("DemoWhatsAppClick", { location: "demo_page_cta" })}
+                onClick={() => {
+                  trackMetaEvent("DemoWhatsAppClick", { location: "demo_page_cta" });
+                  gaEvent("whatsapp_click", { location: "demo_page_cta" });
+                }}
               >
                 <MessageCircle className="h-5 w-5" />
                 Talk to Our Team

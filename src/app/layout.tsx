@@ -16,6 +16,7 @@ import {
 import ChatWidget from "@/components/ChatWidget";
 import { CalendlyProvider } from "@/components/calendly-modal";
 import { MetaPixel } from "@/components/meta-pixel";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -93,6 +94,7 @@ export default function RootLayout({
           <Toaster theme="dark" position="bottom-right" />
           <ChatWidget />
           <Analytics />
+          <GoogleAnalytics />
         </CalendlyProvider>
       </body>
     </html>
