@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Play, Bot } from "lucide-react";
 import { BookDemoButton } from "@/components/book-demo-button";
+import { LodgistCta } from "@/components/lodgist-cta";
 
 const trustPills = [
   "Pilot program",
@@ -50,7 +51,7 @@ export function EnterpriseHero() {
               through a scoped pilot for microfinance banks and digital lenders.
             </p>
 
-            <div className="mt-8 flex w-full flex-col gap-4 sm:flex-row">
+            <div className="mt-8 flex w-full flex-col gap-4 sm:flex-row sm:flex-wrap">
               <BookDemoButton
                 location="hero"
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-8 py-4 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400"
@@ -61,12 +62,16 @@ export function EnterpriseHero() {
               <Link
                 href="/demo"
                 data-analytics="home-hero-view-demo"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-8 py-4 text-sm font-bold text-slate-100 transition-colors hover:border-slate-500 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
                 <Play className="h-4 w-4" />
                 See How It Works
               </Link>
+              <LodgistCta location="home_hero" />
             </div>
+            <p className="mt-3 text-sm text-slate-400">
+              Lodgist is the property platform — listings, bookings, and tenant workflows.
+            </p>
           </div>
 
           <div className="relative hidden lg:block">

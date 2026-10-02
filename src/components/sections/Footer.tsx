@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { Zap } from "lucide-react";
 
+import { LodgistCta } from "@/components/lodgist-cta";
+
 const footerColumns = [
   {
     title: "Explore",
     links: [
       { label: "Systems", href: "/#solutions" },
+      { label: "Open Lodgist", href: "https://lodgist.online" },
       { label: "Architecture", href: "/architecture" },
       { label: "Selected Work", href: "/#case-study" },
       { label: "Workflow Demo", href: "/demo" },
@@ -67,14 +70,18 @@ export function Footer() {
               <ul className="flex flex-col gap-2.5">
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      target={link.href.startsWith("http") ? "_blank" : undefined}
-                      rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className="rounded text-sm text-slate-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none"
-                    >
-                      {link.label}
-                    </Link>
+                    {link.href === "https://lodgist.online" ? (
+                      <LodgistCta location="footer" variant="link" />
+                    ) : (
+                      <Link
+                        href={link.href}
+                        target={link.href.startsWith("http") ? "_blank" : undefined}
+                        rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                        className="rounded text-sm text-slate-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

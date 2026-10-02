@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Menu, X, Zap } from "lucide-react";
 
+import { LodgistCta } from "@/components/lodgist-cta";
 import {
   handleNavigationEscape,
   navigationLinks,
@@ -55,7 +56,8 @@ export function Navigation() {
           ))}
         </nav>
 
-        <div className="hidden lg:block">
+        <div className="hidden items-center gap-3 lg:flex">
+          <LodgistCta location="primary_nav" variant="nav" />
           <Link
             href="/#solutions"
             className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none"
@@ -101,12 +103,20 @@ export function Navigation() {
                 {link.label}
               </Link>
             ))}
+            <LodgistCta
+              location="mobile_nav"
+              variant="nav"
+              className="mt-2 w-full"
+              onClick={() =>
+                setOpen((current) => nextNavigationMenuState(current, "close"))
+              }
+            />
             <Link
               href="/#solutions"
               onClick={() =>
                 setOpen((current) => nextNavigationMenuState(current, "close"))
               }
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
               Explore systems
             </Link>
