@@ -157,16 +157,16 @@ describe('public architecture doctrine', () => {
   });
 
   it('keeps the prohibited-claim check as a smoke test, not a truth proof', () => {
-    const publicMarkup = [
+    const architectureMarkup = [
       render(ArchitectureHero),
       render(ArchitectureDiagram),
       render(RealityFlow),
       render(TrustLayer),
-      render(Footer),
       organizationJsonLd(),
     ]
       .join('\n')
       .toLowerCase();
+    const footerMarkup = render(Footer).toLowerCase();
     const prohibitedClaims = [
       'zero leakage',
       'enterprise-grade security',
@@ -179,7 +179,16 @@ describe('public architecture doctrine', () => {
     ];
 
     for (const claim of prohibitedClaims) {
-      expect(publicMarkup).not.toContain(claim);
+      expect(architectureMarkup).not.toContain(claim);
+    }
+
+    for (const claim of prohibitedClaims) {
+      if (claim === 'lodgist') {
+        expect(footerMarkup).toContain('https://lodgist.online');
+        expect(footerMarkup).not.toContain('lodgist.com.ng');
+        continue;
+      }
+      expect(footerMarkup).not.toContain(claim);
     }
   });
 });
