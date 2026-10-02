@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import { getWhatsAppReply } from "@/lib/ai/whatsapp-bot";
 import { optionalEnv } from "@/lib/env";
@@ -20,6 +20,60 @@ function redactText(text: string): string {
   if (!text) return "";
   const preview = text.length > 3 ? text.slice(0, 3) : text;
   return `${preview}…[${text.length} chars]`;
+}
+
+
+async function replyToNewInbound(
+  inboundMessages: Array<{ id: string; from: string; text: string }>,
+  messaging: MessagingService,
+) {
+  for (const inbound of inboundMessages) {
+    console.log(
+      `WhatsApp message from ${redactPhone(inbound.from)}: [text] ${redactText(inbound.text)}`,
+    );
+    try {
+      const reply = await getWhatsAppReply(inbound.text.trim());
+      await maybeReplyToInbound(messaging, {
+        from: inbound.from,
+        inboundId: inbound.id,
+        text: inbound.text,
+        reply: reply.text,
+      });
+      if (reply.usedFallback || reply.handoff) {
+        await prisma.systemEvent.create({
+          data: {
+            type: "whatsapp_human_handoff",
+            message: reply.handoff
+              ? "Sender asked for a person. No one was paged; booking link was the handoff."
+              : "Fixed WhatsApp menu sent because a model reply was unavailable. No person was paged.",
+            metadata: {
+              inboundId: inbound.id,
+              address: redactPhone(inbound.from),
+              reason: reply.handoff ? "human_requested" : "ai_unavailable_or_empty",
+            },
+          },
+        });
+      }
+    } catch (error) {
+      const name = error instanceof Error ? error.name : "Error";
+      console.error(
+        `[WhatsApp Handler] Error processing message from ${redactPhone(inbound.from)}:`,
+        name,
+      );
+    }
+  }
+}
+
+function scheduleAfterAck(work: Promise<unknown>) {
+  const guarded = work.catch((error) => {
+    const name = error instanceof Error ? error.name : "Error";
+    console.error("[whatsapp:meta] deferred reply failed", name);
+  });
+  try {
+    after(() => guarded);
+  } catch {
+    // Unit tests call the handler outside a Next.js request scope.
+  }
 }
 
 export async function GET(request: Request) {
@@ -76,38 +130,8 @@ export async function POST(request: Request) {
       result.newInbound.length,
     );
 
-    for (const inbound of result.newInbound) {
-      console.log(
-        `WhatsApp message from ${redactPhone(inbound.from)}: [text] ${redactText(inbound.text)}`,
-      );
-      try {
-        const { text: reply, usedFallback } = await getWhatsAppReply(inbound.text.trim());
-        await maybeReplyToInbound(messaging, {
-          from: inbound.from,
-          inboundId: inbound.id,
-          text: inbound.text,
-          reply,
-        });
-        if (usedFallback) {
-          await prisma.systemEvent.create({
-            data: {
-              type: "whatsapp_human_handoff",
-              message: "Deterministic WhatsApp fallback sent; human follow-up required",
-              metadata: {
-                inboundId: inbound.id,
-                address: redactPhone(inbound.from),
-                reason: "ai_unavailable_or_empty",
-              },
-            },
-          });
-        }
-      } catch (error) {
-        console.error(
-          `[WhatsApp Handler] Error processing message from ${redactPhone(inbound.from)}:`,
-          error,
-        );
-      }
-    }
+    const replyWork = replyToNewInbound(result.newInbound, messaging);
+    scheduleAfterAck(replyWork);
 
     return NextResponse.json({
       status: "ok",

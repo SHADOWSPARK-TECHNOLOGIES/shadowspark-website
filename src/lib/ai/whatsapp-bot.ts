@@ -1,108 +1,124 @@
 /**
- * WhatsApp conversational bot — Anthropic SDK
+ * WhatsApp replies for the ShadowSpark business number.
  *
- * Generates a brand-aligned reply to an incoming WhatsApp message using Claude.
- * Called from the Meta Cloud API webhook handler.
- *
- * Environment variables required:
- *   ANTHROPIC_API_KEY — Anthropic API key
- *
- * The system prompt is marked with cache_control so the stable prefix is reused
- * across requests (prompt caching is a prefix match; see Anthropic docs). Note:
- * caching only takes effect once the cached prefix exceeds the model minimum
- * (~1024 tokens for Opus), so it is a no-op for very short prompts but harmless.
+ * Menu intents (services, demo, human, Lodgist) are deterministic.
+ * Free text uses Gemini when GEMINI_API_KEY is set, otherwise Claude when
+ * ANTHROPIC_API_KEY is set. If neither credential is set, or the model call
+ * fails, the reply is the fixed menu and is labeled AI-blocked.
+ * Keys are never logged.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
 
-/** Claude model used for WhatsApp replies. */
-const MODEL = "claude-opus-4-8";
+import { optionalEnv } from "@/lib/env";
+import {
+  buildWhatsAppMenu,
+  classifyWhatsAppMenu,
+  WHATSAPP_MODEL_INSTRUCTIONS,
+} from "@/lib/whatsapp/assistant-menu";
 
-/** Cap reply length — WhatsApp messages should be short. */
-const MAX_TOKENS = 600;
+/** Same model id the public site chatbot already calls. */
+const GEMINI_MODEL = "gemini-2.5-flash";
+const CLAUDE_MODEL = "claude-haiku-4-5-20251001";
+const MAX_TOKENS = 400;
+const MODEL_TIMEOUT_MS = 8_000;
 
-/**
- * Brand + behaviour instructions for the bot. Kept stable (no per-request
- * interpolation) so it caches cleanly as the prompt prefix.
- */
-const SYSTEM_PROMPT = `You are the customer assistant for ShadowSpark Technologies, a Nigeria-first software company founded by Stephen Okoronkwo and based in Owerri, Imo State. ShadowSpark builds AI-powered WhatsApp chatbots, fintech platforms, and cloud-native infrastructure for Nigerian businesses.
+export const WHATSAPP_FALLBACK_REPLY = buildWhatsAppMenu("overview", {
+  aiBlocked: true,
+  freeText: true,
+});
 
-You reply to people who message ShadowSpark on WhatsApp.
+export type WhatsAppReply = {
+  text: string;
+  usedFallback: boolean;
+  /** True when the sender asked for a person. Does not mean anyone was paged. */
+  handoff: boolean;
+};
 
-Voice and rules:
-- Warm, professional, trust-first. Nigerian business context.
-- Keep replies short — 1 to 3 sentences. This is WhatsApp, not email.
-- Plain text only. No markdown, no asterisks, no headings. A single emoji is fine.
-- Never invent prices, timelines, or commitments. If you don't know, say a team member will follow up.
-- For payment questions: tell them to check their email for the secure payment link, and offer to connect them with the team.
-- For support: collect what they need and assure them the team responds within 24 hours (support@shadowspark.tech).
-- If a request is clearly outside ShadowSpark's services, politely redirect.
-- Do not ask for passwords, card numbers, OTPs, or other secrets.`;
+let claudeClient: Anthropic | null = null;
 
-let client: Anthropic | null = null;
-
-/** Lazily construct the client so a missing key fails per-request, not at import. */
-function getClient(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error("ANTHROPIC_API_KEY is not set");
-  }
-  if (!client) {
-    client = new Anthropic();
-  }
-  return client;
+function blockedMenu(topic: ReturnType<typeof classifyWhatsAppMenu> = "overview", freeText = false): WhatsAppReply {
+  const resolved = topic ?? "overview";
+  return {
+    text: buildWhatsAppMenu(resolved, { aiBlocked: true, freeText }),
+    usedFallback: true,
+    handoff: resolved === "human",
+  };
 }
 
-/**
- * Generates a conversational reply to an incoming WhatsApp text message.
- *
- * Stateless single-turn: the webhook does not persist conversation history yet,
- * so each message is answered on its own. Pass prior turns via `history` once a
- * conversation store is added.
- */
-export const WHATSAPP_FALLBACK_REPLY =
-  "Thank you for reaching out to ShadowSpark. A team member will respond shortly.";
+function menuReply(topic: NonNullable<ReturnType<typeof classifyWhatsAppMenu>>, aiBlocked: boolean): WhatsAppReply {
+  return {
+    text: buildWhatsAppMenu(topic, { aiBlocked }),
+    usedFallback: aiBlocked,
+    handoff: topic === "human",
+  };
+}
 
-export async function getBotReply(
-  userText: string,
-  history: Anthropic.MessageParam[] = [],
-): Promise<string> {
-  const anthropic = getClient();
-
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS,
-    system: [
-      {
-        type: "text",
-        text: SYSTEM_PROMPT,
-        cache_control: { type: "ephemeral" },
+async function geminiReply(userText: string, apiKey: string): Promise<string> {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
       },
-    ],
-    messages: [...history, { role: "user", content: userText }],
-  });
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: WHATSAPP_MODEL_INSTRUCTIONS }] },
+        contents: [{ role: "user", parts: [{ text: userText }] }],
+        generationConfig: { maxOutputTokens: MAX_TOKENS },
+      }),
+      signal: AbortSignal.timeout(MODEL_TIMEOUT_MS),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Gemini request failed (${response.status})`);
+  }
+  const data = (await response.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  return (
+    data.candidates?.[0]?.content?.parts
+      ?.map((part) => part.text ?? "")
+      .join("")
+      .trim() ?? ""
+  );
+}
 
-  const text = response.content
+async function claudeReply(userText: string): Promise<string> {
+  if (!claudeClient) claudeClient = new Anthropic();
+  const response = await claudeClient.messages.create({
+    model: CLAUDE_MODEL,
+    max_tokens: MAX_TOKENS,
+    system: WHATSAPP_MODEL_INSTRUCTIONS,
+    messages: [{ role: "user", content: userText }],
+  });
+  return response.content
     .filter((block): block is Anthropic.TextBlock => block.type === "text")
     .map((block) => block.text)
     .join("")
     .trim();
-
-  return text;
 }
 
-/** Never throws. AI outage or empty model output uses the deterministic receipt. */
-export async function getWhatsAppReply(
-  userText: string,
-  history: Anthropic.MessageParam[] = [],
-): Promise<{ text: string; usedFallback: boolean }> {
+/**
+ * Never throws. A missing or failed model returns the fixed menu.
+ */
+export async function getWhatsAppReply(userText: string): Promise<WhatsAppReply> {
+  const topic = classifyWhatsAppMenu(userText);
+  const geminiKey = optionalEnv("GEMINI_API_KEY");
+  const anthropicKey = optionalEnv("ANTHROPIC_API_KEY");
+  const modelConfigured = Boolean(geminiKey || anthropicKey);
+
+  if (topic) return menuReply(topic, !modelConfigured);
+  if (!modelConfigured) return blockedMenu("overview", true);
+
   try {
-    const text = await getBotReply(userText, history);
-    if (!text) {
-      return { text: WHATSAPP_FALLBACK_REPLY, usedFallback: true };
-    }
-    return { text, usedFallback: false };
+    const text = geminiKey ? await geminiReply(userText, geminiKey) : await claudeReply(userText);
+    if (!text) return blockedMenu("overview", true);
+    return { text, usedFallback: false, handoff: false };
   } catch (error) {
-    console.error("[whatsapp:bot] AI reply unavailable; using deterministic fallback", error);
-    return { text: WHATSAPP_FALLBACK_REPLY, usedFallback: true };
+    const name = error instanceof Error ? error.name : "Error";
+    console.error("[whatsapp:bot] model reply failed; sending fixed menu", name);
+    return blockedMenu("overview", true);
   }
 }

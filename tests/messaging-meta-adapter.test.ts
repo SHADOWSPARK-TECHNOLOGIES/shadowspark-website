@@ -129,7 +129,7 @@ describe("Meta WhatsApp adapter", () => {
   });
 
   it("maps delivery and read statuses onto the persisted outbound message", async () => {
-    await processMetaWhatsAppWebhook(
+    const statusOnly = await processMetaWhatsAppWebhook(
       {
         entry: [
           {
@@ -146,6 +146,8 @@ describe("Meta WhatsApp adapter", () => {
       messaging as never,
       prisma as never,
     );
+    expect(statusOnly.newInbound).toEqual([]);
+    expect(statusOnly.statuses).toBe(1);
 
     expect(messaging.ingestProviderEvent).toHaveBeenCalledWith(
       expect.objectContaining({

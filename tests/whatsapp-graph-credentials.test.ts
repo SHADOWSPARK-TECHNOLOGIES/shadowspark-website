@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { requireWhatsAppGraphCredentials } from "@/lib/whatsapp/send-payment-link";
+import { requireWhatsAppGraphCredentials, WHATSAPP_TEXT_GRAPH_VERSION } from "@/lib/whatsapp/send-payment-link";
 
 const TOKEN_KEYS = [
   "WHATSAPP_API_TOKEN",
@@ -58,6 +58,10 @@ describe("WhatsApp Graph credential resolution", () => {
       token: "meta-token",
       phoneNumberId: "meta-phone",
     });
+  });
+
+  it("sends session text on the documented Cloud API version", () => {
+    expect(WHATSAPP_TEXT_GRAPH_VERSION).toBe("v25.0");
   });
 
   it("fails closed when no Graph token is present", () => {
