@@ -48,6 +48,31 @@ describe("getWhatsAppReply", () => {
     expect(lodgist.text).toContain("separate");
   });
 
+  it("uses a successful Gemini reply for free text and keeps the menu off the model", async () => {
+    process.env.GEMINI_API_KEY = "synthetic-key";
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          candidates: [{ content: { parts: [{ text: "Pilots are scoped during discovery." }] } }],
+        }),
+        { status: 200 },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const ai = await getWhatsAppReply("What can you build for a lender?");
+    const menu = await getWhatsAppReply("1");
+
+    expect(ai.usedFallback).toBe(false);
+    expect(ai.handoff).toBe(false);
+    expect(ai.text).toBe("Pilots are scoped during discovery.");
+    expect(ai.text).not.toContain("synthetic-key");
+    expect(menu.usedFallback).toBe(false);
+    expect(menu.text).toContain("pilot workflows");
+    expect(menu.text).not.toBe(ai.text);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("labels the menu AI-blocked when a configured model call fails", async () => {
     process.env.GEMINI_API_KEY = "synthetic-key";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("no", { status: 401 })));

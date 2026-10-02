@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { requireWhatsAppGraphCredentials, WHATSAPP_TEXT_GRAPH_VERSION } from "@/lib/whatsapp/send-payment-link";
+import { requireWhatsAppGraphCredentials, sendTextWhatsApp, WHATSAPP_TEXT_GRAPH_VERSION } from "@/lib/whatsapp/send-payment-link";
 
 const TOKEN_KEYS = [
   "WHATSAPP_API_TOKEN",
@@ -69,6 +69,33 @@ describe("WhatsApp Graph credential resolution", () => {
     expect(() => requireWhatsAppGraphCredentials()).toThrow(
       /WHATSAPP_API_TOKEN or META_ACCESS_TOKEN/,
     );
+  });
+
+  it("posts the session reply to Cloud API with a mocked fetch", async () => {
+    process.env.WHATSAPP_API_TOKEN = "synthetic-token";
+    process.env.WHATSAPP_PHONE_NUMBER_ID = "1001";
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ messages: [{ id: "wamid.out" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await sendTextWhatsApp("+2348012345678", "menu reply");
+
+    expect(result).toEqual({ success: true, messageId: "wamid.out" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://graph.facebook.com/v25.0/1001/messages");
+    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer synthetic-token");
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      messaging_product: "whatsapp",
+      to: "+2348012345678",
+      type: "text",
+      text: { body: "menu reply" },
+    });
+    vi.unstubAllGlobals();
   });
 
 });

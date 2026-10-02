@@ -53,6 +53,7 @@ export type NewInboundWhatsApp = {
   id: string;
   from: string;
   text: string;
+  leadId: string;
 };
 
 export async function processMetaWhatsAppWebhook(
@@ -78,6 +79,7 @@ export async function processMetaWhatsAppWebhook(
             id: persisted.id,
             from: persisted.from,
             text: persisted.text,
+            leadId: persisted.leadId,
           });
         }
       }
@@ -132,6 +134,7 @@ async function persistInbound(
       id: string;
       from: string;
       text: string;
+      leadId: string;
     }
   | null
 > {
@@ -152,6 +155,8 @@ async function persistInbound(
     select: { messageId: true },
   });
   const created = !existing?.messageId;
+  const text = message.text?.body ?? "";
+  const leadId = await upsertWhatsAppLead(prisma, address, text);
 
   await messaging.receive({
     channel: "WHATSAPP",
@@ -159,6 +164,7 @@ async function persistInbound(
     body: message.text?.body,
     providerEventId: message.id,
     providerMessageId: message.id,
+    leadId,
     payload: { type: message.type ?? "unknown" },
   });
 
@@ -171,14 +177,36 @@ async function persistInbound(
     });
   }
 
-  const text = message.text?.body ?? "";
   return {
     created,
     replyable: (message.type ?? "text") === "text" && Boolean(text.trim()) && Boolean(message.from),
     id: message.id,
     from: message.from ?? "",
     text,
+    leadId,
   };
+}
+
+async function upsertWhatsAppLead(
+  prisma: MessagingDb,
+  phoneNumber: string,
+  text: string,
+): Promise<string> {
+  const lastMessage = text.trim().slice(0, 500);
+  const lead = await prisma.lead.upsert({
+    where: { phoneNumber },
+    create: {
+      phoneNumber,
+      status: "NEW",
+      intent: "whatsapp",
+      lastMessage: lastMessage || null,
+    },
+    update: {
+      lastMessage: lastMessage || null,
+    },
+    select: { id: true },
+  });
+  return lead.id;
 }
 
 async function persistStatus(
@@ -217,7 +245,7 @@ async function persistStatus(
 
 export async function maybeReplyToInbound(
   messaging: MessagingService,
-  input: { from: string; inboundId: string; text: string; reply: string },
+  input: { from: string; inboundId: string; text: string; reply: string; leadId?: string },
 ): Promise<boolean> {
   const address = toWhatsAppAddress(input.from);
   if (!address) return false;
@@ -227,6 +255,7 @@ export async function maybeReplyToInbound(
       address,
       body: input.reply,
       idempotencyKey: `wa-reply:${input.inboundId}`,
+      leadId: input.leadId,
     });
     return true;
   } catch (error) {

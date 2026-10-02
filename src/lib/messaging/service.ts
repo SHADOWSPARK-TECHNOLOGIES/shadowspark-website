@@ -9,6 +9,7 @@ export type MessagingDb = Pick<
   | "consentEvent"
   | "providerEvent"
   | "outboundDeliveryAttempt"
+  | "lead"
 >;
 
 import {

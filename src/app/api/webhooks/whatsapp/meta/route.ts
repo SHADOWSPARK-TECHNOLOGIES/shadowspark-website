@@ -24,7 +24,7 @@ function redactText(text: string): string {
 
 
 async function replyToNewInbound(
-  inboundMessages: Array<{ id: string; from: string; text: string }>,
+  inboundMessages: Array<{ id: string; from: string; text: string; leadId?: string }>,
   messaging: MessagingService,
 ) {
   for (const inbound of inboundMessages) {
@@ -38,6 +38,7 @@ async function replyToNewInbound(
         inboundId: inbound.id,
         text: inbound.text,
         reply: reply.text,
+        leadId: inbound.leadId,
       });
       if (reply.usedFallback || reply.handoff) {
         await prisma.systemEvent.create({

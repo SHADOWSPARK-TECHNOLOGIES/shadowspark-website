@@ -127,7 +127,7 @@ describe("WhatsApp Meta webhook", () => {
     mocks.processWebhook.mockResolvedValue({
       inbound: 1,
       statuses: 0,
-      newInbound: [{ id: "wamid.1", from: "2348012345678", text: "hello" }],
+      newInbound: [{ id: "wamid.1", from: "2348012345678", text: "hello", leadId: "lead-1" }],
     });
 
     const response = await POST(postRequest(body, sign(body)));
@@ -142,6 +142,7 @@ describe("WhatsApp Meta webhook", () => {
           from: "2348012345678",
           inboundId: "wamid.1",
           reply: "ack",
+          leadId: "lead-1",
         }),
       ),
     );
@@ -184,7 +185,7 @@ describe("WhatsApp Meta webhook", () => {
     mocks.processWebhook.mockResolvedValue({
       inbound: 1,
       statuses: 0,
-      newInbound: [{ id: "wamid.1", from: "2348012345678", text: "hello" }],
+      newInbound: [{ id: "wamid.1", from: "2348012345678", text: "hello", leadId: "lead-1" }],
     });
     mocks.getWhatsAppReply.mockResolvedValue({
       text: "AI replies are blocked on this chat.",
@@ -227,7 +228,7 @@ describe("WhatsApp Meta webhook", () => {
     mocks.processWebhook.mockResolvedValue({
       inbound: 1,
       statuses: 0,
-      newInbound: [{ id: "wamid.slow", from: "2348012345678", text: "hello" }],
+      newInbound: [{ id: "wamid.slow", from: "2348012345678", text: "hello", leadId: "lead-1" }],
     });
 
     const response = await POST(postRequest("{}", sign("{}")));
