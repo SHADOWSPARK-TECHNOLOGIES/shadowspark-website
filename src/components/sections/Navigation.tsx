@@ -57,7 +57,11 @@ export function Navigation() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <LodgistCta location="primary_nav" variant="nav" />
+          <LodgistCta
+            location="primary_nav"
+            variant="nav"
+            className="hidden xl:inline-flex"
+          />
           <Link
             href="/#solutions"
             className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none"
