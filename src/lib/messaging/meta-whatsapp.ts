@@ -105,7 +105,15 @@ export async function sendWhatsAppViaMeta(
     provider: "META",
   });
 
-  if (isOutboundAlreadyAccepted(message.state)) {
+  if (message.state === "SENDING" || isOutboundAlreadyAccepted(message.state)) {
+    return {
+      message,
+      result: { success: true, messageId: message.providerMessageId ?? undefined },
+    };
+  }
+
+  const claimed = await messaging.claimOutboundSend(message.id);
+  if (!claimed) {
     return {
       message,
       result: { success: true, messageId: message.providerMessageId ?? undefined },
@@ -141,24 +149,20 @@ async function persistInbound(
   if (!message.id) return null;
   const address = toWhatsAppAddress(message.from);
   if (!address) {
+    await messaging.ingestProviderEvent({
+      provider: "META",
+      providerEventId: message.id,
+      kind: "inbound-skipped",
+      payload: { type: message.type ?? "unknown", reason: "invalid-sender" },
+    });
     console.warn("[whatsapp:meta] inbound skipped: invalid sender listing=%s", message.id);
     return null;
   }
 
-  const existing = await prisma.providerEvent.findUnique({
-    where: {
-      provider_providerEventId: {
-        provider: "META",
-        providerEventId: message.id,
-      },
-    },
-    select: { messageId: true },
-  });
-  const created = !existing?.messageId;
   const text = message.text?.body ?? "";
   const leadId = await upsertWhatsAppLead(prisma, address, text);
 
-  await messaging.receive({
+  const receipt = await messaging.receive({
     channel: "WHATSAPP",
     address,
     body: message.text?.body,
@@ -167,6 +171,7 @@ async function persistInbound(
     leadId,
     payload: { type: message.type ?? "unknown" },
   });
+  const created = receipt.created;
 
   if (created) {
     await messaging.grantConsent({

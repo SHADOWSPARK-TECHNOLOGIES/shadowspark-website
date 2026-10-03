@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   messageFindUniqueOrThrow: vi.fn(),
   messageFindFirstOrThrow: vi.fn(),
   messageUpdate: vi.fn(),
+  messageUpdateMany: vi.fn(),
   consentFindUnique: vi.fn(),
   consentUpsert: vi.fn(),
   consentEventCreate: vi.fn(),
@@ -32,6 +33,7 @@ const db = {
     findUniqueOrThrow: mocks.messageFindUniqueOrThrow,
     findFirstOrThrow: mocks.messageFindFirstOrThrow,
     update: mocks.messageUpdate,
+    updateMany: mocks.messageUpdateMany,
   },
   channelConsent: { findUnique: mocks.consentFindUnique, upsert: mocks.consentUpsert },
   consentEvent: { create: mocks.consentEventCreate },
@@ -61,6 +63,7 @@ describe("MessagingService", () => {
 
   it("treats only accepted delivery states as already sent", () => {
     expect(isOutboundAlreadyAccepted("QUEUED")).toBe(false);
+    expect(isOutboundAlreadyAccepted("SENDING")).toBe(false);
     expect(isOutboundAlreadyAccepted("FAILED")).toBe(false);
     expect(isOutboundAlreadyAccepted("SENT")).toBe(true);
     expect(isOutboundAlreadyAccepted("DELIVERED")).toBe(true);
@@ -196,6 +199,72 @@ describe("MessagingService", () => {
     await expect(service.applyDeliveryState("m1", "READ")).rejects.toBeInstanceOf(
       MessagingStateError,
     );
+  });
+
+  it("claims one outbound send and refuses a second claim", async () => {
+    mocks.messageUpdateMany.mockResolvedValueOnce({ count: 1 }).mockResolvedValueOnce({ count: 0 });
+
+    await expect(service.claimOutboundSend("m1")).resolves.toBe(true);
+    await expect(service.claimOutboundSend("m1")).resolves.toBe(false);
+    expect(mocks.messageUpdateMany).toHaveBeenCalledWith({
+      where: {
+        id: "m1",
+        direction: "OUTBOUND",
+        state: { in: ["QUEUED", "FAILED"] },
+      },
+      data: { state: "SENDING" },
+    });
+  });
+
+  it("completes a claimed send from SENDING", async () => {
+    mocks.messageFindUnique.mockResolvedValue({
+      id: "m1",
+      direction: "OUTBOUND",
+      provider: "META",
+      state: "SENDING",
+      providerMessageId: null,
+    });
+    mocks.attemptAggregate.mockResolvedValue({ _max: { attemptNumber: 0 } });
+    mocks.attemptCreate.mockResolvedValue({ id: "a1", attemptNumber: 1 });
+    mocks.messageUpdate.mockResolvedValue({ id: "m1", state: "SENT" });
+
+    const result = await service.recordOutboundAttempt({
+      messageId: "m1",
+      status: "ACCEPTED",
+      providerMessageId: "wamid.1",
+    });
+
+    expect(mocks.messageUpdate).toHaveBeenCalledWith({
+      where: { id: "m1" },
+      data: expect.objectContaining({ state: "SENT", providerMessageId: "wamid.1" }),
+    });
+    expect(result.message.state).toBe("SENT");
+  });
+
+  it("reports created only for a new inbound provider event", async () => {
+    mocks.providerEventFindUnique.mockResolvedValueOnce(null);
+    mocks.providerEventCreate.mockResolvedValue({ id: "e1", messageId: null });
+    mocks.messageCreate.mockResolvedValue({ id: "in-1" });
+    mocks.providerEventUpdate.mockResolvedValue({});
+
+    const created = await service.receive({
+      channel: "WHATSAPP",
+      address,
+      providerEventId: "wamid.1",
+      body: "hi",
+    });
+    expect(created).toEqual({ message: { id: "in-1" }, created: true });
+
+    mocks.providerEventFindUnique.mockResolvedValue({ id: "e1", messageId: "in-1" });
+    mocks.messageFindUniqueOrThrow.mockResolvedValue({ id: "in-1" });
+    const replay = await service.receive({
+      channel: "WHATSAPP",
+      address,
+      providerEventId: "wamid.1",
+      body: "hi",
+    });
+    expect(replay).toEqual({ message: { id: "in-1" }, created: false });
+    expect(mocks.messageCreate).toHaveBeenCalledTimes(1);
   });
 
   it("replays a provider event without inserting a second inbox row", async () => {

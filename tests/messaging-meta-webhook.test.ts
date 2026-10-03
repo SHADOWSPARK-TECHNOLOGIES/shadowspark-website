@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   maybeReply: vi.fn(),
   getWhatsAppReply: vi.fn(),
   systemEventCreate: vi.fn(),
+  after: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -16,6 +17,17 @@ vi.mock("@/lib/prisma", () => ({
 vi.mock("@/lib/ai/whatsapp-bot", () => ({
   getWhatsAppReply: mocks.getWhatsAppReply,
 }));
+vi.mock("next/server", async () => {
+  const actual = await vi.importActual<typeof import("next/server")>("next/server");
+  return {
+    ...actual,
+    after: (task: () => unknown) => {
+      mocks.after(task);
+      const result = task();
+      void Promise.resolve(result).catch(() => undefined);
+    },
+  };
+});
 vi.mock("@/lib/messaging/meta-whatsapp", async () => {
   const actual = await vi.importActual<typeof import("@/lib/messaging/meta-whatsapp")>(
     "@/lib/messaging/meta-whatsapp",
@@ -95,12 +107,14 @@ describe("WhatsApp Meta webhook", () => {
     const response = await POST(postRequest('{"entry":[]}'));
     expect(response.status).toBe(401);
     expect(mocks.processWebhook).not.toHaveBeenCalled();
+    expect(mocks.after).not.toHaveBeenCalled();
   });
 
   it("rejects POST with an invalid signature before persistence", async () => {
     const response = await POST(postRequest('{"entry":[]}', sign('{"other":true}')));
     expect(response.status).toBe(401);
     expect(mocks.processWebhook).not.toHaveBeenCalled();
+    expect(mocks.after).not.toHaveBeenCalled();
   });
 
   it("accepts POST with a valid signature over the exact raw body", async () => {
@@ -134,6 +148,7 @@ describe("WhatsApp Meta webhook", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.processWebhook).toHaveBeenCalledTimes(1);
+    expect(mocks.after).toHaveBeenCalledTimes(1);
     await vi.waitFor(() => expect(mocks.getWhatsAppReply).toHaveBeenCalledWith("hello"));
     await vi.waitFor(() =>
       expect(mocks.maybeReply).toHaveBeenCalledWith(
@@ -215,6 +230,39 @@ describe("WhatsApp Meta webhook", () => {
         }),
       }),
     });
+  });
+
+  it("acknowledges only after inbound storage, then replies inside after()", async () => {
+    let release: (value: { inbound: number; statuses: number; newInbound: [] }) => void = () => {};
+    mocks.processWebhook.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+
+    let settled = false;
+    const pending = POST(postRequest("{}", sign("{}"))).then((response) => {
+      settled = true;
+      return response;
+    });
+    await vi.waitFor(() => expect(mocks.processWebhook).toHaveBeenCalledTimes(1));
+    expect(settled).toBe(false);
+    expect(mocks.after).not.toHaveBeenCalled();
+
+    release({ inbound: 1, statuses: 0, newInbound: [] });
+    const response = await pending;
+    expect(response.status).toBe(200);
+    expect(mocks.after).toHaveBeenCalledTimes(1);
+    expect(mocks.getWhatsAppReply).not.toHaveBeenCalled();
+  });
+
+  it("returns 500 and does not schedule a reply when storage fails", async () => {
+    mocks.processWebhook.mockRejectedValue(new Error("db down"));
+    const response = await POST(postRequest("{}", sign("{}")));
+    expect(response.status).toBe(500);
+    expect(mocks.after).not.toHaveBeenCalled();
+    expect(mocks.getWhatsAppReply).not.toHaveBeenCalled();
   });
 
   it("returns 200 before a slow model reply finishes", async () => {
