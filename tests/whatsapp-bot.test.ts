@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getWhatsAppReply, WHATSAPP_FALLBACK_REPLY } from "@/lib/ai/whatsapp-bot";
-import { DEMO_BOOKING_URL, LODGIST_URL, PUBLIC_SITE_URL } from "@/lib/whatsapp/assistant-menu";
+import {
+  DEMO_BOOKING_URL,
+  LODGIST_URL,
+  PUBLIC_DEMO_URL,
+  PUBLIC_SITE_URL,
+} from "@/lib/whatsapp/assistant-menu";
 
 describe("getWhatsAppReply", () => {
   beforeEach(() => {
@@ -39,8 +44,11 @@ describe("getWhatsAppReply", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect(services.text).toContain("pilot workflows");
     expect(services.text).toContain("CAC registration is pending");
-    expect(services.usedFallback).toBe(false);
+    expect(services.text).toContain("AI replies are blocked");
+    expect(services.usedFallback).toBe(true);
+    expect(demo.text).toContain(PUBLIC_DEMO_URL);
     expect(demo.text).toContain(DEMO_BOOKING_URL);
+    expect(demo.text).toContain("utm_campaign=enterprise");
     expect(human.handoff).toBe(true);
     expect(human.text).toContain("does not promise a response time");
     expect(human.text).toContain(DEMO_BOOKING_URL);
@@ -48,37 +56,22 @@ describe("getWhatsAppReply", () => {
     expect(lodgist.text).toContain("separate");
   });
 
-  it("uses a successful Gemini reply for free text and keeps the menu off the model", async () => {
+  it("keeps free text on the blocked menu even when a Gemini key is present", async () => {
     process.env.GEMINI_API_KEY = "synthetic-key";
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          candidates: [{ content: { parts: [{ text: "Pilots are scoped during discovery." }] } }],
-        }),
-        { status: 200 },
-      ),
-    );
+    const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
     const ai = await getWhatsAppReply("What can you build for a lender?");
     const menu = await getWhatsAppReply("1");
 
-    expect(ai.usedFallback).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(ai.usedFallback).toBe(true);
     expect(ai.handoff).toBe(false);
-    expect(ai.text).toBe("Pilots are scoped during discovery.");
+    expect(ai.text).toContain("AI replies are blocked");
+    expect(ai.text).toContain("I can't answer that in free text");
     expect(ai.text).not.toContain("synthetic-key");
-    expect(menu.usedFallback).toBe(false);
+    expect(ai.text).not.toMatch(/24 hours|₦|CAC-registered|account number/i);
     expect(menu.text).toContain("pilot workflows");
-    expect(menu.text).not.toBe(ai.text);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
-
-  it("labels the menu AI-blocked when a configured model call fails", async () => {
-    process.env.GEMINI_API_KEY = "synthetic-key";
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("no", { status: 401 })));
-    const result = await getWhatsAppReply("What can you build for a lender?");
-    expect(result.usedFallback).toBe(true);
-    expect(result.text).toContain("AI replies are blocked");
-    expect(result.text).not.toContain("synthetic-key");
+    expect(menu.text).not.toContain("I can't answer that in free text");
   });
 });

@@ -65,15 +65,29 @@ async function replyToNewInbound(
   }
 }
 
-function scheduleAfterAck(work: Promise<unknown>) {
-  const guarded = work.catch((error) => {
-    const name = error instanceof Error ? error.name : "Error";
-    console.error("[whatsapp:meta] deferred reply failed", name);
-  });
+/**
+ * Starts reply work inside Next.js `after` so the standalone Railway server
+ * keeps the request alive until the promise settles. The task is not started
+ * before `after` registers it. If `after` throws (unit tests outside a request
+ * scope), the same task still runs once.
+ */
+function scheduleAfterResponse(task: () => Promise<void>): void {
+  let started = false;
+  const run = (): Promise<void> => {
+    if (started) return Promise.resolve();
+    started = true;
+    return task().catch((error: unknown) => {
+      const name = error instanceof Error ? error.name : "Error";
+      console.error("[whatsapp:meta] deferred reply failed", name);
+    });
+  };
+
   try {
-    after(() => guarded);
-  } catch {
-    // Unit tests call the handler outside a Next.js request scope.
+    after(() => run());
+  } catch (error) {
+    const name = error instanceof Error ? error.name : "Error";
+    console.error("[whatsapp:meta] after() unavailable; running reply on the process", name);
+    void run();
   }
 }
 
@@ -122,27 +136,30 @@ export async function POST(request: Request) {
   }
 
   const messaging = new MessagingService(prisma);
+  let result: Awaited<ReturnType<typeof processMetaWhatsAppWebhook>>;
   try {
-    const result = await processMetaWhatsAppWebhook(payload, messaging, prisma);
-    console.log(
-      "[whatsapp:meta] processed inbound=%d statuses=%d new=%d",
-      result.inbound,
-      result.statuses,
-      result.newInbound.length,
-    );
-
-    const replyWork = replyToNewInbound(result.newInbound, messaging);
-    scheduleAfterAck(replyWork);
-
-    return NextResponse.json({
-      status: "ok",
-      inbound: result.inbound,
-      statuses: result.statuses,
-    });
+    result = await processMetaWhatsAppWebhook(payload, messaging, prisma);
   } catch (error) {
-    console.error("WhatsApp webhook error:", error);
+    const name = error instanceof Error ? error.name : "Error";
+    console.error("[whatsapp:meta] webhook failed before ack", name);
     return NextResponse.json({ status: "error", message: "Internal server error" }, { status: 500 });
   }
+
+  console.log(
+    "[whatsapp:meta] processed inbound=%d statuses=%d new=%d",
+    result.inbound,
+    result.statuses,
+    result.newInbound.length,
+  );
+
+  const inboundToReply = result.newInbound;
+  scheduleAfterResponse(() => replyToNewInbound(inboundToReply, messaging));
+
+  return NextResponse.json({
+    status: "ok",
+    inbound: result.inbound,
+    statuses: result.statuses,
+  });
 }
 
 export const dynamic = "force-dynamic";

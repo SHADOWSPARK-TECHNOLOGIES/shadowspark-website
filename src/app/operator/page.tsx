@@ -12,6 +12,7 @@ import { BentoGrid, BentoGridItem } from "@/components/ui/templates/BentoGridPro
 import OperatorLeadTable, { type OperatorLead } from "./OperatorLeadTable";
 import LiveTelemetryPanel from "./LiveTelemetryPanel";
 import { hasAdminIdentity } from "@/lib/auth/authorization";
+import { listWhatsAppEnquiries } from "@/lib/whatsapp/enquiries";
 
 type LeadWithDemo = Prisma.LeadGetPayload<{ include: { demo: true } }>;
 type DemoWithLead = Prisma.DemoGetPayload<{ include: { lead: true } }>;
@@ -36,7 +37,7 @@ export default async function OperatorDashboard() {
     redirect("/dashboard");
   }
 
-  const [leads, recentDemos, systemErrors] = await Promise.all([
+  const [leads, recentDemos, systemErrors, whatsappEnquiries] = await Promise.all([
     prisma.lead.findMany({
       include: { demo: true },
       orderBy: { createdAt: "desc" },
@@ -52,6 +53,7 @@ export default async function OperatorDashboard() {
       orderBy: { createdAt: "desc" },
       take: 5,
     }).catch(() => []), // Fallback to empty array if SystemEvent model is not yet accessible
+    listWhatsAppEnquiries(),
   ]);
 
   const tableData: OperatorLead[] = leads.map((lead: LeadWithDemo) => {
@@ -124,6 +126,29 @@ export default async function OperatorDashboard() {
 
         <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1.45fr_0.55fr]">
           <div className="space-y-8">
+            <section id="whatsapp-enquiries">
+            <GlassCard className="border-zinc-800 bg-zinc-950/80 p-6">
+              <p className="text-xs font-mono uppercase tracking-[0.22em] text-cyan-300">WhatsApp enquiries</p>
+              <p className="mt-2 text-sm text-zinc-400">
+                Messages stored from the business WhatsApp webhook. Signed-in admins only.
+              </p>
+              <div className="mt-5 space-y-3">
+                {whatsappEnquiries.length ? (
+                  whatsappEnquiries.map((enquiry) => (
+                    <div key={enquiry.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4">
+                      <p className="font-mono text-sm text-cyan-200">{enquiry.phoneNumber ?? "Unknown number"}</p>
+                      <p className="mt-2 text-sm text-zinc-200">{enquiry.lastMessage || "No message text stored."}</p>
+                      <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+                        {enquiry.status} · {enquiry.updatedAt.toLocaleString()}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-zinc-500">No WhatsApp enquiries yet.</p>
+                )}
+              </div>
+            </GlassCard>
+            </section>
             <BentoGrid className="md:auto-rows-auto grid-cols-1">
               <BentoGridItem 
                 title="Pipeline Command Grid"
