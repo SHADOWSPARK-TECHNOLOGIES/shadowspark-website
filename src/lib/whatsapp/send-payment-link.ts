@@ -12,6 +12,14 @@
 import { optionalEnv } from "@/lib/env";
 
 const META_API_VERSION = "v21.0";
+/**
+ * Text replies use the version shown in the Cloud API text-message docs
+ * (graph.facebook.com/v25.0/.../messages, checked 2026-10-02).
+ * Graph changelog latest is v26.0 (2026-07-29); the WhatsApp text example
+ * still documents v25.0. Template sends stay on v21.0, which remains
+ * available until 2027-01-21.
+ */
+export const WHATSAPP_TEXT_GRAPH_VERSION = "v25.0";
 const META_GRAPH_URL = "https://graph.facebook.com";
 
 export function requireWhatsAppGraphCredentials(): {
@@ -140,7 +148,7 @@ export async function sendTextWhatsApp(
     const to = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
 
     const response = await fetch(
-      `${META_GRAPH_URL}/${META_API_VERSION}/${phoneNumberId}/messages`,
+      `${META_GRAPH_URL}/${WHATSAPP_TEXT_GRAPH_VERSION}/${phoneNumberId}/messages`,
       {
         method: "POST",
         headers: {

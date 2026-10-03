@@ -26,6 +26,7 @@ describe("Meta WhatsApp adapter", () => {
   const prisma = {
     message: { findFirst: vi.fn() },
     providerEvent: { findUnique: vi.fn() },
+    lead: { upsert: vi.fn() },
   };
 
   beforeEach(() => {
@@ -39,6 +40,7 @@ describe("Meta WhatsApp adapter", () => {
     messaging.recordOutboundAttempt.mockResolvedValue({});
     prisma.message.findFirst.mockResolvedValue({ id: "out-1" });
     prisma.providerEvent.findUnique.mockResolvedValue(null);
+    prisma.lead.upsert.mockResolvedValue({ id: "lead-1" });
   });
 
   it("persists inbound messages idempotently by Meta message id", async () => {
@@ -74,6 +76,19 @@ describe("Meta WhatsApp adapter", () => {
         address: "+2348012345678",
         providerEventId: "wamid.in",
         providerMessageId: "wamid.in",
+        leadId: "lead-1",
+      }),
+    );
+    expect(prisma.lead.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { phoneNumber: "+2348012345678" },
+        create: expect.objectContaining({
+          phoneNumber: "+2348012345678",
+          status: "NEW",
+          intent: "whatsapp",
+          lastMessage: "hi",
+        }),
+        update: { lastMessage: "hi" },
       }),
     );
     expect(messaging.grantConsent).toHaveBeenCalledTimes(1);
@@ -115,7 +130,7 @@ describe("Meta WhatsApp adapter", () => {
       prisma as never,
     );
     expect(first.newInbound).toEqual([
-      { id: "wamid.in", from: "2348012345678", text: "hi" },
+      { id: "wamid.in", from: "2348012345678", text: "hi", leadId: "lead-1" },
     ]);
 
     prisma.providerEvent.findUnique.mockResolvedValue({ messageId: "in-1" });
@@ -129,7 +144,7 @@ describe("Meta WhatsApp adapter", () => {
   });
 
   it("maps delivery and read statuses onto the persisted outbound message", async () => {
-    await processMetaWhatsAppWebhook(
+    const statusOnly = await processMetaWhatsAppWebhook(
       {
         entry: [
           {
@@ -146,6 +161,8 @@ describe("Meta WhatsApp adapter", () => {
       messaging as never,
       prisma as never,
     );
+    expect(statusOnly.newInbound).toEqual([]);
+    expect(statusOnly.statuses).toBe(1);
 
     expect(messaging.ingestProviderEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -186,6 +203,25 @@ describe("Meta WhatsApp adapter", () => {
       }),
     ).rejects.toBeInstanceOf(MessagingConsentError);
     expect(mocks.sendText).not.toHaveBeenCalled();
+  });
+
+  it("forwards the persisted lead id on the mocked outbound reply", async () => {
+    await sendWhatsAppViaMeta(messaging as never, {
+      address: "+2348012345678",
+      body: "menu reply",
+      idempotencyKey: "wa-reply:wamid.in",
+      leadId: "lead-1",
+    });
+    expect(messaging.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "WHATSAPP",
+        provider: "META",
+        leadId: "lead-1",
+        body: "menu reply",
+        idempotencyKey: "wa-reply:wamid.in",
+      }),
+    );
+    expect(mocks.sendText).toHaveBeenCalledWith("+2348012345678", "menu reply");
   });
 
   it("records a failed provider result without creating a second local message", async () => {

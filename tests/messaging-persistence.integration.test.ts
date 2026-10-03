@@ -245,12 +245,17 @@ describeDb("Model A messaging PostgreSQL persistence", () => {
       ],
     };
 
+    await prisma.lead.deleteMany({ where: { phoneNumber: wa } });
     const first = await processMetaWhatsAppWebhook(
       payload,
       messaging,
       prisma as unknown as MessagingDb,
     );
     expect(first.newInbound).toHaveLength(1);
+    const lead = await prisma.lead.findUnique({ where: { phoneNumber: wa } });
+    expect(lead?.status).toBe("NEW");
+    expect(lead?.lastMessage).toBe("hello");
+    expect(first.newInbound[0]?.leadId).toBe(lead?.id);
     expect(await messaging.hasConsent("WHATSAPP", wa)).toBe(true);
     await expect(
       messaging.send({
