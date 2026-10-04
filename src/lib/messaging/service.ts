@@ -19,7 +19,13 @@ import {
 } from "./routing";
 
 export type MessageDirection = "OUTBOUND" | "INBOUND";
-export type MessageState = "QUEUED" | "SENT" | "DELIVERED" | "READ" | "FAILED";
+export type MessageState =
+  | "QUEUED"
+  | "SENDING"
+  | "SENT"
+  | "DELIVERED"
+  | "READ"
+  | "FAILED";
 export type ConsentAction = "GRANT" | "REVOKE";
 export type DeliveryAttemptStatus = "ACCEPTED" | "FAILED";
 
@@ -42,16 +48,22 @@ export class MessagingStateError extends Error {
 }
 
 const ALLOWED_TRANSITIONS: Record<MessageState, readonly MessageState[]> = {
-  QUEUED: ["SENT", "FAILED"],
+  QUEUED: ["SENDING", "SENT", "FAILED"],
+  SENDING: ["SENT", "FAILED"],
   SENT: ["DELIVERED", "FAILED"],
   DELIVERED: ["READ", "FAILED"],
   READ: [],
-  FAILED: ["SENT"],
+  FAILED: ["SENDING", "SENT"],
 };
 
 export function isOutboundAlreadyAccepted(state: string): boolean {
   return state === "SENT" || state === "DELIVERED" || state === "READ";
 }
+
+export type InboundReceipt = {
+  message: { id: string };
+  created: boolean;
+};
 
 export type SendMessageInput = {
   channel: MessagingChannel;
@@ -137,7 +149,23 @@ export class MessagingService {
     }
   }
 
-  async receive(input: ReceiveMessageInput) {
+  /**
+   * One Graph send per outbound message. Compare-and-swap from QUEUED or FAILED
+   * to SENDING; a count of 0 means another worker already claimed it.
+   */
+  async claimOutboundSend(messageId: string): Promise<boolean> {
+    const claimed = await this.db.message.updateMany({
+      where: {
+        id: messageId,
+        direction: "OUTBOUND",
+        state: { in: ["QUEUED", "FAILED"] },
+      },
+      data: { state: "SENDING" },
+    });
+    return claimed.count === 1;
+  }
+
+  async receive(input: ReceiveMessageInput): Promise<InboundReceipt> {
     const { channel, provider } = assertRoute(input.channel, input.provider);
     const address = requireAddress(input.address);
     const providerMessageId = input.providerMessageId ?? input.providerEventId;
@@ -151,9 +179,12 @@ export class MessagingService {
       },
     });
     if (existingEvent?.messageId) {
-      return this.db.message.findUniqueOrThrow({
-        where: { id: existingEvent.messageId },
-      });
+      return {
+        message: await this.db.message.findUniqueOrThrow({
+          where: { id: existingEvent.messageId },
+        }),
+        created: false,
+      };
     }
 
     try {
@@ -170,7 +201,10 @@ export class MessagingService {
             });
 
         if (event.messageId) {
-          return tx.message.findUniqueOrThrow({ where: { id: event.messageId } });
+          return {
+            message: await tx.message.findUniqueOrThrow({ where: { id: event.messageId } }),
+            created: false,
+          };
         }
 
         const message = await tx.message.create({
@@ -191,7 +225,7 @@ export class MessagingService {
           data: { messageId: message.id, processedAt: new Date() },
         });
 
-        return message;
+        return { message, created: true };
       });
     } catch (error) {
       if (isUniqueViolation(error)) {
@@ -204,9 +238,12 @@ export class MessagingService {
           },
         });
         if (replayed?.messageId) {
-          return this.db.message.findUniqueOrThrow({
-            where: { id: replayed.messageId },
-          });
+          return {
+            message: await this.db.message.findUniqueOrThrow({
+              where: { id: replayed.messageId },
+            }),
+            created: false,
+          };
         }
       }
       throw error;

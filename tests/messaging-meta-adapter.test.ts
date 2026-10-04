@@ -21,6 +21,7 @@ describe("Meta WhatsApp adapter", () => {
     ingestProviderEvent: vi.fn(),
     applyDeliveryState: vi.fn(),
     send: vi.fn(),
+    claimOutboundSend: vi.fn(),
     recordOutboundAttempt: vi.fn(),
   };
   const prisma = {
@@ -32,11 +33,12 @@ describe("Meta WhatsApp adapter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sendText.mockResolvedValue({ success: true, messageId: "wamid.out" });
-    messaging.receive.mockResolvedValue({ id: "in-1" });
+    messaging.receive.mockResolvedValue({ message: { id: "in-1" }, created: true });
     messaging.grantConsent.mockResolvedValue({});
     messaging.ingestProviderEvent.mockResolvedValue({});
     messaging.applyDeliveryState.mockResolvedValue({ id: "out-1", state: "DELIVERED" });
-    messaging.send.mockResolvedValue({ id: "out-1" });
+    messaging.send.mockResolvedValue({ id: "out-1", state: "QUEUED" });
+    messaging.claimOutboundSend.mockResolvedValue(true);
     messaging.recordOutboundAttempt.mockResolvedValue({});
     prisma.message.findFirst.mockResolvedValue({ id: "out-1" });
     prisma.providerEvent.findUnique.mockResolvedValue(null);
@@ -66,7 +68,7 @@ describe("Meta WhatsApp adapter", () => {
     };
 
     await processMetaWhatsAppWebhook(payload, messaging as never, prisma as never);
-    prisma.providerEvent.findUnique.mockResolvedValue({ messageId: "in-1" });
+    messaging.receive.mockResolvedValue({ message: { id: "in-1" }, created: false });
     await processMetaWhatsAppWebhook(payload, messaging as never, prisma as never);
 
     expect(messaging.receive).toHaveBeenCalledTimes(2);
@@ -133,7 +135,7 @@ describe("Meta WhatsApp adapter", () => {
       { id: "wamid.in", from: "2348012345678", text: "hi", leadId: "lead-1" },
     ]);
 
-    prisma.providerEvent.findUnique.mockResolvedValue({ messageId: "in-1" });
+    messaging.receive.mockResolvedValue({ message: { id: "in-1" }, created: false });
     const replay = await processMetaWhatsAppWebhook(
       payload,
       messaging as never,
@@ -163,6 +165,8 @@ describe("Meta WhatsApp adapter", () => {
     );
     expect(statusOnly.newInbound).toEqual([]);
     expect(statusOnly.statuses).toBe(1);
+    expect(messaging.receive).not.toHaveBeenCalled();
+    expect(messaging.send).not.toHaveBeenCalled();
 
     expect(messaging.ingestProviderEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -188,8 +192,68 @@ describe("Meta WhatsApp adapter", () => {
     });
 
     expect(mocks.sendText).not.toHaveBeenCalled();
+    expect(messaging.claimOutboundSend).not.toHaveBeenCalled();
     expect(messaging.recordOutboundAttempt).not.toHaveBeenCalled();
     expect(result.result).toEqual({ success: true, messageId: "wamid.out" });
+  });
+
+  it("stores an invalid sender and does not treat it as a new reply", async () => {
+    const result = await processMetaWhatsAppWebhook(
+      {
+        entry: [
+          {
+            changes: [
+              {
+                value: {
+                  messages: [
+                    {
+                      id: "wamid.bad",
+                      from: "not-a-phone",
+                      type: "text",
+                      text: { body: "hi" },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      messaging as never,
+      prisma as never,
+    );
+
+    expect(result.inbound).toBe(0);
+    expect(result.newInbound).toEqual([]);
+    expect(messaging.receive).not.toHaveBeenCalled();
+    expect(messaging.ingestProviderEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider: "META",
+        providerEventId: "wamid.bad",
+        kind: "inbound-skipped",
+      }),
+    );
+  });
+
+  it("sends once when two replies claim the same queued message", async () => {
+    messaging.send.mockResolvedValue({ id: "out-1", state: "QUEUED" });
+    messaging.claimOutboundSend.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+
+    await Promise.all([
+      sendWhatsAppViaMeta(messaging as never, {
+        address: "+2348012345678",
+        body: "menu",
+        idempotencyKey: "wa-reply:wamid.in",
+      }),
+      sendWhatsAppViaMeta(messaging as never, {
+        address: "+2348012345678",
+        body: "menu",
+        idempotencyKey: "wa-reply:wamid.in",
+      }),
+    ]);
+
+    expect(mocks.sendText).toHaveBeenCalledTimes(1);
+    expect(messaging.recordOutboundAttempt).toHaveBeenCalledTimes(1);
   });
 
   it("requires WhatsApp consent before an outbound Meta send", async () => {

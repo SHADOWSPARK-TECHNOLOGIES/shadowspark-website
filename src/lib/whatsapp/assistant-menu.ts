@@ -1,15 +1,18 @@
 /**
  * Deterministic ShadowSpark WhatsApp replies.
- * Facts are limited to pages checked on 2026-10-02:
- * - https://shadowspark-tech.com (canonical; shadowspark-tech.org returned 404)
- * - https://shadowspark-tech.com/demo (public WhatsApp CTA)
- * - https://calendly.com/wonderstevie702/30min (live booking page)
+ * Facts are limited to pages checked on 2026-10-03:
+ * - https://shadowspark-tech.com (live home; Book a Demo href below)
+ * - https://shadowspark-tech.com/demo (live loan simulator)
+ * - https://calendly.com/wonderstevie702/30min?utm_source=shadowspark&utm_medium=website&utm_campaign=enterprise
+ *   (exact Book a Demo href in the live HTML; Calendly returned the booking page)
  * - https://lodgist.online (separate property product)
  * No prices, response-time promises, banking details, or registration claims.
  */
 
 export const PUBLIC_SITE_URL = "https://shadowspark-tech.com";
-export const DEMO_BOOKING_URL = "https://calendly.com/wonderstevie702/30min";
+export const PUBLIC_DEMO_URL = "https://shadowspark-tech.com/demo";
+export const DEMO_BOOKING_URL =
+  "https://calendly.com/wonderstevie702/30min?utm_source=shadowspark&utm_medium=website&utm_campaign=enterprise";
 export const LODGIST_URL = "https://lodgist.online";
 
 export type MenuTopic = "overview" | "services" | "demo" | "human" | "lodgist";
@@ -49,7 +52,9 @@ export function buildWhatsAppMenu(
     case "demo":
       return (
         banner +
-        "Book a 30-minute call with Stephen Okoronkwo:\n" +
+        "The public demo is a loan simulator:\n" +
+        PUBLIC_DEMO_URL +
+        "\n\nBook a 30-minute call with Stephen Okoronkwo:\n" +
         DEMO_BOOKING_URL +
         "\n\nNo price is quoted in this chat. Scope is agreed on the call.\n\nReply MENU for the other options."
       );

@@ -163,7 +163,9 @@ describeDb("Model A messaging PostgreSQL persistence", () => {
       providerEventId: "wamid.replay-1",
       body: "inbound-again",
     });
-    expect(second.id).toBe(first.id);
+    expect(second.message.id).toBe(first.message.id);
+    expect(first.created).toBe(true);
+    expect(second.created).toBe(false);
     expect(
       await prisma.providerEvent.count({
         where: { provider: "META", providerEventId: "wamid.replay-1" },
