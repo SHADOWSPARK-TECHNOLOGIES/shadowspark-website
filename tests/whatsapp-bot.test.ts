@@ -113,15 +113,26 @@ describe("getWhatsAppReply", () => {
     const menu = await getWhatsAppReply("1");
 
     expect(createGoogleMock).toHaveBeenCalledWith({ apiKey: "synthetic-key" });
-    expect(googleModelMock).toHaveBeenCalledWith("gemini-2.5-flash");
+    expect(googleModelMock).toHaveBeenCalledWith("gemini-flash-latest");
     expect(generateTextMock).toHaveBeenCalledTimes(1);
-    expect(generateTextMock).toHaveBeenCalledWith(
+    const geminiCall = generateTextMock.mock.calls[0]?.[0] as {
+      system: string;
+      prompt: string;
+      maxOutputTokens: number;
+      abortSignal: AbortSignal;
+      providerOptions: { google: { thinkingConfig: { thinkingLevel: string; thinkingBudget?: number } } };
+    };
+    expect(geminiCall).toEqual(
       expect.objectContaining({
         system: WHATSAPP_MODEL_INSTRUCTIONS,
         prompt: "What can you build for a lender?",
-        maxOutputTokens: 256,
+        maxOutputTokens: 1024,
       }),
     );
+    expect(geminiCall.abortSignal).toBeInstanceOf(AbortSignal);
+    expect(geminiCall.providerOptions).toEqual({
+      google: { thinkingConfig: { thinkingLevel: "low" } },
+    });
     expect(ai.usedFallback).toBe(false);
     expect(ai.handoff).toBe(false);
     expect(ai.text).toBe(
@@ -137,12 +148,19 @@ describe("getWhatsAppReply", () => {
   it("falls back to the fixed menu when Gemini fails or returns an unusable reply", async () => {
     process.env.GEMINI_API_KEY = "synthetic-key";
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    generateTextMock.mockRejectedValueOnce(new Error("synthetic-key upstream failure"));
+    const apiError = new Error("synthetic-key models/gemini-2.5-flash is no longer available");
+    apiError.name = "AI_APICallError";
+    generateTextMock.mockRejectedValueOnce(apiError);
 
-    const failed = await getWhatsAppReply("What can you build for a lender?");
+    const customerText = "Need a workflow for collections follow-up";
+    const failed = await getWhatsAppReply(customerText);
     expect(failed.usedFallback).toBe(true);
     expect(failed.text).toBe(WHATSAPP_FALLBACK_REPLY);
-    expect(errorSpy.mock.calls.flat().join(" ")).not.toContain("synthetic-key");
+    expect(errorSpy).toHaveBeenCalledWith("[whatsapp] Gemini reply failed", "AI_APICallError");
+    const logged = errorSpy.mock.calls.flat().join(" ");
+    expect(logged).not.toContain("synthetic-key");
+    expect(logged).not.toContain(customerText);
+    expect(logged).not.toContain("gemini-2.5-flash");
 
     generateTextMock.mockResolvedValueOnce({ text: "   " });
     const empty = await getWhatsAppReply("Tell me about the pilot.");

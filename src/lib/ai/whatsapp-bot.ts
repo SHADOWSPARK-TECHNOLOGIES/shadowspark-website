@@ -17,7 +17,12 @@ import {
   type MenuTopic,
 } from "@/lib/whatsapp/assistant-menu";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+/**
+ * New AI Studio keys get HTTP 404 for models/gemini-2.5-flash. The SDK calls
+ * `{base}/models/{id}:generateContent`, and gemini-flash-latest is the
+ * documented alias those keys can call.
+ */
+const GEMINI_MODEL = "gemini-flash-latest";
 
 export const WHATSAPP_FALLBACK_REPLY = buildWhatsAppMenu("overview", {
   aiBlocked: true,
@@ -80,9 +85,11 @@ async function generateGeminiReply(userText: string, apiKey: string): Promise<st
     model: google(GEMINI_MODEL),
     system: WHATSAPP_MODEL_INSTRUCTIONS,
     prompt: userText,
-    maxOutputTokens: 256,
+    // Thought tokens count toward this cap. "low" is the smallest level the
+    // current Flash models behind gemini-flash-latest all accept.
+    maxOutputTokens: 1024,
     abortSignal: AbortSignal.timeout(20_000),
-    providerOptions: { google: { thinkingConfig: { thinkingBudget: 0 } } },
+    providerOptions: { google: { thinkingConfig: { thinkingLevel: "low" } } },
   });
   const reply = text.trim();
   if (!reply || reply.includes(apiKey) || violatesWhatsAppReplyPolicy(reply)) {
