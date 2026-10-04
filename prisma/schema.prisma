@@ -417,7 +417,7 @@ model SystemContext {
 /// channel: WHATSAPP | SMS | VOICE
 /// provider: META | TWILIO
 /// direction: OUTBOUND | INBOUND
-/// state: QUEUED | SENT | DELIVERED | READ | FAILED
+/// state: QUEUED | SENDING | SENT | DELIVERED | READ | FAILED
 model Message {
   id                String                     @id @default(cuid())
   channel           String
