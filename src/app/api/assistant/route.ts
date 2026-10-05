@@ -71,7 +71,8 @@ export async function POST(req: Request) {
     );
 
     const result = await streamText({
-      model: google("gemini-2.5-flash"),
+      // New AI Studio keys 404 on gemini-2.5-flash. Match the WhatsApp free-text alias.
+      model: google("gemini-flash-latest"),
       system: `
       You are the ShadowSpark Assistant—a trusted infrastructure and automation advisor.
 
