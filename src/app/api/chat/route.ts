@@ -6,7 +6,8 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+// New AI Studio keys 404 on gemini-2.5-flash. Match the WhatsApp free-text alias.
+const GEMINI_MODEL = "gemini-flash-latest";
 const XAI_MODEL = "grok-4.20-0309-non-reasoning";
 
 export const runtime = "edge"; // fast cold starts; remove if you prefer Node runtime

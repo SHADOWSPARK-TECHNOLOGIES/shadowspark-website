@@ -50,7 +50,8 @@ describe('POST /api/chat provider selection', () => {
 
     const res = await POST(chatRequest());
     expect(await res.json()).toEqual({ reply: 'Gemini reply' });
-    expect(googleModelMock).toHaveBeenCalledWith('gemini-2.5-flash');
+    expect(googleModelMock).toHaveBeenCalledWith('gemini-flash-latest');
+    expect(googleModelMock).not.toHaveBeenCalledWith('gemini-2.5-flash');
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
