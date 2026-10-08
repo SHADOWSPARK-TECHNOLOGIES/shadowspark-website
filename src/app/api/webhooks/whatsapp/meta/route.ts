@@ -4,6 +4,8 @@ import { getWhatsAppReply } from "@/lib/ai/whatsapp-bot";
 import { optionalEnv } from "@/lib/env";
 import { verifyMetaSignature } from "@/lib/messaging/meta-signature";
 import {
+  configuredWhatsAppPhoneNumberId,
+  filterMetaWebhookForPhoneNumber,
   maybeReplyToInbound,
   processMetaWhatsAppWebhook,
   type MetaWebhookPayload,
@@ -135,10 +137,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  const filtered = filterMetaWebhookForPhoneNumber(payload, configuredWhatsAppPhoneNumberId());
+  const hasChanges = (filtered.payload.entry ?? []).some(
+    (entry) => (entry.changes?.length ?? 0) > 0,
+  );
+  if (!hasChanges && filtered.ignoredChanges > 0) {
+    console.log(
+      "[whatsapp:meta] processed inbound=0 statuses=0 new=0 ignored=%d",
+      filtered.ignoredChanges,
+    );
+    return NextResponse.json({ status: "ok", inbound: 0, statuses: 0 });
+  }
+
   const messaging = new MessagingService(prisma);
   let result: Awaited<ReturnType<typeof processMetaWhatsAppWebhook>>;
   try {
-    result = await processMetaWhatsAppWebhook(payload, messaging, prisma);
+    result = await processMetaWhatsAppWebhook(filtered.payload, messaging, prisma);
   } catch (error) {
     const name = error instanceof Error ? error.name : "Error";
     console.error("[whatsapp:meta] webhook failed before ack", name);
@@ -146,10 +160,11 @@ export async function POST(request: Request) {
   }
 
   console.log(
-    "[whatsapp:meta] processed inbound=%d statuses=%d new=%d",
+    "[whatsapp:meta] processed inbound=%d statuses=%d new=%d ignored=%d",
     result.inbound,
     result.statuses,
     result.newInbound.length,
+    filtered.ignoredChanges,
   );
 
   const inboundToReply = result.newInbound;

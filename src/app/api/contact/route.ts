@@ -1,26 +1,36 @@
-import { constants } from 'node:fs';
-import { mkdir, open } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import path from 'node:path';
-
+import { Prisma } from '@/generated/prisma/client';
 import { z } from 'zod';
 
+import { prisma } from '@/lib/prisma';
 import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
 const BACKEND_ROUTE = '/v1/leads';
-const DEFAULT_SINK_PATH = path.join(
-  tmpdir(),
-  'shadowspark-contact-leads.jsonl',
-);
+const CONTACT_SOURCE = 'website-contact';
+
+const blankToUndefined = (value: unknown): unknown =>
+  typeof value === 'string' && value.trim() === '' ? undefined : value;
 
 const contactLeadSchema = z
   .object({
     name: z.string().trim().min(2).max(100),
-    email: z.string().trim().email().max(254),
-    company: z.string().trim().max(200).optional(),
-    message: z.string().trim().min(10).max(5_000),
+    email: z
+      .string()
+      .trim()
+      .max(254)
+      .email()
+      .transform((value) => value.toLowerCase()),
+    company: z.preprocess(blankToUndefined, z.string().trim().max(200).optional()),
+    monthlyLeadVolume: z.preprocess(
+      blankToUndefined,
+      z.string().trim().max(40).optional(),
+    ),
+    message: z
+      .string()
+      .trim()
+      .max(5_000)
+      .refine((value) => value.length === 0 || value.length >= 10),
   })
   .strict();
 
@@ -49,41 +59,135 @@ function getBackendLeadUrl(): string | null {
   }
 }
 
-async function storeMissingLead(lead: ContactLead): Promise<void> {
-  const configuredPath = process.env.CONTACT_LEAD_SINK_PATH?.trim();
-  const sinkPath = configuredPath || DEFAULT_SINK_PATH;
-  const record = {
-    capturedAt: new Date().toISOString(),
-    reason: 'backend-route-missing',
-    lead,
+function contactMetadata(lead: ContactLead): Prisma.InputJsonObject {
+  return {
+    source: CONTACT_SOURCE,
+    name: lead.name,
+    ...(lead.company ? { company: lead.company } : {}),
+    ...(lead.monthlyLeadVolume ? { monthlyLeadVolume: lead.monthlyLeadVolume } : {}),
+    ...(lead.message ? { message: lead.message } : {}),
   };
+}
 
-  await mkdir(path.dirname(sinkPath), { recursive: true, mode: 0o700 });
-  const sink = await open(
-    sinkPath,
-    constants.O_APPEND |
-      constants.O_CREAT |
-      constants.O_WRONLY |
-      constants.O_NOFOLLOW,
-    0o600,
+function mergeMetadata(
+  current: Prisma.JsonValue | null,
+  incoming: Prisma.InputJsonObject,
+): Prisma.InputJsonObject {
+  const base: Record<string, Prisma.InputJsonValue | null> = {};
+  if (current && typeof current === 'object' && !Array.isArray(current)) {
+    for (const [key, entry] of Object.entries(current)) {
+      if (
+        entry === null ||
+        typeof entry === 'string' ||
+        typeof entry === 'number' ||
+        typeof entry === 'boolean'
+      ) {
+        base[key] = entry;
+        continue;
+      }
+      base[key] = entry as Prisma.InputJsonValue;
+    }
+  }
+  return { ...base, ...incoming };
+}
+
+function isUniqueConflict(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
   );
+}
+
+function logContactFailure(scope: string, error: unknown): void {
+  const name = error instanceof Error ? error.name : 'Error';
+  const code =
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (typeof error.code === 'string' || typeof error.code === 'number')
+      ? error.code
+      : undefined;
+  console.error(`[contact] ${scope}`, code === undefined ? { name } : { name, code });
+}
+
+async function saveContactLead(lead: ContactLead): Promise<{ id: string }> {
+  const incoming = contactMetadata(lead);
+  const lastMessage = lead.message || null;
+
+  const applyUpdate = (id: string, metadata: Prisma.JsonValue | null) =>
+    prisma.lead.update({
+      where: { id },
+      data: {
+        lastMessage,
+        metadata: mergeMetadata(metadata, incoming),
+      },
+      select: { id: true },
+    });
+
+  const existing = await prisma.lead.findUnique({
+    where: { email: lead.email },
+    select: { id: true, metadata: true },
+  });
+  if (existing) {
+    return applyUpdate(existing.id, existing.metadata);
+  }
+
   try {
-    await sink.chmod(0o600);
-    await sink.appendFile(`${JSON.stringify(record)}\n`, 'utf8');
-  } finally {
-    await sink.close();
+    return await prisma.lead.create({
+      data: {
+        email: lead.email,
+        status: 'NEW',
+        intent: 'contact',
+        lastMessage,
+        metadata: incoming,
+      },
+      select: { id: true },
+    });
+  } catch (error) {
+    if (!isUniqueConflict(error)) throw error;
+    const raced = await prisma.lead.findUnique({
+      where: { email: lead.email },
+      select: { id: true, metadata: true },
+    });
+    if (!raced) throw error;
+    return applyUpdate(raced.id, raced.metadata);
+  }
+}
+
+async function forwardContactLead(lead: ContactLead): Promise<void> {
+  const configuredUrl = process.env.BACKEND_API_URL?.trim();
+  if (!configuredUrl) return;
+
+  const backendLeadUrl = getBackendLeadUrl();
+  if (!backendLeadUrl) {
+    console.error('[contact] BACKEND_API_URL is invalid; lead saved locally');
+    return;
+  }
+
+  try {
+    const upstreamResponse = await fetch(backendLeadUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lead),
+      cache: 'no-store',
+      redirect: 'error',
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!upstreamResponse.ok) {
+      console.error('[contact] backend forward failed', {
+        status: upstreamResponse.status,
+      });
+    }
+  } catch (error) {
+    logContactFailure('backend forward failed', error);
   }
 }
 
 /**
- * Validates and forwards a public contact request to the backend lead API.
- *
- * A backend 404 indicates that the lead endpoint is not deployed. In that
- * specific case, the validated request is accepted into a local JSON Lines
- * sink and the missing backend route is returned explicitly.
+ * Validates a public contact request, stores it on the site Lead table, and
+ * optionally forwards it when BACKEND_API_URL is set.
  *
  * @param request - Incoming JSON contact request.
- * @returns A JSON response describing validation, forwarding, or fallback.
+ * @returns A JSON response describing validation, storage, or rate limiting.
  */
 export async function POST(request: Request): Promise<Response> {
   try {
@@ -116,66 +220,20 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const backendLeadUrl = getBackendLeadUrl();
-  if (!backendLeadUrl) {
-    console.error('[contact] BACKEND_API_URL is missing or invalid');
-    return Response.json(
-      { error: 'Contact service is unavailable' },
-      { status: 503 },
-    );
-  }
-
-  let upstreamResponse: Response;
   try {
-    upstreamResponse = await fetch(backendLeadUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(parsedLead.data),
-      cache: 'no-store',
-      redirect: 'error',
-      signal: AbortSignal.timeout(10_000),
-    });
-  } catch {
-    console.error('[contact] backend request failed');
+    await saveContactLead(parsedLead.data);
+  } catch (error) {
+    logContactFailure('lead save failed', error);
     return Response.json(
       { error: 'Unable to submit contact request' },
-      { status: 502 },
+      { status: 500 },
     );
   }
 
-  if (upstreamResponse.status === 404) {
-    try {
-      await storeMissingLead(parsedLead.data);
-    } catch {
-      console.error('[contact] local JSON sink write failed');
-      return Response.json(
-        { error: 'Unable to submit contact request' },
-        { status: 500 },
-      );
-    }
+  await forwardContactLead(parsedLead.data);
 
-    console.warn(
-      '[contact] MISSING: /v1/leads; stored request in local JSON sink',
-    );
-    return Response.json(
-      {
-        success: true,
-        fallback: 'local-json',
-        MISSING: [BACKEND_ROUTE],
-      },
-      { status: 202 },
-    );
-  }
-
-  if (!upstreamResponse.ok) {
-    console.error(
-      `[contact] backend rejected request with status ${upstreamResponse.status}`,
-    );
-    return Response.json(
-      { error: 'Unable to submit contact request' },
-      { status: 502 },
-    );
-  }
-
-  return Response.json({ success: true });
+  return Response.json({
+    success: true,
+    message: 'Contact request received.',
+  });
 }

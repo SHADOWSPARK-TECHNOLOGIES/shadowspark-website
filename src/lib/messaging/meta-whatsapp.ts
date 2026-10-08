@@ -1,5 +1,6 @@
 import type { MessagingDb } from "./service";
 
+import { optionalEnv } from "@/lib/env";
 import { sendTextWhatsApp } from "@/lib/whatsapp/send-payment-link";
 
 import {
@@ -27,12 +28,78 @@ export type MetaWebhookPayload = {
   entry?: Array<{
     changes?: Array<{
       value?: {
+        metadata?: {
+          phone_number_id?: string;
+          display_phone_number?: string;
+        };
         messages?: MetaMessage[];
         statuses?: MetaStatus[];
       };
     }>;
   }>;
 };
+
+/**
+ * Phone number id this app sends from. WHATSAPP_PHONE_NUMBER_ID wins, then
+ * META_PHONE_NUMBER_ID, matching requireWhatsAppGraphCredentials.
+ */
+export function configuredWhatsAppPhoneNumberId(): string | undefined {
+  return optionalEnv("WHATSAPP_PHONE_NUMBER_ID") ?? optionalEnv("META_PHONE_NUMBER_ID");
+}
+
+function countWebhookChanges(payload: MetaWebhookPayload): number {
+  return (payload.entry ?? []).reduce(
+    (total, entry) => total + (entry.changes?.length ?? 0),
+    0,
+  );
+}
+
+function safePhoneNumberId(value: string | undefined): string {
+  if (!value) return "(missing)";
+  return /^[0-9]{1,32}$/.test(value) ? value : "(unrecognized)";
+}
+
+/**
+ * Drops changes addressed to a different WhatsApp business number.
+ * Signature checks and inbound dedupe stay with the caller and the persist path.
+ * When neither phone-number env var is set, the payload is unchanged and a warning is logged.
+ */
+export function filterMetaWebhookForPhoneNumber(
+  payload: MetaWebhookPayload,
+  phoneNumberId: string | undefined,
+): { payload: MetaWebhookPayload; ignoredChanges: number } {
+  if (!phoneNumberId) {
+    if (countWebhookChanges(payload) > 0) {
+      console.warn(
+        "[whatsapp:meta] WHATSAPP_PHONE_NUMBER_ID and META_PHONE_NUMBER_ID are unset; processing every webhook change",
+      );
+    }
+    return { payload, ignoredChanges: 0 };
+  }
+
+  const ignoredIds = new Set<string>();
+  let ignoredChanges = 0;
+  const entry = (payload.entry ?? []).map((item) => ({
+    ...item,
+    changes: (item.changes ?? []).filter((change) => {
+      const incoming = change.value?.metadata?.phone_number_id?.trim();
+      if (incoming === phoneNumberId) return true;
+      ignoredChanges += 1;
+      ignoredIds.add(safePhoneNumberId(incoming));
+      return false;
+    }),
+  }));
+
+  if (ignoredChanges > 0) {
+    console.warn(
+      "[whatsapp:meta] ignored %d change(s) for other phone_number_id: %s",
+      ignoredChanges,
+      [...ignoredIds].join(","),
+    );
+  }
+
+  return { payload: { ...payload, entry }, ignoredChanges };
+}
 
 const STATUS_MAP: Record<string, MessageState> = {
   sent: "SENT",
