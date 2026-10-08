@@ -63,6 +63,8 @@ describe("WhatsApp Meta webhook", () => {
     vi.clearAllMocks();
     process.env.META_APP_SECRET = secret;
     process.env.WHATSAPP_VERIFY_TOKEN = verifyToken;
+    delete process.env.WHATSAPP_PHONE_NUMBER_ID;
+    delete process.env.META_PHONE_NUMBER_ID;
     mocks.processWebhook.mockResolvedValue({ inbound: 0, statuses: 0, newInbound: [] });
     mocks.maybeReply.mockResolvedValue(false);
     mocks.getWhatsAppReply.mockResolvedValue({ text: "ack", usedFallback: false });
@@ -72,6 +74,8 @@ describe("WhatsApp Meta webhook", () => {
   afterEach(() => {
     delete process.env.META_APP_SECRET;
     delete process.env.WHATSAPP_VERIFY_TOKEN;
+    delete process.env.WHATSAPP_PHONE_NUMBER_ID;
+    delete process.env.META_PHONE_NUMBER_ID;
   });
 
   it("preserves GET verification when the configured token matches", async () => {
@@ -302,5 +306,184 @@ describe("WhatsApp Meta webhook", () => {
     const response = await POST(postRequest(body, sign(body)));
     expect(response.status).toBe(401);
     expect(mocks.processWebhook).not.toHaveBeenCalled();
+  });
+
+  it("acks a different phone_number_id without processing, replying, or writing", async () => {
+    process.env.WHATSAPP_PHONE_NUMBER_ID = "1066754763188359";
+    const customerText = "lodgist tenant asked about rent";
+    const body = JSON.stringify({
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                metadata: { phone_number_id: "2000000000000000", display_phone_number: "2348000000000" },
+                messages: [
+                  {
+                    id: "wamid.other",
+                    from: "2348099999999",
+                    type: "text",
+                    text: { body: customerText },
+                  },
+                ],
+                statuses: [{ id: "wamid.status", status: "delivered", recipient_id: "2348099999999" }],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    const response = await POST(postRequest(body, sign(body)));
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "ok", inbound: 0, statuses: 0 });
+    expect(mocks.processWebhook).not.toHaveBeenCalled();
+    expect(mocks.after).not.toHaveBeenCalled();
+    expect(mocks.getWhatsAppReply).not.toHaveBeenCalled();
+    expect(mocks.maybeReply).not.toHaveBeenCalled();
+    expect(mocks.systemEventCreate).not.toHaveBeenCalled();
+    const logged = JSON.stringify(warn.mock.calls);
+    expect(logged).toContain("2000000000000000");
+    expect(logged).not.toContain(customerText);
+    expect(logged).not.toContain("2348099999999");
+    expect(logged).not.toContain("2348000000000");
+  });
+
+  it("processes only the change whose phone_number_id matches WHATSAPP_PHONE_NUMBER_ID", async () => {
+    process.env.WHATSAPP_PHONE_NUMBER_ID = "1066754763188359";
+    process.env.META_PHONE_NUMBER_ID = "2000000000000000";
+    const body = JSON.stringify({
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                metadata: { phone_number_id: "2000000000000000" },
+                messages: [
+                  {
+                    id: "wamid.other",
+                    from: "2348099999999",
+                    type: "text",
+                    text: { body: "ignore me" },
+                  },
+                ],
+              },
+            },
+            {
+              value: {
+                metadata: { phone_number_id: "1066754763188359" },
+                messages: [
+                  {
+                    id: "wamid.ours",
+                    from: "2348012345678",
+                    type: "text",
+                    text: { body: "hello" },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    mocks.processWebhook.mockResolvedValue({
+      inbound: 1,
+      statuses: 0,
+      newInbound: [{ id: "wamid.ours", from: "2348012345678", text: "hello", leadId: "lead-1" }],
+    });
+
+    const response = await POST(postRequest(body, sign(body)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.processWebhook).toHaveBeenCalledTimes(1);
+    const forwarded = mocks.processWebhook.mock.calls[0]?.[0] as {
+      entry: Array<{ changes: Array<{ value: { metadata: { phone_number_id: string }; messages: Array<{ id: string }> } }> }>;
+    };
+    expect(forwarded.entry[0]?.changes).toHaveLength(1);
+    expect(forwarded.entry[0]?.changes[0]?.value.metadata.phone_number_id).toBe("1066754763188359");
+    expect(forwarded.entry[0]?.changes[0]?.value.messages[0]?.id).toBe("wamid.ours");
+    expect(JSON.stringify(forwarded)).not.toContain("wamid.other");
+    expect(JSON.stringify(forwarded)).not.toContain("ignore me");
+    await vi.waitFor(() => expect(mocks.getWhatsAppReply).toHaveBeenCalledWith("hello"));
+  });
+
+  it("uses META_PHONE_NUMBER_ID when WHATSAPP_PHONE_NUMBER_ID is unset", async () => {
+    process.env.META_PHONE_NUMBER_ID = "1066754763188359";
+    const body = JSON.stringify({
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                metadata: { phone_number_id: "1066754763188359" },
+                messages: [
+                  { id: "wamid.ours", from: "2348012345678", type: "text", text: { body: "hello" } },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const response = await POST(postRequest(body, sign(body)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.processWebhook).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps current processing and warns when the phone number id is unset", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const body = JSON.stringify({
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                metadata: { phone_number_id: "2000000000000000" },
+                messages: [
+                  { id: "wamid.other", from: "2348099999999", type: "text", text: { body: "hello" } },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const response = await POST(postRequest(body, sign(body)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.processWebhook).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(mocks.processWebhook.mock.calls[0]?.[0])).toContain("wamid.other");
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("WHATSAPP_PHONE_NUMBER_ID and META_PHONE_NUMBER_ID are unset"),
+    );
+  });
+
+  it("still rejects a bad signature before the phone number filter", async () => {
+    process.env.WHATSAPP_PHONE_NUMBER_ID = "1066754763188359";
+    const body = JSON.stringify({
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                metadata: { phone_number_id: "2000000000000000" },
+                messages: [{ id: "wamid.other", from: "2348099999999", type: "text", text: { body: "hello" } }],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const response = await POST(postRequest(body, sign('{"other":true}')));
+
+    expect(response.status).toBe(401);
+    expect(mocks.processWebhook).not.toHaveBeenCalled();
+    expect(mocks.after).not.toHaveBeenCalled();
   });
 });
