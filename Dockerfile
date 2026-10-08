@@ -24,12 +24,16 @@ FROM alpine:3.24 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Floor pins Alpine OpenSSL 3.5.8 so Scout cannot ship 3.5.7-r0
-# (CVE-2026-63073, CVE-2026-75803 and related high findings).
+# alpine:3.24 and alpine:3.24.2 were last published 2026-09-18, before
+# Alpine rebuilt zlib. No newer base tag exists, so the runner upgrades
+# the package from the 3.24 repo: zlib 1.3.2-r1 fixes CVE-2026-85091
+# (the image otherwise ships 1.3.2-r0). OpenSSL stays floored at 3.5.8
+# (CVE-2026-63073, CVE-2026-75803).
 RUN apk add --no-cache \
     libstdc++ \
     "libcrypto3>=3.5.8-r0" \
-    "libssl3>=3.5.8-r0"
+    "libssl3>=3.5.8-r0" \
+    "zlib>=1.3.2-r1"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
