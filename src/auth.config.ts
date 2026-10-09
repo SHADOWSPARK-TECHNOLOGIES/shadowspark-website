@@ -2,7 +2,7 @@
  * Edge-compatible NextAuth configuration.
  *
  * This file contains ONLY the parts of the auth config that are safe to run
- * in Vercel's Edge Runtime (middleware). It deliberately excludes:
+ * in the Edge Runtime (middleware). It deliberately excludes:
  *   - PrismaAdapter (uses node:fs, node:net)
  *   - bcryptjs (uses node:crypto internals)
  *   - Any direct database imports

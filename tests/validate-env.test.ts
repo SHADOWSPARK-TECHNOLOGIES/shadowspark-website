@@ -3,15 +3,16 @@ import { afterEach, describe, expect, it } from "vitest";
 import { validateEnv } from "@/lib/config/validateEnv";
 
 const KEYS = [
-  "NETLIFY",
-  "CONTEXT",
-  "DEPLOY_PRIME_URL",
   "DATABASE_URL",
   "AUTH_SECRET",
   "WEBAUTHN_RP_ID",
   "WEBAUTHN_ORIGIN",
   "PAYMENTS_ENABLED",
   "WHATSAPP_ENABLED",
+  "WHATSAPP_API_TOKEN",
+  "META_ACCESS_TOKEN",
+  "WHATSAPP_PHONE_NUMBER_ID",
+  "META_PHONE_NUMBER_ID",
 ] as const;
 
 const original: Record<string, string | undefined> = {};
@@ -32,9 +33,7 @@ describe("validateEnv", () => {
   snapshotEnv();
   afterEach(restoreEnv);
 
-  it("throws when DATABASE_URL and AUTH_SECRET are missing outside Netlify preview", () => {
-    delete process.env.NETLIFY;
-    delete process.env.CONTEXT;
+  it("throws when DATABASE_URL and AUTH_SECRET are missing", () => {
     delete process.env.DATABASE_URL;
     delete process.env.AUTH_SECRET;
     delete process.env.WEBAUTHN_RP_ID;
@@ -43,32 +42,9 @@ describe("validateEnv", () => {
     expect(() => validateEnv()).toThrow(/DATABASE_URL/);
   });
 
-  it("allows Netlify deploy-preview to boot without DATABASE_URL or AUTH_SECRET", () => {
-    process.env.NETLIFY = "true";
-    process.env.CONTEXT = "deploy-preview";
-    delete process.env.DATABASE_URL;
-    delete process.env.AUTH_SECRET;
-    delete process.env.WEBAUTHN_RP_ID;
-    delete process.env.WEBAUTHN_ORIGIN;
-    delete process.env.PAYMENTS_ENABLED;
-    delete process.env.WHATSAPP_ENABLED;
-
-    expect(() => validateEnv()).not.toThrow();
-  });
-
-  it("treats Netlify function URLs as preview when CONTEXT is absent at runtime", () => {
-    process.env.NETLIFY = "true";
-    delete process.env.CONTEXT;
-    process.env.DEPLOY_PRIME_URL = "https://deploy-preview-31--shadowspark-tech.netlify.app";
-    delete process.env.DATABASE_URL;
-    delete process.env.AUTH_SECRET;
-
-    expect(() => validateEnv()).not.toThrow();
-  });
-
-  it("still fail-closes WhatsApp on preview when WHATSAPP_ENABLED is true", () => {
-    process.env.NETLIFY = "true";
-    process.env.CONTEXT = "deploy-preview";
+  it("fail-closes WhatsApp when WHATSAPP_ENABLED is true and credentials are missing", () => {
+    process.env.DATABASE_URL = "postgresql://localhost/shadowspark";
+    process.env.AUTH_SECRET = "test-secret";
     process.env.WHATSAPP_ENABLED = "true";
     delete process.env.WHATSAPP_API_TOKEN;
     delete process.env.META_ACCESS_TOKEN;

@@ -29,7 +29,7 @@ export default function SettingsPage() {
       <div className="dashboard-card">
         <div className="card-header">
           <div className="card-title">Listings expiry cron</div>
-          <div className="card-sub">From vercel.json · Vercel invokes GET</div>
+          <div className="card-sub">Not scheduled. No host cron calls this route.</div>
         </div>
         <div className="settings-section">
           <div className="settings-row">
@@ -42,7 +42,7 @@ export default function SettingsPage() {
             <div>
               <div className="settings-label">Schedule (UTC)</div>
             </div>
-            <code className="settings-input">0 9 * * *</code>
+            <code className="settings-input">not configured</code>
           </div>
         </div>
       </div>

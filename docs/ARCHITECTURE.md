@@ -27,7 +27,7 @@ material dependencies, models, data paths, workers, or integration boundaries ch
 | Experience and interfaces | Marketing, auth, dashboard, operator, admin, checkout, demo, and API routes under `src/app` |
 | Application and workflow | Route handlers, `src/lib` services, BullMQ queue modules, and workers under `src/workers` |
 | Applied AI and context | Google AI and Anthropic clients, RAG sync/retrieval, embeddings, file/GCS retrieval, and knowledge-store modules |
-| Platform integrations | Paystack, Firecrawl, WhatsApp/Meta, Calendly, Vercel Analytics, and provider-specific clients |
+| Platform integrations | Paystack, Firecrawl, WhatsApp/Meta, Calendly, and provider-specific clients |
 | Data and infrastructure | Prisma 7.7, PostgreSQL adapter/schema, pgvector migrations/fields, Redis/BullMQ, local files, and cloud-storage paths |
 | Trust and operations | Selected auth/role checks, payment approval, webhook verification, system events, health routes, telemetry, and error code |
 
@@ -76,7 +76,7 @@ deployment state require environment-specific verification.
 ## External boundaries
 
 Repository code includes clients or handlers for Paystack, Firecrawl, Google AI,
-Anthropic, messaging/Meta, Calendly, Vercel Analytics, and cloud storage. Source
+Anthropic, messaging/Meta, Calendly, and cloud storage. Source
 presence does not prove credentials, provider availability, production traffic, or SLA.
 
 ## Verification gates

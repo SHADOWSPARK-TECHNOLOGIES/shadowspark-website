@@ -35,10 +35,8 @@ describe('marketing doctrine', () => {
   it('routes every Sign In link to the dashboard login', async () => {
     const registerPage = await source('src/app/(auth)/register/page.tsx');
 
-    expect(registerPage).toContain(
-      "href='https://shadowspark-dashboard.vercel.app/login'",
-    );
-    expect(registerPage).not.toContain('href="/login"');
+    expect(registerPage).toContain('href="/login"');
+    expect(registerPage).not.toContain("vercel.app");
   });
 
   it('marks the public contact submit action for analytics', async () => {

@@ -1,13 +1,5 @@
-function isNetlifyPreviewContext(): boolean {
-  const context = process.env.CONTEXT?.trim();
-  if (context === "deploy-preview" || context === "branch-deploy") return true;
-  if (process.env.NETLIFY !== "true" || context === "production") return false;
-  return (process.env.DEPLOY_PRIME_URL ?? "").includes("deploy-preview");
-}
-
 export function validateEnv() {
-  const preview = isNetlifyPreviewContext();
-  const required = preview ? [] : ["DATABASE_URL", "AUTH_SECRET"];
+  const required = ["DATABASE_URL", "AUTH_SECRET"];
 
   const conditionalOnPayments = [
     "PAYSTACK_SECRET_KEY",
@@ -30,7 +22,7 @@ export function validateEnv() {
 
   const missing: string[] = [];
 
-  if (process.env.NODE_ENV === "production" && !preview) {
+  if (process.env.NODE_ENV === "production") {
     for (const key of ["WEBAUTHN_RP_ID", "WEBAUTHN_ORIGIN"]) {
       if (!process.env[key]?.trim()) missing.push(key);
     }
@@ -71,12 +63,6 @@ export function validateEnv() {
   if (missing.length > 0) {
     throw new Error(
       `FATAL: Missing required environment variables:\n${missing.map((k) => `  - ${k}`).join("\n")}\nServer cannot start.`
-    );
-  }
-
-  if (preview) {
-    console.warn(
-      "[boot] Netlify preview: DATABASE_URL/AUTH_SECRET/WebAuthn not required at boot. Credentialed routes stay fail-closed."
     );
   }
 

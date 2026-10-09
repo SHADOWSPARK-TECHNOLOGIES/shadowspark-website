@@ -6,7 +6,6 @@ import {
   IBM_Plex_Sans,
 } from "next/font/google";
 import { Toaster } from "sonner";
-import { Analytics } from "@vercel/analytics/next";
 import { RootPageFrame } from '@/components/RootPageFrame';
 import {
   marketingMetadata,
@@ -93,7 +92,6 @@ export default function RootLayout({
           <RootPageFrame>{children}</RootPageFrame>
           <Toaster theme="dark" position="bottom-right" />
           <ChatWidget />
-          <Analytics />
           <GoogleAnalytics />
         </CalendlyProvider>
       </body>
