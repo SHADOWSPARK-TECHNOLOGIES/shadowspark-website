@@ -1,6 +1,6 @@
 # ShadowSpark Launch Environment Checklist
 
-Before pushing live traffic to Vercel/Railway, verify that the following Environment Variables are configured in your production settings:
+Before pushing live traffic to Railway, verify that the following Environment Variables are configured in the Railway service:
 
 ### Critical for Monetization & Automations
 - [ ] `FIRECRAWL_API_KEY` - Required to trigger automated crawls upon successful Paystack checkout.
@@ -14,4 +14,4 @@ Before pushing live traffic to Vercel/Railway, verify that the following Environ
 - [ ] `GEMINI_API_KEY` (or `GOOGLE_GENERATIVE_AI_API_KEY`) - Required for the Assistant bubble's graceful degradation / fallback logic when vault context is missing.
 - [ ] `VAULT_BUCKET` (Optional) - If you are using a non-default GCS bucket for markdown audits.
 
-Once these are set in your production host, the launch path is clear.
+Once these are set in the Railway service, the launch path is clear. Production builds with `output: "standalone"` and the image starts `node server.js`.

@@ -156,6 +156,14 @@ describe('public architecture doctrine', () => {
     );
   });
 
+  it('does not attribute the listings expiry schedule to a removed host config', async () => {
+    const settings = await source('src/app/dashboard/settings/page.tsx');
+
+    expect(settings).not.toContain('vercel.json');
+    expect(settings).not.toContain('Vercel');
+    expect(settings).not.toContain('Netlify');
+  });
+
   it('keeps the prohibited-claim check as a smoke test, not a truth proof', () => {
     const architectureMarkup = [
       render(ArchitectureHero),

@@ -5,7 +5,7 @@
 ## Project Identity
 - Monorepo: ShadowSpark Technologies
 - Apps: apps/lodgist (Nigeria-first proptech/trust platform) | apps/shadowspark-site (corporate site)
-- Stack: Next.js 14+ App Router · TypeScript · Tailwind CSS · Prisma · Neon (PostgreSQL) · Vercel
+- Stack: Next.js 14+ App Router · TypeScript · Tailwind CSS · Prisma · Neon (PostgreSQL) · Railway
 - Auth: (your auth provider — update this)
 - Payments: Paystack / Flutterwave
 - AI: Anthropic SDK

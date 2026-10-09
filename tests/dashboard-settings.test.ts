@@ -15,7 +15,8 @@ describe("dashboard settings", () => {
     expect(html).toContain("/api/webhooks/twilio/voice");
     expect(html).toContain("/api/webhooks/paystack");
     expect(html).toContain("/api/cron/listings/expiry");
-    expect(html).toContain("0 9 * * *");
+    expect(html).toContain("not configured");
+    expect(html).not.toContain("vercel.json");
     expect(html).not.toContain("postgresql://");
     expect(html).not.toContain("neon-secret-url");
     expect(html).not.toContain("/api/webhooks/whatsapp/twilio");
