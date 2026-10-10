@@ -322,8 +322,8 @@ function WhatsAppChat() {
 function DashboardCard({ status }: { status: Status }) {
   return (
     <motion.div
-      initial={{ opacity: 0, x: 30 }}
-      whileInView={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.4 }}
       transition={{ duration: 0.5 }}
       className="relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl"
@@ -448,9 +448,9 @@ function RepaymentSchedule() {
       transition={{ duration: 0.5, delay: 0.2 }}
       className="rounded-2xl border border-slate-700 bg-slate-900 p-6"
     >
-      <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
         Auto-Generated Repayment Schedule
-      </h4>
+      </h3>
       <div className="mt-4 space-y-3">
         {schedule.map((item, index) => (
           <div
