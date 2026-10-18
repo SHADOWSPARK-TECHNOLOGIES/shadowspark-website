@@ -24,7 +24,7 @@ export type LodgistIntent = "menu" | "search" | "listing_check" | "payment" | "t
 export const LODGIST_SITE_URL = "https://lodgist.online";
 export const LODGIST_LISTINGS_URL = `${LODGIST_SITE_URL}/listings`;
 /** Lodgist payments / staff WhatsApp. Staff confirm payments manually. */
-export const LODGIST_PAYMENTS_WHATSAPP = "+234****4315";
+export const LODGIST_PAYMENTS_WHATSAPP = "+2349136094315";
 export const LODGIST_PAYMENTS_WHATSAPP_DISPLAY = "+234 913 609 4315";
 export const LODGIST_PAYMENTS_WA_LINK = "https://wa.me/2349136094315";
 
@@ -73,15 +73,16 @@ const CITIES = [
 const HOUSE_FEE_RE =
   /\b(?:caution|agency|agent|agents|inspection|legal|agreement|service|commission|viewing)\s+(?:fee|fees|charge|charges|money)\b|\b(?:house rent|rent money|rental payment|rent payment|pay(?:ing)? (?:my |the |di |our )?rent)\b/;
 const PAYMENT_RE =
-  /\b(pay|paid|paying|payment|payments|transfer|transferred|deposit|receipt|refund|invoice|bank details|account details|account number|acct number|acct no|\w+ fee|\w+ fees|send(?:ing)? (?:the |am |him |her |them )?money|sent (?:the |am |him |her |them )?money|don pay|don send|i don transfer|credit alert|alert)\b/;
+  /\b(pay|paid|paying|payment|payments|transfer|transferred|deposit|receipt|refund|invoice|bank details|account details|account number|acct number|acct no|fees?|send(?:ing)? (?:the |am |him |her |them )?money|sent (?:the |am |him |her |them )?money|don pay|don send|i don transfer|credit alert)\b/;
 const LISTING_CHECK_RE =
-  /\b(check (?:a|this|the|my|di|dis|am)? ?(?:listing|house|apartment|flat|agent|property|landlord)|verify|verified|verification|is (?:this|it|the|dis|di) (?:\w+ )?(?:legit|real|genuine|fake|original)|(?:house|agent|listing|landlord|place|property|apartment|flat) (?:is|be|dey|na) (?:legit|real|genuine|fake|original)|(?:na|be|dey) (?:scam|fake|real|legit|genuine)|legit|scam|scammer|419|fake (?:agent|listing|house|landlord)|rental safety|safety check|listing \d+|listing id|before (?:i|we) pay)\b/;
+  /\b(check (?:a|this|the|my|di|dis|am)? ?(?:listing|house|apartment|flat|agent|property|landlord)|verify|verified|is (?:this|it|the|dis|di) (?:\w+ )?(?:legit|real|genuine|fake|original)|(?:house|agent|listing|landlord|place|property|apartment|flat) (?:is|be|dey|na) (?:legit|real|genuine|fake|original)|(?:na|be|dey) (?:scam|fake|real|legit|genuine)|legit|scam|scammer|419|fake (?:agent|listing|house|landlord)|rental safety|safety check|listing \d+|listing id|before (?:i|we) pay)\b/;
 const HOUSE_RE =
   /\b(house|houses|home|homes|apartment|apartments|flat|flats|mini flat|miniflat|rent|rental|renting|room|rooms|self[- ]?con(?:tain(?:ed)?)?|selfcon|room and parlou?r|duplex|bungalow|terrace|bq|boys quarters?|accommodation|accomodation|lodge|lodging|hostel|shortlet|short let|landlord|landlady|caretaker|bedroom|bedrooms|bed ?(?:room)?s?\b|property|properties|tenant|tenants|listing|listings|shop space|office space|estate|land for sale|plot)\b/;
 /** Strong ShadowSpark words. Someone looking for a house almost never says these. */
 const SHADOWSPARK_RE =
   /\b(shadowspark|shadow spark|software|website|web site|web app|webapp|mobile app|\bapp\b|apps|app development|build (?:me |us )?(?:a |an )?(?:app|site|website|bot|platform|system|portal)|developer|developers|programmer|automation|automate|ai agent|ai bot|chatbot|chat bot|whatsapp bot|fintech|loan app|lending|kyc|pilot|integration|api|saas|dashboard|consulting|demo|landing page|e-?commerce|erp|crm|pos system|portal|platform|system for)\b/;
 const PAYMENT_RECOVERY_RE = /\bpayment[- ]recovery\b/;
+const SCAM_RE = /\b(scam|scammer|419|legit|fake|genuine|real|original)\b/;
 const GREETING_RE =
   /^(?:(?:good|gud) ?(?:morning|afternoon|evening|day)|morning|afternoon|evening|hi+|hello+|helo|hey+|hallo|how far|howfar|wetin dey|sup|greetings|hi there|hello there|hello o|hi o|hey there)[\s.!?,]*(?:o|oo|sir|ma|boss|please|pls|abeg)?[\s.!?,]*$/;
 
@@ -94,10 +95,12 @@ export function detectCity(text: string): string | undefined {
 }
 
 function lodgistIntentFromText(n: string): LodgistIntent | null {
-  // "na scam?" / "is this agent real" wins over money words: the sender is
-  // asking whether to pay, not how to pay.
-  if (LISTING_CHECK_RE.test(n) || n === "check") return "listing_check";
-  if ((PAYMENT_RE.test(n) || HOUSE_FEE_RE.test(n)) && !PAYMENT_RECOVERY_RE.test(n)) return "payment";
+  const money = (PAYMENT_RE.test(n) || HOUSE_FEE_RE.test(n)) && !PAYMENT_RECOVERY_RE.test(n);
+  // "inspection fee ... na scam?" is asking whether to pay, not how to pay.
+  // "verify my payment" is still a payment question.
+  if (LISTING_CHECK_RE.test(n) && (!money || SCAM_RE.test(n))) return "listing_check";
+  if (money) return "payment";
+  if (n === "check") return "listing_check";
   if (HOUSE_RE.test(n) || CITIES.some((c) => n.includes(c))) return "search";
   if (/\b(agent|staff|team|human|person|somebody|someone)\b/.test(n)) return "team";
   return null;
@@ -160,8 +163,8 @@ export function routeWhatsAppMessage(text: string, stored: StoredBrand): RouteDe
     // Payment is deterministic, but a ShadowSpark client paying for a website
     // must not be sent to the Lodgist payments line. Without house context we
     // either stay on ShadowSpark (software words present) or ask one question.
-    if (house && !(shadowsparkHit && lodgistIntent === "payment" && !HOUSE_RE.test(n))) return lodgist("payment");
     if (shadowsparkHit) return { kind: "shadowspark", brand: "shadowspark" };
+    if (house) return lodgist("payment");
     return { kind: "clarify", brand: null };
   }
   if (lodgistIntent === "listing_check") return lodgist("listing_check");

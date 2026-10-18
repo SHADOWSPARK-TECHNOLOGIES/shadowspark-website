@@ -71,6 +71,11 @@ describe("routeWhatsAppMessage (deterministic)", () => {
     expect(routeWhatsAppMessage(text, null).kind).toBe("shadowspark");
   });
 
+  it("verify + payment words is still a payment question; alert alone is not", () => {
+    expect(routeWhatsAppMessage("please verify my rent payment", null)).toMatchObject({ kind: "lodgist", intent: "payment" });
+    expect(routeWhatsAppMessage("alert me when a flat is free in yaba", null)).toMatchObject({ kind: "lodgist", intent: "search" });
+  });
+
   it("bare payment words with no brand and no house context ask instead of handing to Lodgist payments", () => {
     expect(routeWhatsAppMessage("I have done the transfer, please confirm", null).kind).toBe("clarify");
     expect(routeWhatsAppMessage("I want to make payment", null).kind).toBe("clarify");
