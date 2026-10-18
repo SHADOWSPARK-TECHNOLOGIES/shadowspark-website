@@ -153,7 +153,7 @@ describe("WhatsApp Meta webhook", () => {
     expect(response.status).toBe(200);
     expect(mocks.processWebhook).toHaveBeenCalledTimes(1);
     expect(mocks.after).toHaveBeenCalledTimes(1);
-    await vi.waitFor(() => expect(mocks.getWhatsAppReply).toHaveBeenCalledWith("hello"));
+    await vi.waitFor(() => expect(mocks.getWhatsAppReply).toHaveBeenCalledWith("hello", { brand: null }));
     await vi.waitFor(() =>
       expect(mocks.maybeReply).toHaveBeenCalledWith(
         expect.anything(),
@@ -406,7 +406,7 @@ describe("WhatsApp Meta webhook", () => {
     expect(forwarded.entry[0]?.changes[0]?.value.messages[0]?.id).toBe("wamid.ours");
     expect(JSON.stringify(forwarded)).not.toContain("wamid.other");
     expect(JSON.stringify(forwarded)).not.toContain("ignore me");
-    await vi.waitFor(() => expect(mocks.getWhatsAppReply).toHaveBeenCalledWith("hello"));
+    await vi.waitFor(() => expect(mocks.getWhatsAppReply).toHaveBeenCalledWith("hello", { brand: null }));
   });
 
   it("uses META_PHONE_NUMBER_ID when WHATSAPP_PHONE_NUMBER_ID is unset", async () => {

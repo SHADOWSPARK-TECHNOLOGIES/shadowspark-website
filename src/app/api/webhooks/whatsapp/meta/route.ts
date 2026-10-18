@@ -11,6 +11,10 @@ import {
   type MetaWebhookPayload,
 } from "@/lib/messaging/meta-whatsapp";
 import { MessagingService } from "@/lib/messaging";
+import {
+  loadConversationBrand,
+  saveConversationBrand,
+} from "@/lib/whatsapp/conversation-brand";
 import { prisma } from "@/lib/prisma";
 
 function redactPhone(phone: string): string {
@@ -34,7 +38,11 @@ async function replyToNewInbound(
       `WhatsApp message from ${redactPhone(inbound.from)}: [text] ${redactText(inbound.text)}`,
     );
     try {
-      const reply = await getWhatsAppReply(inbound.text.trim());
+      const brand = await loadConversationBrand(prisma, inbound.leadId);
+      const reply = await getWhatsAppReply(inbound.text.trim(), { brand });
+      console.log(
+        `[whatsapp:route] ${redactPhone(inbound.from)} brand=${reply.brand ?? "none"} route=${reply.route ?? "legacy"}`,
+      );
       await maybeReplyToInbound(messaging, {
         from: inbound.from,
         inboundId: inbound.id,
@@ -42,17 +50,21 @@ async function replyToNewInbound(
         reply: reply.text,
         leadId: inbound.leadId,
       });
+      await saveConversationBrand(prisma, inbound.leadId, brand, reply.brand);
       if (reply.usedFallback || reply.handoff) {
         await prisma.systemEvent.create({
           data: {
             type: "whatsapp_human_handoff",
-            message: reply.handoff
+            message: reply.handoff && reply.route?.startsWith("lodgist:")
+              ? "Lodgist chat handed to the Lodgist team WhatsApp. No payment was confirmed and no one was paged."
+              : reply.handoff
               ? "Sender asked for a person. No one was paged; booking link was the handoff."
               : "Fixed WhatsApp menu sent because a model reply was unavailable. No person was paged.",
             metadata: {
               inboundId: inbound.id,
               address: redactPhone(inbound.from),
               reason: reply.handoff ? "human_requested" : "ai_unavailable_or_empty",
+              route: reply.route ?? "legacy",
             },
           },
         });

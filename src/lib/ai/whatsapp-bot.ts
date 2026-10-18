@@ -17,6 +17,13 @@ import {
   WHATSAPP_MODEL_INSTRUCTIONS,
   type MenuTopic,
 } from "@/lib/whatsapp/assistant-menu";
+import {
+  buildLodgistReply,
+  CLARIFY_QUESTION,
+  LODGIST_MODEL_INSTRUCTIONS,
+  routeWhatsAppMessage,
+  type StoredBrand,
+} from "@/lib/whatsapp/brand-router";
 
 /**
  * New AI Studio keys get HTTP 404 for models/gemini-2.5-flash. The SDK calls
@@ -48,6 +55,15 @@ export type WhatsAppReply = {
   usedFallback: boolean;
   /** True when the sender asked for a person. Does not mean anyone was paged. */
   handoff: boolean;
+  /** Brand to remember for this conversation (null = still unclear). */
+  brand?: StoredBrand;
+  /** Short routing label for logs and events. Never contains message text. */
+  route?: string;
+};
+
+export type WhatsAppReplyContext = {
+  /** Brand this conversation already chose; null when none yet. */
+  brand: StoredBrand;
 };
 
 function fixedMenu(topic: MenuTopic, freeText: boolean): WhatsAppReply {
@@ -89,7 +105,10 @@ export function violatesWhatsAppReplyPolicy(text: string): boolean {
     /\b24\s*hours\b/i.test(checked) ||
     /\bwithin\s+\d+\s+(?:business\s+)?(?:hours?|days?|minutes?)\b/i.test(checked) ||
     /\b(?:respond|reply|get back)\s+within\b/i.test(checked) ||
-    /\bresponse time of\b/i.test(checked)
+    /\bresponse time of\b/i.test(checked) ||
+    /\bmarked\b[^.]{0,20}\bpaid\b/i.test(checked) ||
+    /\bpayment (?:has been |was |is )?(?:received|confirmed|successful|verified)\b/i.test(checked) ||
+    /\b(?:received|confirmed) your payment\b/i.test(checked)
   );
 }
 
@@ -206,11 +225,12 @@ async function generateGeminiReply(
   userText: string,
   apiKey: string,
   secrets: string[],
+  system: string,
 ): Promise<string | null> {
   const google = createGoogleGenerativeAI({ apiKey });
   const { text } = await generateText({
     model: google(GEMINI_MODEL),
-    system: WHATSAPP_MODEL_INSTRUCTIONS,
+    system,
     prompt: userText,
     // Thought tokens count toward this cap. "low" is the smallest level the
     // current Flash models behind gemini-flash-latest all accept.
@@ -245,6 +265,7 @@ async function generateXaiReply(
   userText: string,
   apiKey: string,
   secrets: string[],
+  system: string,
 ): Promise<{ text: string } | { discarded: boolean }> {
   const response = await fetch(XAI_CHAT_URL, {
     method: "POST",
@@ -256,7 +277,7 @@ async function generateXaiReply(
       model: XAI_MODEL,
       max_tokens: 1024,
       messages: [
-        { role: "system", content: WHATSAPP_MODEL_INSTRUCTIONS },
+        { role: "system", content: system },
         { role: "user", content: userText },
       ],
     }),
@@ -282,25 +303,18 @@ async function generateXaiReply(
 }
 
 /**
- * Never throws. Menu commands are exact. Free text tries Gemini, then xAI
- * when XAI_API_KEY is set, then the fixed menu.
+ * Never throws. Optional AI pass for free text: Gemini, then xAI when
+ * XAI_API_KEY is set. Returns null when no provider produced a usable reply.
  */
-export async function getWhatsAppReply(userText: string): Promise<WhatsAppReply> {
-  const topic = classifyWhatsAppMenu(userText);
-  if (topic !== null) {
-    return fixedMenu(topic, false);
-  }
-
+async function modelReply(userText: string, system: string): Promise<string | null> {
   const geminiKey = optionalEnv("GEMINI_API_KEY");
   const xaiKey = optionalEnv("XAI_API_KEY");
   const secrets = [geminiKey, xaiKey].filter((value): value is string => Boolean(value));
 
   if (geminiKey) {
     try {
-      const text = await generateGeminiReply(userText, geminiKey, secrets);
-      if (text) {
-        return { text, usedFallback: false, handoff: false };
-      }
+      const text = await generateGeminiReply(userText, geminiKey, secrets, system);
+      if (text) return text;
       console.error("[whatsapp] Gemini reply discarded");
     } catch (error) {
       console.error("[whatsapp] Gemini reply failed", geminiFailureLog(error));
@@ -309,16 +323,82 @@ export async function getWhatsAppReply(userText: string): Promise<WhatsAppReply>
 
   if (xaiKey) {
     try {
-      const attempt = await generateXaiReply(userText, xaiKey, secrets);
-      if ("text" in attempt) {
-        return { text: attempt.text, usedFallback: false, handoff: false };
-      }
+      const attempt = await generateXaiReply(userText, xaiKey, secrets, system);
+      if ("text" in attempt) return attempt.text;
       if (attempt.discarded) console.error("[whatsapp] xAI reply discarded");
     } catch (error) {
       const name = error instanceof Error ? error.name : "Error";
       console.error("[whatsapp] xAI reply failed", { name });
     }
   }
+  return null;
+}
 
+async function shadowsparkReply(userText: string): Promise<WhatsAppReply> {
+  const topic = classifyWhatsAppMenu(userText);
+  if (topic !== null) {
+    return fixedMenu(topic, false);
+  }
+  const text = await modelReply(userText, WHATSAPP_MODEL_INSTRUCTIONS);
+  if (text) return { text, usedFallback: false, handoff: false };
   return fixedMenu("overview", true);
+}
+
+/**
+ * Never throws.
+ *
+ * Without a context (legacy callers) every message is treated as ShadowSpark,
+ * exactly as before. With a context the deterministic brand router decides
+ * first: ShadowSpark, Lodgist, or a one-line clarifying question. Payment
+ * chats always get the fixed Lodgist handoff and never reach a model.
+ */
+export async function getWhatsAppReply(
+  userText: string,
+  context?: WhatsAppReplyContext,
+): Promise<WhatsAppReply> {
+  if (!context) {
+    return shadowsparkReply(userText);
+  }
+
+  const decision = routeWhatsAppMessage(userText, context.brand);
+  switch (decision.kind) {
+    case "clarify":
+      return {
+        text: CLARIFY_QUESTION,
+        usedFallback: false,
+        handoff: false,
+        brand: null,
+        route: "clarify",
+      };
+    case "overview":
+      return { ...fixedMenu("overview", false), brand: null, route: "overview" };
+    case "lodgist":
+      return {
+        text: buildLodgistReply(decision.intent, decision.city),
+        usedFallback: false,
+        handoff: decision.intent === "payment" || decision.intent === "team",
+        brand: "lodgist",
+        route: `lodgist:${decision.intent}`,
+      };
+    case "lodgist_freetext": {
+      const text = await modelReply(userText, LODGIST_MODEL_INSTRUCTIONS);
+      return text
+        ? { text, usedFallback: false, handoff: false, brand: "lodgist", route: "lodgist:ai" }
+        : {
+            text: buildLodgistReply("menu"),
+            usedFallback: true,
+            handoff: false,
+            brand: "lodgist",
+            route: "lodgist:menu_fallback",
+          };
+    }
+    case "shadowspark":
+    default: {
+      // "0" / "shadowspark" switch commands land on the ShadowSpark overview.
+      const normalized = userText.trim().toLowerCase();
+      const switchCmd = /^(0|shadowspark|shadow spark)$/.test(normalized);
+      const reply = switchCmd ? fixedMenu("overview", false) : await shadowsparkReply(userText);
+      return { ...reply, brand: "shadowspark", route: "shadowspark" };
+    }
+  }
 }
