@@ -36,6 +36,65 @@ describe("routeWhatsAppMessage (deterministic)", () => {
     expect(routeWhatsAppMessage(text, null).kind).toBe("shadowspark");
   });
 
+  it.each([
+    ["i dey find self con for yaba", "search", "Yaba"],
+    ["abeg i need mini flat around ikorodu", "search", undefined],
+    ["any BQ available in gwarinpa?", "search", "Gwarinpa"],
+    ["house for rent for ajah", "search", "Ajah"],
+    ["i wan rent house", "search", undefined],
+    ["room and parlour self contain", "search", undefined],
+    ["3 bed terrace in chevron lekki", "search", "Lekki"],
+    ["where can I get a shop space to rent", "search", undefined],
+    ["agent dey ask me for inspection fee before viewing, na scam?", "listing_check", undefined],
+    ["is this agent real", "listing_check", undefined],
+    ["how do i know if the house is real", "listing_check", undefined],
+    ["can you verify the landlord", "listing_check", undefined],
+    ["i don pay the agent fee", "payment", undefined],
+    ["how much is agency fee", "payment", undefined],
+    ["i sent the money for the house", "payment", undefined],
+    ["legal fee and agreement fee", "payment", undefined],
+    ["caution fee refund", "payment", undefined],
+  ])("Nigerian phrasing: %j -> Lodgist %s", (text, intent, city) => {
+    const d = routeWhatsAppMessage(text, null);
+    expect(d).toMatchObject({ kind: "lodgist", intent });
+    if (city) expect(d.kind === "lodgist" && d.city).toBe(city);
+  });
+
+  it.each([
+    "can you build an app for me",
+    "I want to pay for your software",
+    "invoice for the website project",
+    "I need a property management software",
+    "we want a mobile app for our hostel bookings",
+    "dashboard for my real estate business",
+  ])("software words beat house/payment words: %j -> ShadowSpark", (text) => {
+    expect(routeWhatsAppMessage(text, null).kind).toBe("shadowspark");
+  });
+
+  it("verify + payment words is still a payment question; alert alone is not", () => {
+    expect(routeWhatsAppMessage("please verify my rent payment", null)).toMatchObject({ kind: "lodgist", intent: "payment" });
+    expect(routeWhatsAppMessage("alert me when a flat is free in yaba", null)).toMatchObject({ kind: "lodgist", intent: "search" });
+  });
+
+  it("bare payment words with no brand and no house context ask instead of handing to Lodgist payments", () => {
+    expect(routeWhatsAppMessage("I have done the transfer, please confirm", null).kind).toBe("clarify");
+    expect(routeWhatsAppMessage("I want to make payment", null).kind).toBe("clarify");
+  });
+
+  it.each(["good morning", "how far", "hello o", "hi there", "Good afternoon sir"])(
+    "greeting %j with no brand shows the overview",
+    (text) => {
+      expect(routeWhatsAppMessage(text, null).kind).toBe("overview");
+    },
+  );
+
+  it("on a Lodgist chat, 4 and greetings show the Lodgist menu; demo without house words switches", () => {
+    expect(routeWhatsAppMessage("4", "lodgist")).toMatchObject({ kind: "lodgist", intent: "menu" });
+    expect(routeWhatsAppMessage("good morning", "lodgist")).toMatchObject({ kind: "lodgist", intent: "menu" });
+    expect(routeWhatsAppMessage("i want a demo", "lodgist").kind).toBe("shadowspark");
+    expect(routeWhatsAppMessage("show me a demo of the house", "lodgist")).toMatchObject({ kind: "lodgist", intent: "search" });
+  });
+
   it("asks one clarifying question when unclear", () => {
     expect(routeWhatsAppMessage("good afternoon, quick question", null).kind).toBe("clarify");
     expect(CLARIFY_QUESTION.split("\n")).toHaveLength(1);
