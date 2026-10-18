@@ -24,7 +24,7 @@ export type LodgistIntent = "menu" | "search" | "listing_check" | "payment" | "t
 export const LODGIST_SITE_URL = "https://lodgist.online";
 export const LODGIST_LISTINGS_URL = `${LODGIST_SITE_URL}/listings`;
 /** Lodgist payments / staff WhatsApp. Staff confirm payments manually. */
-export const LODGIST_PAYMENTS_WHATSAPP = "+2349136094315";
+export const LODGIST_PAYMENTS_WHATSAPP = "+234****4315";
 export const LODGIST_PAYMENTS_WHATSAPP_DISPLAY = "+234 913 609 4315";
 export const LODGIST_PAYMENTS_WA_LINK = "https://wa.me/2349136094315";
 
@@ -69,15 +69,21 @@ const CITIES = [
   "abeokuta",
 ];
 
+/** House-specific money words. These are payment AND house context at once. */
+const HOUSE_FEE_RE =
+  /\b(?:caution|agency|agent|agents|inspection|legal|agreement|service|commission|viewing)\s+(?:fee|fees|charge|charges|money)\b|\b(?:house rent|rent money|rental payment|rent payment|pay(?:ing)? (?:my |the |di |our )?rent)\b/;
 const PAYMENT_RE =
-  /\b(pay|paid|paying|payment|payments|transfer|transferred|deposit|receipt|refund|invoice|bank details|account details|account number|caution fee|agency fee|inspection fee)\b/;
+  /\b(pay|paid|paying|payment|payments|transfer|transferred|deposit|receipt|refund|invoice|bank details|account details|account number|acct number|acct no|\w+ fee|\w+ fees|send(?:ing)? (?:the |am |him |her |them )?money|sent (?:the |am |him |her |them )?money|don pay|don send|i don transfer|credit alert|alert)\b/;
 const LISTING_CHECK_RE =
-  /\b(check (?:a|this|the|my)? ?(?:listing|house|apartment|flat|agent|property)|verify|verified|is (?:this|it) (?:legit|real|genuine)|legit|scam|fake (?:agent|listing|house)|rental safety|safety check|listing \d+|listing id)\b/;
+  /\b(check (?:a|this|the|my|di|dis|am)? ?(?:listing|house|apartment|flat|agent|property|landlord)|verify|verified|verification|is (?:this|it|the|dis|di) (?:\w+ )?(?:legit|real|genuine|fake|original)|(?:house|agent|listing|landlord|place|property|apartment|flat) (?:is|be|dey|na) (?:legit|real|genuine|fake|original)|(?:na|be|dey) (?:scam|fake|real|legit|genuine)|legit|scam|scammer|419|fake (?:agent|listing|house|landlord)|rental safety|safety check|listing \d+|listing id|before (?:i|we) pay)\b/;
 const HOUSE_RE =
-  /\b(house|houses|home|homes|apartment|apartments|flat|flats|rent|rental|renting|room|rooms|self[- ]?contain|selfcon|duplex|bungalow|accommodation|lodge|lodging|hostel|shortlet|short let|landlord|bedroom|bedrooms|property|properties|tenant|listing|listings)\b/;
+  /\b(house|houses|home|homes|apartment|apartments|flat|flats|mini flat|miniflat|rent|rental|renting|room|rooms|self[- ]?con(?:tain(?:ed)?)?|selfcon|room and parlou?r|duplex|bungalow|terrace|bq|boys quarters?|accommodation|accomodation|lodge|lodging|hostel|shortlet|short let|landlord|landlady|caretaker|bedroom|bedrooms|bed ?(?:room)?s?\b|property|properties|tenant|tenants|listing|listings|shop space|office space|estate|land for sale|plot)\b/;
+/** Strong ShadowSpark words. Someone looking for a house almost never says these. */
 const SHADOWSPARK_RE =
-  /\b(shadowspark|shadow spark|software|website|web app|mobile app|app development|automation|automate|ai agent|chatbot|fintech|loan|lending|kyc|pilot|integration|saas|dashboard|consulting|demo)\b/;
+  /\b(shadowspark|shadow spark|software|website|web site|web app|webapp|mobile app|\bapp\b|apps|app development|build (?:me |us )?(?:a |an )?(?:app|site|website|bot|platform|system|portal)|developer|developers|programmer|automation|automate|ai agent|ai bot|chatbot|chat bot|whatsapp bot|fintech|loan app|lending|kyc|pilot|integration|api|saas|dashboard|consulting|demo|landing page|e-?commerce|erp|crm|pos system|portal|platform|system for)\b/;
 const PAYMENT_RECOVERY_RE = /\bpayment[- ]recovery\b/;
+const GREETING_RE =
+  /^(?:(?:good|gud) ?(?:morning|afternoon|evening|day)|morning|afternoon|evening|hi+|hello+|helo|hey+|hallo|how far|howfar|wetin dey|sup|greetings|hi there|hello there|hello o|hi o|hey there)[\s.!?,]*(?:o|oo|sir|ma|boss|please|pls|abeg)?[\s.!?,]*$/;
 
 export function detectCity(text: string): string | undefined {
   const n = normalize(text);
@@ -88,11 +94,18 @@ export function detectCity(text: string): string | undefined {
 }
 
 function lodgistIntentFromText(n: string): LodgistIntent | null {
-  if (PAYMENT_RE.test(n) && !PAYMENT_RECOVERY_RE.test(n)) return "payment";
+  // "na scam?" / "is this agent real" wins over money words: the sender is
+  // asking whether to pay, not how to pay.
   if (LISTING_CHECK_RE.test(n) || n === "check") return "listing_check";
+  if ((PAYMENT_RE.test(n) || HOUSE_FEE_RE.test(n)) && !PAYMENT_RECOVERY_RE.test(n)) return "payment";
   if (HOUSE_RE.test(n) || CITIES.some((c) => n.includes(c))) return "search";
-  if (/\b(agent|staff|team|human|person)\b/.test(n)) return "team";
+  if (/\b(agent|staff|team|human|person|somebody|someone)\b/.test(n)) return "team";
   return null;
+}
+
+/** True when the message has Lodgist house context (house words or a house-specific fee). */
+function hasHouseContext(n: string): boolean {
+  return HOUSE_RE.test(n) || HOUSE_FEE_RE.test(n) || CITIES.some((c) => n.includes(c));
 }
 
 /**
@@ -114,12 +127,12 @@ export function routeWhatsAppMessage(text: string, stored: StoredBrand): RouteDe
   if (/^(switch|reset|start over|change)$/.test(n)) return { kind: "clarify", brand: null };
 
   if (stored === "lodgist") {
-    if (/^(menu|help|start|hi|hello|hey|lodgist)$/.test(n) || !n) return lodgist("menu");
+    if (/^(menu|help|start|lodgist|4)$/.test(n) || GREETING_RE.test(n) || !n) return lodgist("menu");
     if (n === "1") return lodgist("search");
     if (n === "2") return lodgist("listing_check");
     if (n === "3") return lodgist("payment");
     // A clear ShadowSpark request with no house words switches brand.
-    if (SHADOWSPARK_RE.test(n) && !HOUSE_RE.test(n) && !PAYMENT_RE.test(n)) {
+    if (SHADOWSPARK_RE.test(n) && !hasHouseContext(n) && !PAYMENT_RE.test(n)) {
       return { kind: "shadowspark", brand: "shadowspark" };
     }
     const intent = lodgistIntentFromText(n);
@@ -135,22 +148,34 @@ export function routeWhatsAppMessage(text: string, stored: StoredBrand): RouteDe
     if (mentionsLodgist) return lodgist(lodgistIntent ?? "menu");
     if (lodgistIntent && lodgistIntent !== "team" && !shadowsparkHit) {
       // Payment words alone are ambiguous on a ShadowSpark chat; need house context.
-      if (lodgistIntent !== "payment" || HOUSE_RE.test(n)) return lodgist(lodgistIntent);
+      if (lodgistIntent !== "payment" || hasHouseContext(n)) return lodgist(lodgistIntent);
     }
     return { kind: "shadowspark", brand: "shadowspark" };
   }
 
   // No brand yet.
   if (mentionsLodgist) return lodgist(lodgistIntent ?? "menu");
-  if (lodgistIntent === "payment" && !shadowsparkHit) return lodgist("payment");
-  if (lodgistIntent && lodgistIntent !== "team" && !shadowsparkHit) return lodgist(lodgistIntent);
-  if (shadowsparkHit && !lodgistIntent) return { kind: "shadowspark", brand: "shadowspark" };
+  const house = hasHouseContext(n);
+  if (lodgistIntent === "payment") {
+    // Payment is deterministic, but a ShadowSpark client paying for a website
+    // must not be sent to the Lodgist payments line. Without house context we
+    // either stay on ShadowSpark (software words present) or ask one question.
+    if (house && !(shadowsparkHit && lodgistIntent === "payment" && !HOUSE_RE.test(n))) return lodgist("payment");
+    if (shadowsparkHit) return { kind: "shadowspark", brand: "shadowspark" };
+    return { kind: "clarify", brand: null };
+  }
+  if (lodgistIntent === "listing_check") return lodgist("listing_check");
+  if (lodgistIntent === "search") {
+    // "property management software", "app for our hostel bookings": the
+    // software words describe the product, not a house hunt.
+    return shadowsparkHit ? { kind: "shadowspark", brand: "shadowspark" } : lodgist("search");
+  }
+  if (shadowsparkHit) return { kind: "shadowspark", brand: "shadowspark" };
   // Greetings and the existing ShadowSpark menu keys: the overview menu
   // already lists both products, so the brand stays open.
-  if (/^(menu|help|start|hi|hello|hey|1|2|3|services?|book|book demo|human|person|talk to a person)$/.test(n)) {
-    return /^(menu|help|start|hi|hello|hey)$/.test(n)
-      ? { kind: "overview", brand: null }
-      : { kind: "shadowspark", brand: "shadowspark" };
+  if (GREETING_RE.test(n) || /^(menu|help|start)$/.test(n)) return { kind: "overview", brand: null };
+  if (/^(1|2|3|services?|book|book demo|human|person|talk to a person)$/.test(n)) {
+    return { kind: "shadowspark", brand: "shadowspark" };
   }
   return { kind: "clarify", brand: null };
 }
